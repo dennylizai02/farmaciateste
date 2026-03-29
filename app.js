@@ -1740,7 +1740,7 @@ function renderMesaContent() {
                                 <td>${p.quantidade}</td>
                                 <td>${p.preco_unitario}</td>
                                 <td>${p.total} MT</td>
-                                <td><button type="button" style="border:none; background:none; color:#E24B4A; cursor:pointer; font-weight:bold;" onclick="event.stopPropagation(); removePedidoMesa(${p.id}, ${c.id})">🗑</button></td>
+                                <td><button type="button" style="border:none; background:none; color:#E24B4A; cursor:pointer; font-weight:bold;" onclick="removePedidoMesa(event, ${p.id}, ${c.id})">🗑</button></td>
                             </tr>
                         `).join('')}
                     </tbody>
@@ -1768,7 +1768,8 @@ async function addClienteMesa() {
     }
 }
 
-async function removePedidoMesa(pedidoId, clientId) {
+async function removePedidoMesa(event, pedidoId, clientId) {
+    if (event) event.stopPropagation();
     if (!confirm('Eliminar este pedido e devolver o stock?')) return;
     const client = mesaClientes.find(c => c.id === clientId);
     if (!client) return;
