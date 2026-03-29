@@ -646,8 +646,8 @@
   <div id="login-screen">
     <div class="login-card">
       <h2 style="margin-bottom: 2rem; font-size: 24px;">🍺 Pinto's Bar</h2>
-      <input id="l-email" class="login-input" placeholder="Email (gestao@pintos.bar)">
-      <input id="l-pass" class="login-input" type="password" placeholder="Password">
+      <input id="l-email" class="login-input" placeholder="Email">
+      <input id="l-pass" class="login-input" type="password" placeholder="Palavra-passe">
       <button class="login-btn" onclick="loginUser()">Entrar</button>
       <div id="login-error" style="color:#E24B4A; font-size: 12px; margin-top: 1rem;"></div>
     </div>
@@ -1110,11 +1110,11 @@
               <button class="btn" style="width:100%; margin-top:10px; border:1px dashed #ccc;" onclick="addPaymentRow()">+ Adicionar Outro Método</button>
               
               <div style="margin-top:2rem; border-top:1px solid #eee; padding-top:1rem;">
-                  <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:1rem;">
-                      <span>Total Pago:</span>
-                      <span id="pay-current-sum">0</span> MT
+                  <div style="display:flex; justify-content:space-between; font-weight:bold; margin-top:0.5rem; color:#A32D2D;" id="pay-change-row">
+                      <span>Troco:</span>
+                      <span id="pay-change-amount">0</span> MT
                   </div>
-                  <button id="btn-confirm-pay" class="btn btn-primary" style="width:100%;" onclick="confirmarMesaPagamento()">Confirmar e Gerar Factura</button>
+                  <button id="btn-confirm-pay" class="btn btn-primary" style="width:100%; margin-top:1.5rem;" onclick="confirmarMesaPagamento()">Confirmar e Gerar Factura</button>
               </div>
           </div>
           <div id="payment-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:10000;"></div>

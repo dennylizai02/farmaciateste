@@ -13,16 +13,20 @@ try {
 }
 
 // ====================== MODO DEMO (ISOLAMENTO) ======================
-const IS_DEMO = window.location.hostname.includes('demo') || window.location.search.includes('demo');
+const IS_DEMO = window.location.hostname.includes('demo') || 
+                window.location.search.includes('demo') || 
+                localStorage.getItem('pintos_demo_active') === 'true';
+
 const PREFIX = IS_DEMO ? 'demo_' : '';
 
 if (IS_DEMO) {
     console.log('--- AMBIENTE DE DEMONSTRAÇÃO ACTIVO ---');
     window.addEventListener('DOMContentLoaded', function() {
-        var header = document.querySelector('.logo') || document.body;
+        var header = document.querySelector('.logo') || document.querySelector('.app > div') || document.body;
         var badge = document.createElement('div');
-        badge.style.cssText = 'background:#854F0B; color:#fff; font-size:10px; padding:2px 8px; border-radius:4px; margin-left:10px; display:inline-block; vertical-align:middle;';
-        badge.textContent = 'MODO DEMO';
+        badge.id = 'demo-badge';
+        badge.style.cssText = 'background:#854F0B; color:#fff; font-size:10px; padding:2px 8px; border-radius:4px; margin-left:10px; display:inline-block; vertical-align:middle; font-weight:bold;';
+        badge.textContent = 'MODO DEMO (TESTE)';
         if (header) header.appendChild(badge);
     });
 }
@@ -1428,6 +1432,18 @@ function setDefaultDates() {
 // ====================== AUTH & ROLES ======================
 async function checkSession() {
     if (!sb) return;
+
+    // Caso de Bypass para Modo Demo
+    if (localStorage.getItem('pintos_demo_active') === 'true') {
+        userRole = 'gestor'; // Permitir ver tudo no modo demo
+        document.getElementById('login-screen').style.display = 'none';
+        document.querySelector('.app').style.display = 'block';
+        document.getElementById('user-label').textContent = 'demo@pintos.bar (MODO TESTE)';
+        applyRoleRestrictions();
+        initApp();
+        return;
+    }
+
     const { data } = await sb.auth.getSession();
     if (data.session) {
         const email = data.session.user.email;
@@ -1449,6 +1465,14 @@ async function loginUser() {
     const errorEl = document.getElementById('login-error');
     errorEl.textContent = 'A entrar...';
 
+    // BYPASS para conta DEMO
+    if (email === 'demo@pintos.bar' && pass === 'demo123') {
+        localStorage.setItem('pintos_demo_active', 'true');
+        showNotification('Entrando em Modo Demonstração...', 'info');
+        setTimeout(() => window.location.reload(), 1000);
+        return;
+    }
+
     if (!sb) return;
 
     const { data, error } = await sb.auth.signInWithPassword({ email: email, password: pass });
@@ -1457,16 +1481,17 @@ async function loginUser() {
         return;
     }
     
-    // Sucesso - o checkSession ou recarregamento vai tratar do resto ou fazemos aqui
+    localStorage.removeItem('pintos_demo_active'); // Ensure real login clears demo
     window.location.reload();
 }
 
 async function logoutUser() {
     if (sb) await sb.auth.signOut();
+    localStorage.removeItem('pintos_demo_active');
     window.location.reload();
 }
 
-function applyRoleRestrictions() {
+async function applyRoleRestrictions() {
     const isGestor = userRole === 'gestor';
     const btns = document.querySelectorAll('.nav-btn');
     
@@ -1479,10 +1504,27 @@ function applyRoleRestrictions() {
             action.includes('saldo')) {
             btn.style.display = isGestor ? 'inline-block' : 'none';
         }
-        if (action.includes('mesas')) {
-            btn.style.display = !isGestor ? 'inline-block' : 'none';
-        }
     });
+
+    // Restrições na aba Movimentos
+    const btnEntrada = document.getElementById('tipo-entrada');
+    const inputPreco = document.getElementById('m-preco');
+    const groupData = document.getElementById('m-data').closest('.form-group');
+    const groupNota = document.getElementById('m-nota').closest('.form-group');
+
+    if (userRole === 'vendedor') {
+        if (btnEntrada) btnEntrada.style.display = 'none';
+        if (inputPreco) inputPreco.readOnly = true;
+        if (groupData) groupData.style.display = 'none';
+        if (groupNota) groupNota.style.display = 'none';
+        // Forçar para aba Saída se estiver no modo vendedor
+        if (tipoActivo === 'entrada') setTipo('saida');
+    } else {
+        if (btnEntrada) btnEntrada.style.display = 'inline-block';
+        if (inputPreco) inputPreco.readOnly = false;
+        if (groupData) groupData.style.display = 'flex';
+        if (groupNota) groupNota.style.display = 'flex';
+    }
 
     if (!isGestor) {
         showSection('mesas');
@@ -1669,7 +1711,7 @@ function renderMesaContent() {
                     <button class="btn" onclick="addPedidoMesa(${c.id})">+ Pedido</button>
                 </div>
                 <table style="width:100%; font-size:12px;">
-                    <thead><tr style="text-align:left;"><th>Item</th><th>Qtd</th><th>Preço</th><th>Total</th></tr></thead>
+                    <thead><tr style="text-align:left;"><th>Item</th><th>Qtd</th><th>Preço</th><th>Total</th><th style="width:20px;"></th></tr></thead>
                     <tbody>
                         ${(c.mesas_pedidos || []).map(p => `
                             <tr>
@@ -1677,6 +1719,7 @@ function renderMesaContent() {
                                 <td>${p.quantidade}</td>
                                 <td>${p.preco_unitario}</td>
                                 <td>${p.total} MT</td>
+                                <td><button style="border:none; background:none; color:#E24B4A; cursor:pointer; font-weight:bold;" onclick="removePedidoMesa(${p.id}, ${c.id})">🗑</button></td>
                             </tr>
                         `).join('')}
                     </tbody>
@@ -1704,6 +1747,29 @@ async function addClienteMesa() {
     }
 }
 
+async function removePedidoMesa(pedidoId, clientId) {
+    if (!confirm('Eliminar este pedido e devolver o stock?')) return;
+    const client = mesaClientes.find(c => c.id === clientId);
+    if (!client) return;
+    const pedido = client.mesas_pedidos.find(p => p.id === pedidoId);
+    if (!pedido) return;
+
+    const { error } = await sb.from(PREFIX + 'mesas_pedidos').delete().eq('id', pedidoId);
+    if (!error) {
+        // Devolver stock
+        const prod = produtos.find(p => p.id === pedido.produto_id);
+        if (prod) {
+            prod.qtd += pedido.quantidade;
+            await sb.from(PREFIX + 'produtos').update({ quantidade: prod.qtd }).eq('id', prod.id);
+        }
+        client.mesas_pedidos = client.mesas_pedidos.filter(p => p.id !== pedidoId);
+        showNotification('Pedido removido e stock devolvido.', 'success');
+        renderMesaContent();
+        renderStock();
+    } else {
+        showNotification('Erro ao remover pedido: ' + error.message);
+    }
+}
 async function addPedidoMesa(clientId) {
     const pId = parseInt(document.getElementById('p-prod-' + clientId).value);
     const qtd = parseInt(document.getElementById('p-qtd-' + clientId).value) || 0;
@@ -1796,9 +1862,23 @@ function updatePaymentSummary() {
     });
     
     document.getElementById('pay-current-sum').textContent = sum.toLocaleString();
+    
+    const change = sum - currentPayTotal;
+    const changeRow = document.getElementById('pay-change-row');
+    const changeEl = document.getElementById('pay-change-amount');
+    
+    if (change > 0) {
+        changeRow.style.display = 'flex';
+        changeEl.textContent = change.toLocaleString();
+    } else {
+        changeRow.style.display = 'none';
+        changeEl.textContent = '0';
+    }
+
     const btn = document.getElementById('btn-confirm-pay');
     
-    if (Math.abs(sum - currentPayTotal) < 0.01) {
+    // Permitir confirmar se valor for >= total
+    if (sum >= currentPayTotal - 0.01) {
         btn.disabled = false;
         btn.style.opacity = '1';
     } else {
@@ -1830,7 +1910,20 @@ async function confirmarMesaPagamento() {
     };
 
     const { data: docRes, error: docErr } = await sb.from(PREFIX + 'documentos').insert([payloadDoc]).select();
-    if (docErr) { showNotification('Erro ao gerar factura'); return; }
+    
+    // Debug fail: se falhar o select (RLS), o documento ainda assim foi inserido.
+    // Tentamos recuperar o ID mais recente se docRes for vazio mas sem erro.
+    let invoice = docRes && docRes.length > 0 ? docRes[0] : null;
+    if (!docErr && !invoice) {
+        const { data: latest } = await sb.from(PREFIX + 'documentos').select('*').eq('cliente', payloadDoc.cliente).order('created_at', { ascending: false }).limit(1);
+        if (latest) invoice = latest[0];
+    }
+
+    if (docErr || !invoice) { 
+        console.error('Erro Fatura:', docErr);
+        showNotification('Erro ao gerar factura. Tente novamente.', 'error'); 
+        return; 
+    }
 
     // 2. Registar em Saldo Caixa (Fluxo Financeiro)
     for (const p of payments) {
