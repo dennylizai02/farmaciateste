@@ -476,8 +476,16 @@ function setTipo(t) {
     });
     var container = document.getElementById('m-metodo-container');
     if (container) container.style.display = (t === 'quebra') ? 'none' : 'flex';
+    
     var cgroup = document.getElementById('group-custo');
-    if (cgroup) cgroup.style.display = (t === 'saida' || t === 'quebra') ? 'block' : 'none';
+    if (cgroup) {
+        // Vendedor NUNCA vê Custo Aplicado, independente do tipo de movimento
+        if (userRole === 'vendedor') {
+            cgroup.style.display = 'none';
+        } else {
+            cgroup.style.display = (t === 'entrada') ? 'block' : 'none';
+        }
+    }
     updateMovPrice();
 }
 
@@ -1481,8 +1489,17 @@ async function loginUser() {
         return;
     }
     
-    localStorage.removeItem('pintos_demo_active'); // Ensure real login clears demo
-    window.location.reload();
+    localStorage.removeItem('pintos_demo_active'); // Importante: limpar modo demo em login real
+    showNotification('Login efetuado com sucesso!', 'success');
+    
+    setTimeout(() => {
+        // Se a URL contiver parâmetros de demo, limpa-os e recarrega
+        if (window.location.search.includes('demo')) {
+            window.location.href = window.location.pathname;
+        } else {
+            window.location.reload();
+        }
+    }, 1000);
 }
 
 async function logoutUser() {
