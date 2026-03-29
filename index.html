@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pinto's Bar — Gestão de Stock</title>
+  <style>
+    :root {
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --color-text-primary: #1a1a1a;
+      --color-text-secondary: #666;
+      --color-text-tertiary: #999;
+      --color-background-primary: #fff;
+      --color-background-secondary: #f5f8fc;
+      --color-border-secondary: #d0d5dd;
+      --color-border-tertiary: #e4e7ec;
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: linear-gradient(135deg, #e8f0fe 0%, #f5f8fc 100%);
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .nav {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 1.5rem;
+      border-bottom: 0.5px solid var(--color-border-tertiary);
+      padding-bottom: 0;
+      overflow-x: auto;
+    }
+
+    .nav-btn {
+      padding: 8px 16px;
+      font-size: 13px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      color: var(--color-text-secondary);
+      font-family: var(--font-sans);
+      margin-bottom: -0.5px;
+      transition: color 0.15s;
+      white-space: nowrap;
+    }
+
+    .nav-btn.active {
+      border-bottom-color: #378ADD;
+      color: var(--color-text-primary);
+      font-weight: 500;
+    }
+
+    .nav-btn:hover:not(.active) {
+      color: var(--color-text-primary);
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .metric-card {
+      background: var(--color-background-secondary);
+      border-radius: var(--border-radius-md);
+      padding: 14px 16px;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .metric-value {
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+    }
+
+    .metric-sub {
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      margin-top: 3px;
+    }
+
+    .card {
+      background: var(--color-background-primary);
+      border: 0.5px solid var(--color-border-tertiary);
+      border-radius: var(--border-radius-lg);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-text-primary);
+      margin-bottom: 1rem;
+    }
+    .badge-out { background: #FEE2E2; color: #991B1B; border: 1px solid #F87171; }
+    .cancelled-doc { text-decoration: line-through; opacity: 0.6; background: #F9FAFB !important; }
+    .cancelled-label { color: #DC2626; font-weight: bold; font-size: 11px; text-transform: uppercase; }
+    
+    /* Responsive Table Container */
+    .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 1rem; border-radius: 8px; border: 1px solid #E5E7EB; }
+    .table-responsive table { min-width: 600px; margin-bottom: 0; }
+    table {
+      width: 100%;
+      min-width: 600px; /* Reduced min-width to prevent excessive overflow */
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th {
+      text-align: left;
+      padding: 8px 10px;
+      font-weight: 500;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      border-bottom: 0.5px solid var(--color-border-tertiary);
+    }
+
+    td {
+      padding: 9px 10px;
+      border-bottom: 0.5px solid var(--color-border-tertiary);
+      color: var(--color-text-primary);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: var(--color-background-secondary);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .badge-ok {
+      background: #EAF3DE;
+      color: #3B6D11;
+    }
+
+    .badge-low {
+      background: #FAEEDA;
+      color: #854F0B;
+    }
+
+    .badge-out {
+      background: #FCEBEB;
+      color: #A32D2D;
+    }
+
+    .btn {
+      padding: 7px 14px;
+      border: 0.5px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-md);
+      background: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: var(--font-sans);
+      color: var(--color-text-primary);
+      transition: background 0.12s;
+    }
+
+    .btn:hover {
+      background: var(--color-background-secondary);
+    }
+
+    .btn-primary {
+      background: #378ADD;
+      color: #fff;
+      border-color: #378ADD;
+      font-weight: 500;
+    }
+
+    .btn-primary:hover {
+      background: #185FA5;
+      border-color: #185FA5;
+    }
+
+    .btn-danger {
+      background: #E24B4A;
+      color: #fff;
+      border-color: #E24B4A;
+      font-size: 12px;
+      padding: 4px 10px;
+    }
+
+    .btn-danger:hover {
+      background: #A32D2D;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    label {
+      font-size: 12px;
+      color: var(--color-text-secondary);
+    }
+
+    input,
+    select {
+      padding: 7px 10px;
+      border: 0.5px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-md);
+      background: var(--color-background-primary);
+      color: var(--color-text-primary);
+      font-size: 13px;
+      font-family: var(--font-sans);
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #378ADD;
+    }
+
+    .row-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 260px;
+      width: 100%;
+    }
+
+    .chart-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .alert-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 0.5px solid var(--color-border-tertiary);
+    }
+
+    .alert-item:last-child {
+      border-bottom: none;
+    }
+
+    .period-select {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 1rem;
+    }
+
+    .period-btn {
+      padding: 5px 12px;
+      border: 0.5px solid var(--color-border-tertiary);
+      border-radius: 20px;
+      background: none;
+      cursor: pointer;
+      font-size: 12px;
+      color: var(--color-text-secondary);
+      font-family: var(--font-sans);
+    }
+
+    .period-btn.active {
+      background: #378ADD;
+      color: #fff;
+      border-color: #378ADD;
+      font-weight: 500;
+    }
+
+    .movimento-tipo {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .tipo-btn {
+      padding: 6px 14px;
+      border: 0.5px solid var(--color-border-secondary);
+      border-radius: var(--border-radius-md);
+      background: none;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: var(--font-sans);
+      color: var(--color-text-secondary);
+    }
+
+    .tipo-btn.active-entrada {
+      background: #EAF3DE;
+      color: #3B6D11;
+      border-color: #97C459;
+      font-weight: 500;
+    }
+
+    .tipo-btn.active-saida {
+      background: #FAECE7;
+      color: #993C1D;
+      border-color: #D85A30;
+      font-weight: 500;
+    }
+
+    .tipo-btn.active-quebra {
+      background: #FAEEDA;
+      color: #854F0B;
+      border-color: #EF9F27;
+      font-weight: 500;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 2rem;
+      color: var(--color-text-tertiary);
+      font-size: 13px;
+    }
+
+    /* ====== RESPONSIVIDADE ====== */
+    @media (max-width: 768px) {
+      .app {
+        padding: 0.5rem;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .chart-row {
+        grid-template-columns: 1fr;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .nav {
+        gap: 2px;
+      }
+
+      .nav-btn {
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      .metric-value {
+        font-size: 18px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* LOGIN SCREEN */
+    .login-container {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: #1a1a1a;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 99999;
+      color: white;
+    }
+    .login-card {
+      background: #2a2a2a;
+      padding: 2.5rem;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    .login-input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      background: #3a3a3a;
+      border: 1px solid #4a4a4a;
+      color: white;
+      border-radius: 8px;
+    }
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: #378ADD;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+
+    /* MESAS GRID */
+    .mesas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+    }
+    .mesa-card {
+      padding: 2.5rem 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 2px solid transparent;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .mesa-card:hover { 
+      transform: translateY(-4px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    .mesa-card.free { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+    .mesa-card.occupied { background: #fffbeb; border-color: #fef08a; color: #854f0b; }
+    
+    .mesa-badge {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .form-row { grid-template-columns: 1fr; }
+    .card { padding: 0.75rem; }
+    .card-title { font-size: 13px; }
+    .nav-btn { padding: 5px 8px; font-size: 11px; }
+    .btn { padding: 6px 10px; font-size: 12px; }
+    .metric-card { padding: 10px 12px; }
+    .metric-value { font-size: 16px; }
+    .chart-wrap { height: 200px; }
+
+    #print-area {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      width: 750px; /* Adjusted to fit A4 Portrait with margins */
+      height: auto;
+      overflow: hidden;
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+
+      #print-area,
+      #print-area * {
+        visibility: visible;
+      }
+
+    }
+
+    /* ====== NOTIFICAÇÕES TOAST ====== */
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .toast {
+      min-width: 280px;
+      max-width: 400px;
+      padding: 14px 24px;
+      border-radius: var(--border-radius-md);
+      background: #333;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: toast-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      border-left: 5px solid transparent;
+    }
+
+    .toast-success {
+      background: #EAF3DE;
+      color: #3B6D11;
+      border-left-color: #97C459;
+    }
+
+    .toast-error {
+      background: #FCEBEB;
+      color: #A32D2D;
+      border-left-color: #E24B4A;
+    }
+
+    .toast-info {
+      background: #E7F3FB;
+      color: #185FA5;
+      border-left-color: #378ADD;
+    }
+
+    @keyframes toast-in {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .toast-out {
+      animation: toast-out 0.3s ease-in forwards;
+    }
+
+    @keyframes toast-out {
+      from {
+        transform: translateX(0);
+        opacity: 1;
+      }
+
+      to {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+    }
+
+    /* LOGIN SCREEN */
+    #login-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 20000;
+      color: #fff;
+    }
+    .login-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 3rem;
+      border-radius: 20px;
+      width: 400px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .login-input {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .login-btn {
+      width: 100%;
+      padding: 12px;
+      background: #378ADD;
+      border: none;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+
+    /* MESAS GRID */
+    .mesas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .mesa-card {
+      background: #fff;
+      padding: 2rem 1.5rem;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: 0.5px solid var(--color-border-tertiary);
+    }
+    .mesa-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    .mesa-card.occupied { border-left: 8px solid #E24B4A; background: #FFF5F5; }
+    .mesa-card.free { border-left: 8px solid #3B6D11; background: #F6FFF0; }
+    .mesa-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; margin-top: 10px; display: inline-block; }
+  </style>
+</head>
+
+<body>
+
+  <div id="login-screen">
+    <div class="login-card">
+      <h2 style="margin-bottom: 2rem; font-size: 24px;">🍺 Pinto's Bar</h2>
+      <input id="l-email" class="login-input" placeholder="Email (gestao@pintos.bar)">
+      <input id="l-pass" class="login-input" type="password" placeholder="Password">
+      <button class="login-btn" onclick="loginUser()">Entrar</button>
+      <div id="login-error" style="color:#E24B4A; font-size: 12px; margin-top: 1rem;"></div>
+    </div>
+  </div>
+
+  <div class="app" style="display:none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+      <div>
+        <div style="font-size:18px; font-weight:500; color:var(--color-text-primary);">🍺 Pinto's Bar — Gestão</div>
+        <div style="font-size:12px; color:var(--color-text-tertiary); margin-top:2px;" id="current-date"></div>
+      </div>
+      <div id="user-info" style="text-align:right;">
+        <span id="user-label" style="font-size:12px; color:var(--color-text-secondary);">—</span>
+        <button class="btn" style="padding:4px 8px; font-size:11px; margin-left:10px;" onclick="logoutUser()">Sair</button>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-btn active" onclick="showSection('dashboard')">Dashboard</button>
+      <button class="nav-btn" onclick="showSection('stock')">Stock</button>
+      <button class="nav-btn" onclick="showSection('movimentos')">Movimentos</button>
+      <button class="nav-btn" onclick="showSection('relatorios')">Relatórios</button>
+      <button class="nav-btn" onclick="showSection('alertas')">Alertas <span id="alert-count"
+          style="background:#E24B4A;color:#fff;border-radius:20px;padding:1px 6px;font-size:10px;margin-left:3px;"></span></button>
+      <button class="nav-btn" onclick="showSection('necessidades')">Necessidades</button>
+      <button class="nav-btn" onclick="showSection('caixa')" style="margin-left:auto;">Fecho de Caixa</button>
+      <button class="nav-btn" onclick="showSection('despesas')">Despesas</button>
+      <button class="nav-btn" onclick="showSection('documentos')">Facturação</button>
+      <button class="nav-btn" onclick="showSection('planocompras')">Plano de Compras</button>
+      <button class="nav-btn" id="nav-relmensal" onclick="showSection('relmensal')">Rel. Mensal</button>
+      <button class="nav-btn" id="nav-saldo" onclick="showSection('saldo')">🏦 Saldo</button>
+      <button class="nav-btn" id="nav-mesas" onclick="showSection('mesas')">🪑 Mesas</button>
+    </nav>
+
+    <!-- DASHBOARD -->
+    <div class="section active" id="sec-dashboard">
+      <div class="metrics" id="dash-metrics"></div>
+      <div class="chart-row">
+        <div class="card">
+          <div class="card-title">Vendas mensais (unidades)</div>
+          <div class="chart-wrap"><canvas id="chartVendas"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Lucro vs custo (MZN)</div>
+          <div class="chart-wrap"><canvas id="chartLucro"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Produtos com menos stock</div>
+        <div id="dash-low-table"></div>
+      </div>
+    </div>
+
+    <!-- STOCK -->
+    <div class="section" id="sec-stock">
+      <div class="metrics" id="stock-metrics"></div>
+      <div class="card">
+        <div class="card-title">Adicionar produto</div>
+        <div class="form-row">
+          <div class="form-group"><label>Nome do produto</label><input id="p-nome"
+              placeholder="Ex: Laurentina Preta 600ml"></div>
+          <div class="form-group"><label>Categoria</label>
+            <select id="p-cat">
+              <option>Cervejas</option>
+              <option>Vinho</option>
+              <option>Espirituosas</option>
+              <option>Refrigerantes</option>
+              <option>Água</option>
+              <option>Outros</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Qtd. actual</label><input id="p-qtd" type="number" min="0" placeholder="0">
+          </div>
+          <div class="form-group"><label>Stock mínimo</label><input id="p-min" type="number" min="0" placeholder="10">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Preço custo (MZN)</label><input id="p-custo" type="number" min="0"
+              placeholder="0"></div>
+          <div class="form-group"><label>Preço venda (MZN)</label><input id="p-venda" type="number" min="0"
+              placeholder="0"></div>
+          <div class="form-group"><label>Fornecedor</label><input id="p-fornecedor" placeholder="Nome do fornecedor">
+          </div>
+          <div class="form-group" style="justify-content:flex-end;"><button class="btn btn-primary"
+              onclick="addProduto()" style="margin-top:20px;width:100%;">+ Adicionar produto</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <div class="card-title" style="margin-bottom:0;">Todos os produtos</div>
+          <input id="search-prod" placeholder="Pesquisar..." style="width:180px;padding:5px 10px;font-size:12px;"
+            oninput="renderStock()">
+        </div>
+        <div class="table-responsive">
+          <div id="stock-table"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MOVIMENTOS -->
+    <div class="section" id="sec-movimentos">
+      <div class="card">
+        <div class="card-title">Registar movimento</div>
+        <div class="movimento-tipo">
+          <button class="tipo-btn active-entrada" id="tipo-entrada" onclick="setTipo('entrada')">+ Entrada</button>
+          <button class="tipo-btn" id="tipo-saida" onclick="setTipo('saida')">− Saída (venda)</button>
+          <button class="tipo-btn" id="tipo-quebra" onclick="setTipo('quebra')">⚠ Quebra</button>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Produto</label><select id="m-produto" onchange="updateMovPrice()"></select>
+          </div>
+          <div class="form-group"><label>Quantidade</label><input id="m-qtd" type="number" min="1" value="1"
+              oninput="updateMovTotal()"></div>
+          <div class="form-group"><label>Preço unit. (MZN)</label><input id="m-preco" type="number" min="0"
+              oninput="updateMovTotal()"></div>
+          <div class="form-group" id="group-custo" style="display:none;"><label>Custo Aplicado (MZN)</label><input
+              id="m-custo" type="number" min="0" title="Altere apenas se for uma venda antiga com custo diferente.">
+          </div>
+          <div class="form-group"><label>Total estimado</label><input id="m-total" readonly
+              style="background:var(--color-background-secondary);"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" id="m-metodo-container" style="display:flex;"><label>Método de Pagto</label>
+            <select id="m-metodo">
+              <option value="CASH">Dinheiro (CASH)</option>
+              <option value="MPESA">M-Pesa</option>
+              <option value="EMOLA">e-Mola</option>
+              <option value="POS">Cartão (POS)</option>
+              <option value="TRANSFERENCIA">Transferência</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Data da transacção</label><input id="m-data" type="date"></div>
+          <div class="form-group"><label>Notas (opcional)</label><input id="m-nota"
+              placeholder="Ex: venda ao balcão, fornecedor XYZ..."></div>
+          <div class="form-group" style="justify-content:flex-end;"><button class="btn btn-primary"
+              onclick="addMovimento()" style="margin-top:20px;width:100%;">Registar</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
+          Histórico de movimentos
+          <button class="btn" onclick="printDailyMovements()">🖨️ Imprimir Movimentos do Dia</button>
+        </div>
+        <div class="table-responsive">
+          <div id="mov-table"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RELATÓRIOS -->
+    <div class="section" id="sec-relatorios">
+      <div class="period-select">
+        <button class="period-btn active" onclick="setPeriodo('mensal',this)">Mensal</button>
+        <button class="period-btn" onclick="setPeriodo('trimestral',this)">Trimestral</button>
+        <button class="period-btn" onclick="setPeriodo('anual',this)">Anual</button>
+      </div>
+      <div class="metrics" id="rel-metrics"></div>
+      <div class="chart-row">
+        <div class="card">
+          <div class="card-title">Vendas por período</div>
+          <div class="chart-wrap"><canvas id="chartRelVendas"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Lucro por período</div>
+          <div class="chart-wrap"><canvas id="chartRelLucro"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+          <div class="card-title" style="margin-bottom:0;">Vendas vs Lucro — Diário</div>
+          <div class="period-select" style="margin-bottom:0;">
+            <button class="period-btn active" id="diario-7" onclick="setDiarioDias(7,this)">7 dias</button>
+            <button class="period-btn" id="diario-30" onclick="setDiarioDias(30,this)">30 dias</button>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chartDiario"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Top 5 produtos mais vendidos</div>
+        <div class="chart-wrap" style="height:220px;"><canvas id="chartTop5"></canvas></div>
+      </div>
+    </div>
+
+    <div class="section" id="sec-alertas">
+      <div class="metrics" id="alertas-metrics"></div>
+      <div class="card">
+        <h3>⚠️ Alertas de Stock Baixo</h3>
+        <div id="alertas-list"></div>
+      </div>
+      <div class="card" style="margin-top:20px;">
+        <h3>📉 Histórico de Quebras</h3>
+        <div id="quebras-list"></div>
+      </div>
+    </div>
+
+    <!-- NECESSIDADES -->
+    <div class="section" id="sec-necessidades">
+      <div class="card">
+        <div class="card-title">Necessidades de Reposição (Abaixo do Mínimo)</div>
+        <div id="nec-list"></div>
+      </div>
+    </div>
+
+    <!-- CAIXA / FINANCEIRO -->
+    <div class="section" id="sec-caixa">
+      <div class="card">
+        <div class="card-title">Fecho de Caixa & Lucro Global</div>
+        <div id="caixa-resumo"></div>
+      </div>
+    </div>
+
+    <!-- DESPESAS -->
+    <div class="section" id="sec-despesas">
+      <div class="card">
+        <div class="card-title">Registar Despesa</div>
+        <div class="form-row">
+          <div class="form-group"><label>Categoria</label>
+            <select id="d-categoria" onchange="toggleCustomCat()">
+              <option value="Salário">Salário</option>
+              <option value="Energia">Energia</option>
+              <option value="Água">Água</option>
+              <option value="Manutenção">Manutenção</option>
+              <option value="Pagamento de Dívidas">Pagamento de Dívidas</option>
+              <option value="Necessidades de Casa">Necessidades de Casa</option>
+              <option value="Pão">Pão</option>
+              <option value="Taxas (M-Pesa/Bancárias)">Taxas</option>
+              <option value="Outra...">Outra... (Especificar nova)</option>
+            </select>
+            <input id="d-categoria-custom" style="display:none; margin-top:4px;" placeholder="Qual?">
+          </div>
+          <div class="form-group"><label>Descrição / Nota</label><input id="d-desc" placeholder="Ex: Fatura Credelec">
+          </div>
+          <div class="form-group"><label>Valor (MZN)</label><input id="d-valor" type="number" min="0"></div>
+          <div class="form-group"><label>Pagamento</label>
+            <select id="d-metodo">
+              <option value="CASH">CASH</option>
+              <option value="MPESA">M-Pesa</option>
+              <option value="EMOLA">e-Mola</option>
+              <option value="Conta Bancária">Conta Bancária</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Data da despesa</label><input id="d-data" type="date"></div>
+          <div class="form-group" style="grid-column:span 2;"></div>
+          <div class="form-group" style="align-items:flex-end;"><button class="btn btn-primary" onclick="addDespesa()"
+              style="margin-top:10px;">Gravar Despesa</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Histórico de Despesas</div>
+        <div id="despesas-list"></div>
+      </div>
+    </div>
+
+    <!-- FACTURAS E COTAÇÕES -->
+    <div class="section" id="sec-documentos">
+      <div class="card">
+        <div class="card-title">Nova Factura / Cotação</div>
+        <div class="form-row">
+          <div class="form-group"><label>Tipo</label>
+            <select id="doc-tipo">
+              <option value="factura">Factura</option>
+              <option value="cotacao">Cotação</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:span 2;"><label>Cliente</label><input id="doc-cliente"
+              placeholder="Nome do Cliente (opcional)"></div>
+          <div class="form-group"><label>Desconto Global</label>
+            <div style="display:flex;gap:6px;">
+              <select id="doc-desconto-tipo" style="width:120px;" onchange="renderDocList()">
+                <option value="valor">Valor (MZN)</option>
+                <option value="percentagem">Percentagem (%)</option>
+              </select>
+              <input id="doc-desconto" type="number" value="0"
+                min="0" oninput="renderDocList()" style="width:80px;">
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:1rem; border-top:0.5px solid var(--color-border-tertiary); padding-top:1rem;">
+          <div class="form-row">
+            <div class="form-group" style="grid-column:span 2;"><label>Adicionar Produtos</label><select
+                id="doc-produto"></select></div>
+            <div class="form-group"><label>Quantidade</label><input id="doc-qtd" type="number" value="1" min="1"></div>
+            <div class="form-group" style="justify-content:flex-end;"><button class="btn"
+                onclick="addDocItem()">Adicionar à Lista</button></div>
+          </div>
+        </div>
+        <div style="margin-top:1rem;">
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Qtd</th>
+                <th>Preço Unit.</th>
+                <th>Total</th>
+                <th>Remover</th>
+              </tr>
+            </thead>
+            <tbody id="doc-items"></tbody>
+          </table>
+        </div>
+          <div style="text-align:right; margin-top:1rem; font-size:16px;">
+            <span style="display:inline-block;margin-right:20px;">Subtotal: <span id="doc-subtotal">0</span> MZN</span>
+            <span style="display:inline-block;margin-right:20px;color:#A32D2D;">Desconto: −<span id="doc-desconto-calc">0</span> MZN</span>
+            <span style="display:inline-block;font-weight:bold;">Total Final: <span id="doc-total">0</span> MZN</span>
+          </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:1rem;">
+          <button class="btn btn-primary" onclick="saveAndDownloadPDF()">Gravar no BD &
+            PDF</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Histórico de Documentos</div>
+        <div id="doc-history"></div>
+      </div>
+    </div>
+
+    <!-- RELATÓRIO MENSAL -->
+    <div class="section" id="sec-relmensal">
+      <div class="card">
+        <div
+          style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:10px;">
+          <div class="card-title" style="margin-bottom:0;">Relatório Mensal Completo</div>
+          <div style="display:flex; gap:10px;">
+            <input id="rm-mes" type="month" onchange="renderRelMensal()">
+            <button class="btn btn-primary" onclick="downloadRelMensalPDF()">Gravar
+              PDF</button>
+          </div>
+        </div>
+        <div class="metrics" id="rm-metrics"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Vendas do Mês</div>
+        <div class="table-responsive">
+          <div id="rm-vendas"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Compras (Entradas) do Mês</div>
+        <div class="table-responsive">
+          <div id="rm-compras"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Quebras do Mês</div>
+        <div class="table-responsive">
+          <div id="rm-quebras"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Despesas do Mês</div>
+        <div class="table-responsive">
+          <div id="rm-despesas"></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- PLANO DE COMPRAS -->
+    <div class="section" id="sec-planocompras">
+      <div class="card">
+        <div class="card-title">Plano de Compras</div>
+        <div style="display:flex;gap:10px;margin-bottom:1rem;flex-wrap:wrap;align-items:flex-end;">
+          <div class="form-group" style="flex:2;min-width:200px;"><label>Produto</label><select id="plano-produto"></select></div>
+          <div class="form-group" style="width:80px;"><label>Qtd</label><input id="plano-qtd" type="number" value="1" min="1"></div>
+          <button class="btn btn-primary" onclick="addPlanoItem()" style="height:34px;">+ Adicionar</button>
+          <button class="btn" onclick="prePopulatePlano()" style="height:34px;">🔄 Auto-preencher</button>
+          <button class="btn" onclick="clearPlano()" style="height:34px;">🗑 Limpar</button>
+          <button class="btn btn-primary" onclick="confirmarCompra()" style="height:34px; background:#3B6D11; border-color:#3B6D11;">📦 Confirmar Compra</button>
+        </div>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr><th>Produto</th><th>Qtd</th><th>Custo Unit.</th><th>Custo Total</th><th>Fornecedor</th><th>Remover</th></tr>
+            </thead>
+            <tbody id="plano-items"></tbody>
+          </table>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--color-border-tertiary);">
+          <div style="font-size:14px;">Itens: <b><span id="plano-count">0</span></b></div>
+          <div style="font-size:18px;font-weight:500;">Total Estimado: <span id="plano-total" style="color:#3B6D11;">0</span> MZN</div>
+          <button class="btn btn-primary" onclick="downloadPlanoPDF()">📄 Gerar PDF do Plano</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SALDO -->
+    <div class="section" id="sec-saldo">
+      <div class="metrics" id="saldo-metrics"></div>
+      <div class="card">
+        <div class="card-title">Registar Movimento de Caixa (Investimento / Gasto)</div>
+        <div class="form-row">
+          <div class="form-group"><label>Tipo</label>
+            <select id="s-tipo">
+              <option value="investimento">+ Investimento (Entrada)</option>
+              <option value="gasto">- Gasto (Saída)</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Método</label>
+            <select id="s-metodo">
+              <option value="CASH">Dinheiro (CASH)</option>
+              <option value="MPESA">M-Pesa</option>
+              <option value="EMOLA">e-Mola</option>
+              <option value="POS">Cartão (POS)</option>
+              <option value="TRANSFERENCIA">Transferência</option>
+              <option value="BANCO">Banco / Outro</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Valor (MZN)</label><input id="s-valor" type="number" min="0"></div>
+          <div class="form-group"><label>Descrição</label><input id="s-desc" placeholder="Ex: Aporte Inicial"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Data</label><input id="s-data" type="date"></div>
+          <div class="form-group" style="justify-content:flex-end;"><button class="btn btn-primary" onclick="addSaldoMovimento()" style="margin-top:20px;">Registar Movimento</button></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Histórico de Saldo</span>
+            <button class="btn" onclick="setSaldoInicial()">⚙️ Definir Saldo Inicial</button>
+        </div>
+        <div id="saldo-list"></div>
+      </div>
+    </div>
+
+    <!-- MESAS -->
+    <div class="section" id="sec-mesas">
+      <div id="mesas-grid" class="mesas-grid"></div>
+      
+      <!-- Painel de Mesa -->
+      <div id="mesa-panel" class="card" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+              <h2 id="mesa-title">Mesa 1</h2>
+              <button class="btn" onclick="voltarMesas()">← Voltar às Mesas</button>
+          </div>
+          
+          <div class="form-row" style="background:var(--color-background-secondary); padding:1rem; border-radius:8px; margin-bottom:1.5rem;">
+              <div class="form-group"><label>Adicionar Cliente</label><input id="c-nome" placeholder="Ex: Cliente da Mesa ou Característica"></div>
+              <div class="form-group"><label>Nota Aparência (opcional)</label><input id="c-nota" placeholder="Ex: Boné Azul"></div>
+              <div class="form-group" style="justify-content:flex-end;"><button class="btn btn-primary" onclick="addClienteMesa()" style="margin-top:20px;">+ Abrir Conta</button></div>
+          </div>
+
+          <div id="active-clients"></div>
+
+          <!-- Modal de Pagamento -->
+          <div id="payment-modal" class="card" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:10001; width:90%; max-width:500px; box-shadow:0 0 50px rgba(0,0,0,0.5);">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                  <h3>Pagamento: <span id="pay-client-name"></span></h3>
+                  <button class="btn" onclick="closePayment()">X</button>
+              </div>
+              <div style="font-size:24px; font-weight:bold; margin-bottom:1.5rem; text-align:center;">Total: <span id="pay-total-amount">0</span> MT</div>
+              
+              <div id="payment-methods-list">
+                  <!-- Linhas de pagamento aqui -->
+              </div>
+              
+              <button class="btn" style="width:100%; margin-top:10px; border:1px dashed #ccc;" onclick="addPaymentRow()">+ Adicionar Outro Método</button>
+              
+              <div style="margin-top:2rem; border-top:1px solid #eee; padding-top:1rem;">
+                  <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:1rem;">
+                      <span>Total Pago:</span>
+                      <span id="pay-current-sum">0</span> MT
+                  </div>
+                  <button id="btn-confirm-pay" class="btn btn-primary" style="width:100%;" onclick="confirmarMesaPagamento()">Confirmar e Gerar Factura</button>
+              </div>
+          </div>
+          <div id="payment-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:10000;"></div>
+      </div>
+    </div>
+
+    <div id="print-area"></div>
+  </div>
+  <div id="toast-container"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="app.js"></script>
+
+</body>
+
+</html>
