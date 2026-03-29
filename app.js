@@ -1740,7 +1740,7 @@ function renderMesaContent() {
                                 <td>${p.quantidade}</td>
                                 <td>${p.preco_unitario}</td>
                                 <td>${p.total} MT</td>
-                                <td><button style="border:none; background:none; color:#E24B4A; cursor:pointer; font-weight:bold;" onclick="removePedidoMesa(${p.id}, ${c.id})">🗑</button></td>
+                                <td><button type="button" style="border:none; background:none; color:#E24B4A; cursor:pointer; font-weight:bold;" onclick="event.stopPropagation(); removePedidoMesa(${p.id}, ${c.id})">🗑</button></td>
                             </tr>
                         `).join('')}
                     </tbody>
