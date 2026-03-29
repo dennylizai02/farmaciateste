@@ -51,6 +51,36 @@ function checkLowStock(p) {
     }
 }
 
+// ====================== CUSTOM CONFIRM ======================
+function showConfirm(msg, title = 'Confirmar Operação') {
+    return new Promise((resolve) => {
+        const overlay = document.getElementById('confirm-overlay');
+        if (!overlay) {
+            resolve(confirm(msg)); // Fallback case
+            return;
+        }
+        document.getElementById('confirm-title').textContent = title;
+        document.getElementById('confirm-msg').textContent = msg;
+        overlay.style.display = 'flex';
+
+        // Rebind OK button to resolve true
+        const okBtn = document.getElementById('confirm-ok-btn');
+        const newOkBtn = okBtn.cloneNode(true);
+        okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+        
+        newOkBtn.onclick = () => {
+            overlay.style.display = 'none';
+            resolve(true);
+        };
+
+        // Global function for Cancel (called from HTML)
+        window.closeConfirmModal = () => {
+            overlay.style.display = 'none';
+            resolve(false);
+        };
+    });
+}
+
 let produtos = [];
 let movimentos = [];
 let despesas = [];
@@ -379,7 +409,7 @@ async function updateQtd(id, val) {
     var nota = '[Ajuste Manual de Stock]';
 
     if (newQtd > oldQtd) {
-        if (!confirm('Deseja aumentar o stock de "' + p.nome + '" em ' + diff + ' unidades? Será gerada uma Entrada.')) { renderStock(); return; }
+        if (!(await showConfirm('Deseja aumentar o stock de "' + p.nome + '" em ' + diff + ' unidades? Será gerada uma Entrada.'))) { renderStock(); return; }
         tipo = 'entrada';
     } else {
         var resp = prompt('Diminuição de ' + diff + ' unidades em "' + p.nome + '". Foi Saída (venda) ou Quebra? Digite "S" para Saída ou "Q" para Quebra:');
@@ -447,7 +477,7 @@ async function addProduto() {
 }
 
 async function removeProduto(id) {
-    if (!confirm('Remover este produto?')) return;
+    if (!(await showConfirm('Remover este produto?'))) return;
     if (sb) await sb.from(PREFIX + 'produtos').delete().eq('id', id);
     produtos = produtos.filter(function (p) { return p.id !== id; });
     renderStock(); populateProdutoSelect();
@@ -617,7 +647,7 @@ function renderMovimentos() {
 }
 
 async function deleteMovimento(id) {
-    if (!confirm('Tem certeza que deseja anular este movimento? O stock será revertido.')) return;
+    if (!(await showConfirm('Tem certeza que deseja anular este movimento? O stock será revertido.'))) return;
     var m = movimentos.find(function (x) { return x.id === id; });
     if (!m) return;
     var p = produtos.find(function (x) { return x.id === m.prodId; });
@@ -714,7 +744,7 @@ function renderDespesas() {
 }
 
 async function deleteDespesa(id) {
-    if (!confirm('Tem certeza que deseja apagar esta despesa?')) return;
+    if (!(await showConfirm('Tem certeza que deseja apagar esta despesa?'))) return;
     if (sb) {
         var res = await sb.from(PREFIX + 'despesas').delete().eq('id', id);
         if (res.error) { showNotification('Erro ao apagar: ' + res.error.message); return; }
@@ -1381,7 +1411,7 @@ function renderDocsHistory() {
 }
 
 async function deleteDocumento(id) {
-    if (!confirm('Deseja eliminar esta factura? O stock será restaurado.')) return;
+    if (!(await showConfirm('Deseja eliminar esta factura? O stock será restaurado.'))) return;
     var doc = documentos.find(x => x.id === id);
     if (!doc) return;
 
@@ -1770,7 +1800,7 @@ async function addClienteMesa() {
 
 async function removePedidoMesa(event, pedidoId, clientId) {
     if (event) event.stopPropagation();
-    if (!confirm('Eliminar este pedido e devolver o stock?')) return;
+    if (!(await showConfirm('Eliminar este pedido e devolver o stock?'))) return;
     const client = mesaClientes.find(c => c.id === clientId);
     if (!client) return;
     const pedido = client.mesas_pedidos.find(p => p.id === pedidoId);
@@ -2030,13 +2060,8 @@ function prePopulatePlano() {
     renderPlanoCompras();
 }
 
-function clearPlano() {
-    console.log('clearPlano triggered, items:', planoItems.length);
-    if (planoItems.length === 0) {
-        showNotification('O plano já está vazio.', 'info');
-        return;
-    }
-    if (confirm('Deseja limpar todos os itens do plano de compras?')) {
+async function clearPlano() {
+    if (await showConfirm('Deseja limpar todos os itens do plano de compras?')) {
         planoItems = [];
         renderPlanoCompras();
         showNotification('Plano limpo com sucesso!', 'success');
@@ -2082,8 +2107,7 @@ function downloadPlanoPDF() {
     generatePDF(printArea, 'Plano_Compras_' + new Date().toISOString().split('T')[0] + '.pdf');
 }
 async function confirmarCompra() {
-    if (planoItems.length === 0) { showNotification('O plano de compras está vazio.', 'info'); return; }
-    if (!confirm('Deseja confirmar o recebimento e actualizar o stock? ' + planoItems.length + ' produtos serão adicionados.')) return;
+    if (!(await showConfirm('Deseja confirmar o recebimento e actualizar o stock? ' + planoItems.length + ' produtos serão adicionados.'))) return;
 
     showNotification('A processar entrada de mercadoria...', 'info');
 

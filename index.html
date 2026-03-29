@@ -31,6 +31,63 @@
       min-height: 100vh;
     }
 
+    /* Confirm Modal */
+    .confirm-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 20000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .confirm-dialog {
+      background: #fff;
+      padding: 2rem;
+      border-radius: var(--border-radius-lg);
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      text-align: center;
+    }
+
+    .confirm-dialog h3 {
+      margin-bottom: 1rem;
+      font-size: 1.25rem;
+      color: var(--color-text-primary);
+    }
+
+    .confirm-dialog p {
+      margin-bottom: 2rem;
+      color: var(--color-text-secondary);
+      line-height: 1.5;
+    }
+
+    .confirm-btns {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .confirm-btns .btn {
+      flex: 1;
+      padding: 12px;
+    }
+
+    .btn-danger-confirm {
+      background: #E24B4A;
+      color: white;
+    }
+
+    .btn-danger-confirm:hover {
+      background: #C93D3D;
+    }
+
     .app {
       max-width: 900px;
       margin: 0 auto;
@@ -1124,6 +1181,18 @@
     <div id="print-area"></div>
   </div>
   <div id="toast-container"></div>
+
+  <!-- Custom Confirm Modal -->
+  <div id="confirm-overlay" class="confirm-overlay">
+    <div class="confirm-dialog">
+      <h3 id="confirm-title">Confirmar Acção</h3>
+      <p id="confirm-msg">Tem a certeza que deseja realizar esta operação?</p>
+      <div class="confirm-btns">
+        <button class="btn" style="background:#f2f2f2;" onclick="closeConfirmModal()">Cancelar</button>
+        <button id="confirm-ok-btn" class="btn btn-danger-confirm">Confirmar</button>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
