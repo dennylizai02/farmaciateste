@@ -368,14 +368,14 @@ function renderStock() {
         header +
         filtered.map(function (p) {
             var row = '<tr><td>' + p.nome + '</td><td>' + p.cat + '</td>' +
-                '<td><input type="number" value="' + p.qtd + '" min="0" style="width:60px;padding:3px 6px;" onchange="updateQtd(' + p.id + ',this.value)"></td>';
+                '<td><input type="number" value="' + p.qtd + '" min="0" style="width:60px;padding:3px 6px;" onchange="updateQtd(' + p.id + ',this.value)" ' + (isGestor ? '' : 'disabled') + '></td>';
             
             if (isGestor) {
                 row += '<td><input type="number" value="' + p.min + '" min="0" style="width:60px;padding:3px 6px;" onchange="updateField(' + p.id + ',\'stock_minimo\',this.value)"></td>' +
                        '<td><input type="number" value="' + p.custo + '" min="0" style="width:80px;padding:3px 6px;" onchange="updateField(' + p.id + ',\'preco_custo\',this.value)"></td>';
             }
             
-            row += '<td><input type="number" value="' + p.venda + '" min="0" style="width:80px;padding:3px 6px;" onchange="updateField(' + p.id + ',\'preco_venda\',this.value)"></td>';
+            row += '<td><input type="number" value="' + p.venda + '" min="0" style="width:80px;padding:3px 6px;" onchange="updateField(' + p.id + ',\'preco_venda\',this.value)" ' + (isGestor ? '' : 'disabled') + '></td>';
             
             if (isGestor) {
                 row += '<td style="color:#3B6D11;">' + (p.venda > 0 ? Math.round((p.venda - p.custo) / p.venda * 100) : 0) + '%</td>' +
@@ -1552,6 +1552,13 @@ async function applyRoleRestrictions() {
             btn.style.display = isGestor ? 'inline-block' : 'none';
         }
     });
+
+    // Stock page restrictions
+    const stockAddCard = document.getElementById('stock-add-card');
+    if (stockAddCard) stockAddCard.style.display = isGestor ? 'block' : 'none';
+
+    const stockMetrics = document.getElementById('stock-metrics');
+    if (stockMetrics) stockMetrics.style.display = isGestor ? 'grid' : 'none';
 
     // Restrições na aba Movimentos
     const btnEntrada = document.getElementById('tipo-entrada');
