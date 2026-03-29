@@ -1511,12 +1511,14 @@ async function applyRoleRestrictions() {
     const inputPreco = document.getElementById('m-preco');
     const groupData = document.getElementById('m-data').closest('.form-group');
     const groupNota = document.getElementById('m-nota').closest('.form-group');
+    const groupCusto = document.getElementById('group-custo');
 
     if (userRole === 'vendedor') {
         if (btnEntrada) btnEntrada.style.display = 'none';
         if (inputPreco) inputPreco.readOnly = true;
         if (groupData) groupData.style.display = 'none';
         if (groupNota) groupNota.style.display = 'none';
+        if (groupCusto) groupCusto.style.display = 'none';
         // Forçar para aba Saída se estiver no modo vendedor
         if (tipoActivo === 'entrada') setTipo('saida');
     } else {
@@ -1524,6 +1526,8 @@ async function applyRoleRestrictions() {
         if (inputPreco) inputPreco.readOnly = false;
         if (groupData) groupData.style.display = 'flex';
         if (groupNota) groupNota.style.display = 'flex';
+        // No modo gestor, o group-custo é gerido pelo setTipo, mas garantimos que está visível se for entrada
+        if (tipoActivo === 'entrada' && groupCusto) groupCusto.style.display = 'flex';
     }
 
     if (!isGestor) {
