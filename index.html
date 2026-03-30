@@ -702,7 +702,7 @@
 
   <div id="login-screen">
     <div class="login-card">
-      <h2 style="margin-bottom: 2rem; font-size: 24px;">🍺 Pinto's Bar</h2>
+      <h2 style="margin-bottom: 2rem; font-size: 24px;">🍺 Pinto’s Bar</h2>
       <input id="l-email" class="login-input" placeholder="Email">
       <input id="l-pass" class="login-input" type="password" placeholder="Palavra-passe">
       <button class="login-btn" onclick="loginUser()">Entrar</button>
@@ -713,7 +713,7 @@
   <div class="app" style="display:none;">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
       <div>
-        <div style="font-size:18px; font-weight:500; color:var(--color-text-primary);">🍺 Pinto's Bar — Gestão</div>
+        <div style="font-size:18px; font-weight:500; color:var(--color-text-primary);">🍺 Pinto’s Bar</div>
         <div style="font-size:12px; color:var(--color-text-tertiary); margin-top:2px;" id="current-date"></div>
       </div>
       <div id="user-info" style="text-align:right;">
@@ -742,20 +742,6 @@
     <!-- DASHBOARD -->
     <div class="section active" id="sec-dashboard">
       <div class="metrics" id="dash-metrics"></div>
-      <div class="chart-row">
-        <div class="card">
-          <div class="card-title">Vendas mensais (unidades)</div>
-          <div class="chart-wrap"><canvas id="chartVendas"></canvas></div>
-        </div>
-        <div class="card">
-          <div class="card-title">Lucro vs custo (MZN)</div>
-          <div class="chart-wrap"><canvas id="chartLucro"></canvas></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Produtos com menos stock</div>
-        <div id="dash-low-table"></div>
-      </div>
     </div>
 
     <!-- STOCK -->
@@ -820,9 +806,6 @@
               oninput="updateMovTotal()"></div>
           <div class="form-group"><label>Preço unit. (MZN)</label><input id="m-preco" type="number" min="0"
               oninput="updateMovTotal()"></div>
-          <div class="form-group" id="group-custo" style="display:none;"><label>Custo Aplicado (MZN)</label><input
-              id="m-custo" type="number" min="0" title="Altere apenas se for uma venda antiga com custo diferente.">
-          </div>
           <div class="form-group"><label>Total estimado</label><input id="m-total" readonly
               style="background:var(--color-background-secondary);"></div>
         </div>
@@ -857,11 +840,24 @@
     <!-- RELATÓRIOS -->
     <div class="section" id="sec-relatorios">
       <div class="period-select">
-        <button class="period-btn active" onclick="setPeriodo('mensal',this)">Mensal</button>
+        <button class="period-btn active" onclick="setPeriodo('diário',this)">Diário</button>
+        <button class="period-btn" onclick="setPeriodo('semanal',this)">Semanal</button>
+        <button class="period-btn" onclick="setPeriodo('mensal',this)">Mensal</button>
         <button class="period-btn" onclick="setPeriodo('trimestral',this)">Trimestral</button>
         <button class="period-btn" onclick="setPeriodo('anual',this)">Anual</button>
       </div>
       <div class="metrics" id="rel-metrics"></div>
+      
+      <div class="card">
+        <div class="card-title">Unidades Vendidas</div>
+        <div class="chart-wrap"><canvas id="chartVendas"></canvas></div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">Receita vs Custo (Produto)</div>
+        <div class="chart-wrap"><canvas id="chartLucro"></canvas></div>
+      </div>
+
       <div class="chart-row">
         <div class="card">
           <div class="card-title">Vendas por período</div>
@@ -873,18 +869,16 @@
         </div>
       </div>
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
-          <div class="card-title" style="margin-bottom:0;">Vendas vs Lucro — Diário</div>
-          <div class="period-select" style="margin-bottom:0;">
-            <button class="period-btn active" id="diario-7" onclick="setDiarioDias(7,this)">7 dias</button>
-            <button class="period-btn" id="diario-30" onclick="setDiarioDias(30,this)">30 dias</button>
-          </div>
-        </div>
+        <div class="card-title">Vendas vs Lucro</div>
         <div class="chart-wrap"><canvas id="chartDiario"></canvas></div>
       </div>
       <div class="card">
         <div class="card-title">Top 5 produtos mais vendidos</div>
         <div class="chart-wrap" style="height:220px;"><canvas id="chartTop5"></canvas></div>
+      </div>
+      <div class="card" id="card-low-stock">
+        <div class="card-title">Produtos com menos stock</div>
+        <div id="dash-low-table"></div>
       </div>
     </div>
 

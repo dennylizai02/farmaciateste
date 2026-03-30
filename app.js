@@ -91,8 +91,7 @@ let saldoMovimentos = [];
 let mesaClientes = [];
 
 let tipoActivo = 'entrada';
-let periodoActivo = 'mensal';
-let diarioDias = 7;
+let periodoActivo = 'diário';
 let chartVendas, chartLucro, chartRelVendas, chartRelLucro, chartTop5, chartDiario;
 let userRole = 'gestor';
 let activeMesa = null;
@@ -292,41 +291,6 @@ function renderDashboard() {
 
     document.getElementById('dash-metrics').innerHTML = html;
 
-    var meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    var labels = [];
-    var vendasMes = [];
-    var lucroMes = [];
-    var custoMes = [];
-
-    var agora = new Date();
-    for (var i = 5; i >= 0; i--) {
-        var d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
-        var mKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-        labels.push(meses[d.getMonth()] + ' ' + String(d.getFullYear()).slice(2));
-
-        var mSales = movimentos.filter(m => m.tipo === 'saida' && m.data.startsWith(mKey));
-        var vTotal = mSales.reduce((a, m) => a + m.total, 0);
-        var qTotal = mSales.reduce((a, m) => a + m.qtd, 0);
-        var cTotal = mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
-
-        vendasMes.push(qTotal);
-        lucroMes.push(vTotal - cTotal);
-        custoMes.push(cTotal);
-    }
-
-    if (typeof Chart !== 'undefined') {
-        if (chartVendas) chartVendas.destroy();
-        chartVendas = new Chart(document.getElementById('chartVendas'), { type: 'bar', data: { labels: labels, datasets: [{ label: 'Unidades vendidas', data: vendasMes, backgroundColor: '#B5D4F4', borderColor: '#378ADD', borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
-        if (chartLucro) chartLucro.destroy();
-        chartLucro = new Chart(document.getElementById('chartLucro'), { type: 'bar', data: { labels: labels, datasets: [{ label: 'Lucro', data: lucroMes, backgroundColor: '#C0DD97', borderColor: '#639922', borderWidth: 1 }, { label: 'Custo', data: custoMes, backgroundColor: '#F5C4B3', borderColor: '#D85A30', borderWidth: 1 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, labels: { font: { size: 11 }, boxWidth: 10 } } } } });
-    }
-
-    var lowProds = produtos.filter(function (p) { return p.qtd <= p.min * 2; }).sort(function (a, b) { return a.qtd - b.qtd; }).slice(0, 5);
-    document.getElementById('dash-low-table').innerHTML = lowProds.length ?
-        '<table><thead><tr><th>Produto</th><th>Categoria</th><th>Stock actual</th><th>Mínimo</th><th>Estado</th></tr></thead><tbody>' +
-        lowProds.map(function (p) { return '<tr><td>' + p.nome + '</td><td>' + p.cat + '</td><td>' + p.qtd + '</td><td>' + p.min + '</td><td>' + getStatus(p) + '</td></tr>'; }).join('') +
-        '</tbody></table>' : '<div class="empty">Todos os produtos com stock adequado</div>';
-
     var ac = document.getElementById('alert-count');
     if (ac) ac.textContent = alertas > 0 ? alertas : '';
 }
@@ -351,7 +315,7 @@ function renderStock() {
                 <div class="metric-card"><div class="metric-label">Valor Stock (Custo)</div><div class="metric-value">${totalCustoStock.toLocaleString()} MZN</div></div>
                 <div class="metric-card"><div class="metric-label">Valor Stock (Venda)</div><div class="metric-value">${totalVendaStock.toLocaleString()} MZN</div></div>
                 <div class="metric-card"><div class="metric-label">Previsão Lucro</div><div class="metric-value" style="color:#3B6D11;">${lucroPreviso.toLocaleString()} MZN</div></div>
-                <div class="metric-card"><div class="metric-label">Total SKUs</div><div class="metric-value">${filtered.length}</div></div>
+                <div class="metric-card"><div class="metric-label">Previsão de Receita</div><div class="metric-value" style="color:#378ADD;">${totalVendaStock.toLocaleString()} MZN</div></div>
             `;
         }
     }
@@ -507,26 +471,16 @@ function setTipo(t) {
     var container = document.getElementById('m-metodo-container');
     if (container) container.style.display = (t === 'quebra') ? 'none' : 'flex';
     
-    var cgroup = document.getElementById('group-custo');
-    if (cgroup) {
-        // Vendedor NUNCA vê Custo Aplicado, independente do tipo de movimento
-        if (userRole === 'vendedor') {
-            cgroup.style.display = 'none';
-        } else {
-            cgroup.style.display = (t === 'entrada') ? 'block' : 'none';
-        }
-    }
+    // Not showing Custo Aplicado anymore per user request
     updateMovPrice();
 }
 
 function updateMovPrice() {
     var el = document.getElementById('m-produto');
-    var cEl = document.getElementById('m-custo');
     if (!el || !el.value) return;
     var p = produtos.find(function (x) { return x.id === parseInt(el.value); });
     if (!p) return;
     document.getElementById('m-preco').value = tipoActivo === 'entrada' ? p.custo : tipoActivo === 'saida' ? p.venda : p.custo;
-    if (cEl) cEl.value = ''; // placeholder takes over
     updateMovTotal();
 }
 
@@ -541,7 +495,6 @@ async function addMovimento() {
     var prodId = parseInt(document.getElementById('m-produto').value);
     var qtd = parseInt(document.getElementById('m-qtd').value) || 0;
     var preco = parseFloat(document.getElementById('m-preco').value) || 0;
-    var custoMan = parseFloat(document.getElementById('m-custo').value);
     var nota = document.getElementById('m-nota').value;
     var metodo_el = document.getElementById('m-metodo');
     var metodo = metodo_el && tipoActivo !== 'quebra' ? metodo_el.value : null;
@@ -559,9 +512,6 @@ async function addMovimento() {
         }
         p.qtd -= qtd;
         checkLowStock(p);
-        if (!isNaN(custoMan)) {
-            nota = '[C:' + custoMan + '] ' + nota; 
-        }
     } else {
         p.qtd += qtd;
         p.custo = preco;
@@ -581,8 +531,8 @@ async function addMovimento() {
     if (!mRes.error && mRes.data && mRes.data.length > 0) {
         var mm = mRes.data[0];
         showNotification('Movimento registado!', 'success');
-        movimentos.unshift({ id: mm.id, tipo: mm.tipo, prodId: mm.produto_id, qtd: mm.quantidade, preco: mm.preco_unitario, total: mm.total, data: mm.data.split('T')[0], nota: mm.nota.replace(/\[C:[\d.]+\]\s*/, ''), metodo: mm.metodo_pagamento, nome_v: p.nome, custo_aplicado: isNaN(custoMan) ? null : custoMan });
-        document.getElementById('m-qtd').value = 1; document.getElementById('m-nota').value = ''; document.getElementById('m-custo').value = '';
+        movimentos.unshift({ id: mm.id, tipo: mm.tipo, prodId: mm.produto_id, qtd: mm.quantidade, preco: mm.preco_unitario, total: mm.total, data: mm.data.split('T')[0], nota: mm.nota.replace(/\[C:[\d.]+\]\s*/, ''), metodo: mm.metodo_pagamento, nome_v: p.nome, custo_aplicado: null });
+        document.getElementById('m-qtd').value = 1; document.getElementById('m-nota').value = '';
         rebuildFifo(); // Recalcula o motor de lucros
         renderMovimentos(); renderAlertas(); renderStock(); renderCaixa(); renderNecessidades();
         var ac = document.getElementById('alert-count');
@@ -892,12 +842,41 @@ function renderAlertas() {
 // ====================== RELATÓRIOS ======================
 function renderRelatorios() {
     var meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    var labels, vendasData, lucroData;
+    var labels, vendasData, lucroData, unidData;
     var vendTotal = movimentos.filter(function (m) { return m.tipo === 'saida'; }).reduce(function (a, m) { return a + m.total; }, 0);
 
-    if (periodoActivo === 'mensal') {
+    if (periodoActivo === 'diário') {
+        labels = []; vendasData = []; lucroData = []; unidData = [];
+        for (var i = 6; i >= 0; i--) {
+            var d = new Date(); d.setDate(d.getDate() - i);
+            var key = d.toISOString().split('T')[0];
+            labels.push(d.getDate() + '/' + (d.getMonth() + 1));
+            var mSales = movimentos.filter(m => m.tipo === 'saida' && m.data === key);
+            var rec = mSales.reduce((a, m) => a + m.total, 0);
+            var luc = rec - mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+            var unid = mSales.reduce((a, m) => a + m.qtd, 0);
+            vendasData.push(rec); lucroData.push(luc); unidData.push(unid);
+        }
+    } else if (periodoActivo === 'semanal') {
+        labels = []; vendasData = []; lucroData = []; unidData = [];
+        var now = new Date();
+        for (var i = 3; i >= 0; i--) {
+            var start = new Date(); start.setDate(now.getDate() - (i + 1) * 7);
+            var end = new Date(); end.setDate(now.getDate() - i * 7);
+            labels.push('Semana ' + (4 - i));
+            
+            var mSales = movimentos.filter(m => {
+                var d = new Date(m.data);
+                return m.tipo === 'saida' && d >= start && d < end;
+            });
+            var rec = mSales.reduce((a, m) => a + m.total, 0);
+            var luc = rec - mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+            var unid = mSales.reduce((a, m) => a + m.qtd, 0);
+            vendasData.push(rec); lucroData.push(luc); unidData.push(unid);
+        }
+    } else if (periodoActivo === 'mensal') {
         var agora = new Date();
-        labels = []; vendasData = []; lucroData = [];
+        labels = []; vendasData = []; lucroData = []; unidData = [];
         for (var i = 5; i >= 0; i--) {
             var d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
             var mKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
@@ -905,26 +884,29 @@ function renderRelatorios() {
             var mSales = movimentos.filter(m => m.tipo === 'saida' && m.data.startsWith(mKey));
             var rec = mSales.reduce((a, m) => a + m.total, 0);
             var luc = rec - mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
-            vendasData.push(rec); lucroData.push(luc);
+            var unid = mSales.reduce((a, m) => a + m.qtd, 0);
+            vendasData.push(rec); lucroData.push(luc); unidData.push(unid);
         }
     } else if (periodoActivo === 'trimestral') {
         labels = ['T1', 'T2', 'T3', 'T4'];
-        vendasData = [0, 0, 0, 0]; lucroData = [0, 0, 0, 0];
+        vendasData = [0, 0, 0, 0]; lucroData = [0, 0, 0, 0]; unidData = [0, 0, 0, 0];
         var anoActual = new Date().getFullYear();
         movimentos.filter(m => m.tipo === 'saida' && m.data.startsWith(String(anoActual))).forEach(m => {
             var trim = Math.floor(new Date(m.data).getMonth() / 3);
             vendasData[trim] += m.total;
             lucroData[trim] += (m.total - (m.fifo_cost || 0));
+            unidData[trim] += m.qtd;
         });
     } else {
         labels = [new Date().getFullYear() - 2, new Date().getFullYear() - 1, new Date().getFullYear()];
-        vendasData = [0, 0, 0]; lucroData = [0, 0, 0];
+        vendasData = [0, 0, 0]; lucroData = [0, 0, 0]; unidData = [0, 0, 0];
         movimentos.filter(m => m.tipo === 'saida').forEach(m => {
             var ano = new Date(m.data).getFullYear();
             var idx = labels.indexOf(ano);
             if (idx !== -1) {
                 vendasData[idx] += m.total;
                 lucroData[idx] += (m.total - (m.fifo_cost || 0));
+                unidData[idx] += m.qtd;
             }
         });
     }
@@ -945,27 +927,72 @@ function renderRelatorios() {
         chartRelVendas = new Chart(document.getElementById('chartRelVendas'), { type: 'line', data: { labels: labels, datasets: [{ label: 'Receita', data: vendasData, borderColor: '#378ADD', backgroundColor: 'rgba(55,138,221,0.1)', tension: 0.4, fill: true, pointRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
         if (chartRelLucro) chartRelLucro.destroy();
         chartRelLucro = new Chart(document.getElementById('chartRelLucro'), { type: 'line', data: { labels: labels, datasets: [{ label: 'Lucro', data: lucroData, borderColor: '#639922', backgroundColor: 'rgba(99,153,34,0.1)', tension: 0.4, fill: true, pointRadius: 4 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+        
+        // --- GRÁFICOS MOVIDOS DO DASHBOARD (Sincronizados) ---
+        if (chartVendas) chartVendas.destroy();
+        chartVendas = new Chart(document.getElementById('chartVendas'), { 
+            type: 'bar', 
+            data: { labels: labels, datasets: [{ label: 'Unidades vendidas', data: unidData, backgroundColor: '#B5D4F4', borderColor: '#378ADD', borderWidth: 1 }] }, 
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } 
+        });
+
+        // Helper para filtrar movimentos pelo periodo activo
+        var getFilteredMovs = function(m) {
+            var match = false;
+            if (periodoActivo === 'diário') {
+                match = m.data === new Date().toISOString().split('T')[0];
+            } else if (periodoActivo === 'semanal') {
+                var start = new Date(); start.setDate(new Date().getDate() - 7);
+                match = new Date(m.data) >= start;
+            } else if (periodoActivo === 'mensal') {
+                match = m.data.startsWith(new Date().toISOString().substring(0, 7));
+            } else if (periodoActivo === 'trimestral') {
+                var trim = Math.floor(new Date().getMonth() / 3);
+                var mTrim = Math.floor(new Date(m.data).getMonth() / 3);
+                match = m.data.startsWith(new Date().getFullYear()) && mTrim === trim;
+            } else {
+                match = m.data.startsWith(new Date().getFullYear());
+            }
+            return match;
+        };
+
+        var topProdsData = produtos.map(p => {
+            var pSales = movimentos.filter(m => m.tipo === 'saida' && m.prodId === p.id && getFilteredMovs(m));
+            var rev = pSales.reduce((a, m) => a + m.total, 0);
+            var cost = pSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+            return { nome: p.nome.split(' ').slice(0, 2).join(' '), receita: rev, custo: cost, total: rev + cost };
+        }).sort((a, b) => b.total - a.total).slice(0, 10);
+
+        if (chartLucro) chartLucro.destroy();
+        chartLucro = new Chart(document.getElementById('chartLucro'), { 
+            type: 'bar', 
+            data: { 
+                labels: topProdsData.map(p => p.nome), 
+                datasets: [
+                    { label: 'Receita', data: topProdsData.map(p => p.receita), backgroundColor: '#C0DD97', borderColor: '#639922', borderWidth: 1 }, 
+                    { label: 'Custo', data: topProdsData.map(p => p.custo), backgroundColor: '#F5C4B3', borderColor: '#D85A30', borderWidth: 1 }
+                ] 
+            }, 
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, labels: { font: { size: 11 }, boxWidth: 10 } } } } 
+        });
+        // --- FIM DOS GRÁFICOS MOVIDOS ---
+
         var top5 = produtos.map(function (p) {
-            return { nome: p.nome.split(' ').slice(0, 2).join(' '), vendas: movimentos.filter(function (m) { return m.tipo === 'saida' && m.prodId === p.id; }).reduce(function (a, m) { return a + m.qtd; }, 0) };
+            return { 
+                nome: p.nome.split(' ').slice(0, 2).join(' '), 
+                vendas: movimentos.filter(function (m) { 
+                    return m.tipo === 'saida' && m.prodId === p.id && getFilteredMovs(m);
+                }).reduce(function (a, m) { return a + m.qtd; }, 0) 
+            };
         }).sort(function (a, b) { return b.vendas - a.vendas; }).slice(0, 5);
         if (chartTop5) chartTop5.destroy();
         chartTop5 = new Chart(document.getElementById('chartTop5'), { type: 'bar', data: { labels: top5.map(function (p) { return p.nome; }), datasets: [{ data: top5.map(function (p) { return p.vendas; }), backgroundColor: ['#B5D4F4', '#C0DD97', '#F5C4B3', '#CECBF6', '#9FE1CB'], borderRadius: 4 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
 
-        // GRAFICO DIARIO — configurável 7 ou 30 dias
-        var diasLabels = [];
-        var diasVendas = [];
-        var diasLucros = [];
-        for (var d = diarioDias - 1; d >= 0; d--) {
-            var dt = new Date(); dt.setDate(dt.getDate() - d);
-            var key = dt.toISOString().split('T')[0];
-            var label = dt.getDate() + '/' + (dt.getMonth() + 1);
-            diasLabels.push(label);
-            var vendasDia = movimentos.filter(function (m) { return m.tipo === 'saida' && m.data === key; });
-            var receitaDia = vendasDia.reduce(function (a, m) { return a + m.total; }, 0);
-            var custoDia = vendasDia.reduce(function (a, m) { return a + (m.fifo_cost || 0); }, 0);
-            diasVendas.push(receitaDia);
-            diasLucros.push(receitaDia - custoDia);
-        }
+        // SINCRONIZAÇÃO CHART DIARIO com periodo activo
+        var diasLabels = labels;
+        var diasVendas = vendasData;
+        var diasLucros = lucroData;
+
         if (chartDiario) chartDiario.destroy();
         chartDiario = new Chart(document.getElementById('chartDiario'), {
             type: 'bar',
@@ -978,16 +1005,20 @@ function renderRelatorios() {
             },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, labels: { font: { size: 11 }, boxWidth: 10 } } } }
         });
+        
+        // Renderizar Produtos com menos stock (movido do dashboard)
+        var lowProds = produtos.filter(function (p) { return p.qtd <= p.min * 2; }).sort(function (a, b) { return a.qtd - b.qtd; }).slice(0, 10);
+        var tableEl = document.getElementById('dash-low-table');
+        if (tableEl) {
+            tableEl.innerHTML = lowProds.length ?
+                '<table><thead><tr><th>Produto</th><th>Categoria</th><th>Stock actual</th><th>Mínimo</th><th>Estado</th></tr></thead><tbody>' +
+                lowProds.map(function (p) { return '<tr><td>' + p.nome + '</td><td>' + p.cat + '</td><td>' + p.qtd + '</td><td>' + p.min + '</td><td>' + getStatus(p) + '</td></tr>'; }).join('') +
+                '</tbody></table>' : '<div class="empty">Todos os produtos com stock adequado</div>';
+        }
     }
 }
 
-function setDiarioDias(n, btn) {
-    diarioDias = n;
-    document.getElementById('diario-7').classList.remove('active');
-    document.getElementById('diario-30').classList.remove('active');
-    if (btn) btn.classList.add('active');
-    renderRelatorios();
-}
+
 
 // ====================== RELATÓRIO MENSAL ======================
 function renderRelMensal() {
@@ -1374,7 +1405,7 @@ function generatePDF(element, filename, orientation) {
     };
 
     // Delay to ensure DOM rendering completes for large tables/charts
-    // Increased to 1500ms as requested for large purchase lists
+    // Increased to 5000ms as requested for large purchase lists
     setTimeout(function() {
         html2pdf().set(opt).from(element).save().then(function () {
             element.style.cssText = origStyle;
@@ -1382,7 +1413,7 @@ function generatePDF(element, filename, orientation) {
             console.error('PDF error:', err);
             element.style.cssText = origStyle;
         });
-    }, 1500);
+    }, 5000);
 }
 
 function printDoc(doc) {
@@ -1490,7 +1521,7 @@ async function checkSession() {
         
         document.getElementById('login-screen').style.display = 'none';
         document.querySelector('.app').style.display = 'block';
-        document.getElementById('user-label').textContent = email + ' (' + userRole + ')';
+        document.getElementById('user-label').textContent = userRole === 'gestor' ? 'Gestão' : 'Vendas';
         
         applyRoleRestrictions();
         initApp();
