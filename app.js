@@ -863,7 +863,9 @@ function renderRelatorios() {
         for (var i = 3; i >= 0; i--) {
             var start = new Date(); start.setDate(now.getDate() - (i + 1) * 7);
             var end = new Date(); end.setDate(now.getDate() - i * 7);
-            labels.push('Semana ' + (4 - i));
+            var fStart = start.getDate() + '/' + (start.getMonth() + 1);
+            var fEnd = end.getDate() + '/' + (end.getMonth() + 1);
+            labels.push(fStart + ' a ' + fEnd);
             
             var mSales = movimentos.filter(m => {
                 var d = new Date(m.data);
