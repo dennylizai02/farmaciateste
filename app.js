@@ -92,7 +92,7 @@ let mesaClientes = [];
 
 let tipoActivo = 'entrada';
 let periodoActivo = 'diário';
-let chartVendas, chartLucro, chartRelVendas, chartRelLucro, chartTop5, chartDiario;
+let chartVendas, chartLucro, chartRelVendas, chartRelLucro, chartTop5, chartDiario, chartROI;
 let userRole = 'gestor';
 let activeMesa = null;
 let activeClienteId = null;
@@ -941,6 +941,54 @@ function renderRelatorios() {
                 custo: cost 
             };
         }).sort((a, b) => b.receita - a.receita);
+
+        // --- NOVO GRÁFICO: EFICIÊNCIA DE LUCRO (ROI) ---
+        var roiProdsData = globalProdsData.map(p => {
+            var lucro = p.receita - p.custo;
+            var roi = p.custo > 0 ? (lucro / p.custo) : 0;
+            return { nome: p.nome, roi: roi };
+        }).sort((a, b) => b.roi - a.roi);
+
+        var roiContainer = document.getElementById('chart-roi-container');
+        if (roiContainer) {
+            var minWidthRoi = roiProdsData.length * 45;
+            var parentWRoi = roiContainer.parentElement.clientWidth || 800;
+            roiContainer.style.width = Math.max(parentWRoi, minWidthRoi) + 'px';
+        }
+
+        if (chartROI) chartROI.destroy();
+        chartROI = new Chart(document.getElementById('chartROI'), {
+            type: 'bar',
+            data: {
+                labels: roiProdsData.map(p => p.nome),
+                datasets: [{
+                    label: 'ROI (Lucro por Metical Investido)',
+                    data: roiProdsData.map(p => p.roi),
+                    backgroundColor: 'rgba(99, 102, 241, 0.6)', 
+                    borderColor: 'rgb(99, 102, 241)',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return 'ROI: ' + context.parsed.y.toFixed(2) + ' (Retorno de ' + (context.parsed.y * 100).toFixed(0) + '%)';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: { title: { display: true, text: 'Índice ROI' } }
+                }
+            }
+        });
+
 
         var lucroContainer = document.getElementById('chart-lucro-container');
         if (lucroContainer) {
