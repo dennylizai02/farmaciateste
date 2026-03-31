@@ -1733,6 +1733,7 @@ function renderSaldo() {
         <div class="metric-card"><div class="metric-label">Saldo Total Disponível</div><div class="metric-value ${grandTotal >= 0 ? '' : 'text-danger'}">${grandTotal.toLocaleString()} MZN</div></div>
         <div class="metric-card"><div class="metric-label">Dinheiro (CASH)</div><div class="metric-value">${totals.CASH.toLocaleString()} MZN</div></div>
         <div class="metric-card"><div class="metric-label">M-Pesa</div><div class="metric-value">${totals.MPESA.toLocaleString()} MZN</div></div>
+        <div class="metric-card"><div class="metric-label">e-Mola</div><div class="metric-value">${totals.EMOLA.toLocaleString()} MZN</div></div>
         <div class="metric-card"><div class="metric-label">Banco</div><div class="metric-value">${(totals.BANCO + totals.TRANSFERENCIA + totals.POS).toLocaleString()} MZN</div></div>
     `;
 
