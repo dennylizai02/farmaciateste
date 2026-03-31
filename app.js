@@ -1,5 +1,5 @@
 // ============================================================
-// PINTO'S BAR — app.js (Supabase + Chart.js)
+// PINTO'S BAR — app.js (Supabase + Chart.js) - BUILD 20260331-2357
 // ============================================================
 
 const SUPABASE_URL = 'https://pbozvloeyppytskgeizu.supabase.co';
