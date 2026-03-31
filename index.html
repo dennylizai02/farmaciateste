@@ -695,6 +695,14 @@
     .mesa-card.occupied { border-left: 8px solid #E24B4A; background: #FFF5F5; }
     .mesa-card.free { border-left: 8px solid #3B6D11; background: #F6FFF0; }
     .mesa-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; margin-top: 10px; display: inline-block; }
+    
+    .chart-desc {
+      font-size: 11px;
+      color: var(--color-text-secondary);
+      margin-top: 8px;
+      line-height: 1.4;
+      font-style: italic;
+    }
   </style>
 </head>
 
@@ -851,30 +859,36 @@
       <div class="card">
         <div class="card-title">Unidades Vendidas</div>
         <div class="chart-wrap"><canvas id="chartVendas"></canvas></div>
+        <p class="chart-desc">Volume total de itens vendidos. Ajuda a entender a rotatividade do stock e a popularidade bruta dos produtos.</p>
       </div>
       
       <div class="card">
         <div class="card-title">Receita vs Custo (Produto)</div>
         <div class="chart-wrap"><canvas id="chartLucro"></canvas></div>
+        <p class="chart-desc">Compara o ganho bruto com o custo real de aquisição (FIFO). Essencial para identificar a rentabilidade de cada item.</p>
       </div>
 
       <div class="chart-row">
         <div class="card">
           <div class="card-title">Vendas por período</div>
           <div class="chart-wrap"><canvas id="chartRelVendas"></canvas></div>
+          <p class="chart-desc">Tendência de faturamento ao longo do tempo, permitindo identificar picos de consumo e sazonalidade.</p>
         </div>
         <div class="card">
           <div class="card-title">Lucro por período</div>
           <div class="chart-wrap"><canvas id="chartRelLucro"></canvas></div>
+          <p class="chart-desc">Evolução do lucro bruto após descontar o custo do stock. Crucial para monitorizar a saúde financeira.</p>
         </div>
       </div>
       <div class="card">
         <div class="card-title">Vendas vs Lucro</div>
         <div class="chart-wrap"><canvas id="chartDiario"></canvas></div>
+        <p class="chart-desc">Sobreposição de receita e lucro para visualizar a eficiência operacional e margens de ganho.</p>
       </div>
       <div class="card">
         <div class="card-title">Top 5 produtos mais vendidos</div>
         <div class="chart-wrap" style="height:220px;"><canvas id="chartTop5"></canvas></div>
+        <p class="chart-desc">Os 5 itens com maior volume de saída, facilitando o foco nos produtos mais importantes da casa.</p>
       </div>
       <div class="card" id="card-low-stock">
         <div class="card-title">Produtos com menos stock</div>
