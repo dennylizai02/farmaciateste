@@ -116,7 +116,7 @@ function showSection(id) {
         if (oc.indexOf(id) !== -1) { btns[i].classList.add('active'); break; }
     }
 
-    if (id === 'dashboard') renderDashboard();
+    if (id === 'relatorios') renderRelatorios();
     if (id === 'stock') renderStock();
     if (id === 'movimentos') renderMovimentos();
     if (id === 'relatorios') renderRelatorios();
@@ -265,35 +265,7 @@ function getStatus(p) {
 }
 
 // ====================== DASHBOARD ======================
-function renderDashboard() {
-    var totalSkus = produtos.length;
-    var totalUnid = produtos.reduce(function (a, p) { return a + p.qtd; }, 0);
-    var vendas = movimentos.filter(function (m) { return m.tipo === 'saida'; });
-    var totalVendas = vendas.reduce(function (a, m) { return a + m.total; }, 0);
-    var totalCusto = vendas.reduce(function (a, m) { var p = produtos.find(function (x) { return x.id === m.prodId; }); return a + (p ? m.qtd * p.custo : 0); }, 0);
-    var lucro = totalVendas - totalCusto;
-    var alertas = produtos.filter(function (p) { return p.qtd <= p.min; }).length;
 
-    var hoje = new Date().toISOString().split('T')[0];
-    var vendasHoje = movimentos.filter(function (m) { return m.tipo === 'saida' && m.data === hoje; });
-    var totalVendasHoje = vendasHoje.reduce(function (a, m) { return a + m.total; }, 0);
-
-    var html = '<div class="metric-card"><div class="metric-label">Produtos em stock</div><div class="metric-value">' + totalSkus + '</div><div class="metric-sub">' + totalUnid + ' unidades totais</div></div>';
-    
-    if (userRole === 'vendedor') {
-        html += '<div class="metric-card"><div class="metric-label">Vendas de Hoje</div><div class="metric-value" style="color:#378ADD;">' + totalVendasHoje.toLocaleString() + ' MZN</div><div class="metric-sub">' + vendasHoje.length + ' vendas hoje</div></div>';
-    } else {
-        html += '<div class="metric-card"><div class="metric-label">Receita total</div><div class="metric-value">' + totalVendas.toLocaleString() + ' MZN</div><div class="metric-sub">Vendas registadas</div></div>';
-        html += '<div class="metric-card"><div class="metric-label">Lucro Bruto (Margem)</div><div class="metric-value" style="color:#3B6D11;">' + lucro.toLocaleString() + ' MZN</div><div class="metric-sub">Margem ' + (totalVendas > 0 ? Math.round(lucro / totalVendas * 100) : 0) + '%</div></div>';
-    }
-    
-    html += '<div class="metric-card"><div class="metric-label">Alertas activos</div><div class="metric-value" style="color:' + (alertas > 0 ? '#A32D2D' : '#3B6D11') + ';">' + alertas + '</div><div class="metric-sub">Produtos com stock baixo</div></div>';
-
-    document.getElementById('dash-metrics').innerHTML = html;
-
-    var ac = document.getElementById('alert-count');
-    if (ac) ac.textContent = alertas > 0 ? alertas : '';
-}
 
 function renderStock() {
     var q = (document.getElementById('search-prod').value || '').toLowerCase();
@@ -402,7 +374,7 @@ async function updateQtd(id, val) {
         ]);
         await fetchData();
     }
-    renderStock(); renderDashboard(); renderMovimentos();
+    renderStock(); renderRelatorios(); renderMovimentos();
 }
 
 async function updateField(id, field, val) {
@@ -632,7 +604,7 @@ async function deleteMovimento(id) {
         rebuildFifo();
         showNotification('Movimento anulado com sucesso!', 'success');
         await fetchData(); 
-        renderMovimentos(); renderStock(); renderDashboard(); renderCaixa(); renderAlertas(); renderNecessidades(); renderDocsHistory();
+        renderMovimentos(); renderStock(); renderRelatorios(); renderCaixa(); renderAlertas(); renderNecessidades(); renderDocsHistory();
     } catch (err) {
         console.error('Erro ao anular movimento:', err);
         showNotification('Erro ao anular movimento.');
@@ -1465,7 +1437,7 @@ async function deleteDocumento(id) {
         if (sb) await sb.from(PREFIX + 'documentos').update({ detalhes: newD }).eq('id', id);
         showNotification('Documento anulado e stock restaurado!', 'success');
         await fetchData();
-        renderDocsHistory(); renderStock(); renderDashboard(); renderMovimentos();
+        renderDocsHistory(); renderStock(); renderRelatorios(); renderMovimentos();
     } catch (err) {
         showNotification('Erro ao eliminar.');
     }
@@ -1577,10 +1549,13 @@ async function applyRoleRestrictions() {
     
     btns.forEach(btn => {
         const action = btn.getAttribute('onclick') || '';
-        if (action.includes('dashboard') || action.includes('relatorios') || 
-            action.includes('alertas') || action.includes('necessidades') || 
-            action.includes('caixa') || action.includes('despesas') || 
-            action.includes('planocompras') || action.includes('relmensal') || 
+        if (action.includes('relatorios') || 
+            action.includes('alertas') || 
+            action.includes('necessidades') || 
+            action.includes('caixa') || 
+            action.includes('despesas') || 
+            action.includes('planocompras') || 
+            action.includes('relmensal') || 
             action.includes('saldo')) {
             btn.style.display = isGestor ? 'inline-block' : 'none';
         }
@@ -1620,7 +1595,7 @@ async function applyRoleRestrictions() {
     if (!isGestor) {
         showSection('mesas');
     } else {
-        showSection('dashboard');
+        showSection('relatorios');
     }
 }
 
@@ -1628,7 +1603,7 @@ async function initApp() {
     try {
         setDefaultDates();
         await fetchData();
-        renderDashboard();
+        renderRelatorios();
         renderMovimentos();
         renderDespesas();
         renderCaixa();
@@ -2177,7 +2152,7 @@ async function confirmarCompra() {
         showNotification('Stock actualizado com sucesso!', 'success');
         planoItems = [];
         await fetchData();
-        renderPlanoCompras(); renderStock(); renderDashboard();
+        renderPlanoCompras(); renderStock(); renderRelatorios();
     } catch (err) {
         console.error('Erro na confirmação:', err);
         showNotification('Erro ao confirmar compra.', 'error');

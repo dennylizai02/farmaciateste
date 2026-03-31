@@ -731,10 +731,9 @@
     </div>
 
     <nav class="nav">
-      <button class="nav-btn active" onclick="showSection('dashboard')">Dashboard</button>
+      <button class="nav-btn active" onclick="showSection('relatorios')">Dashboard</button>
       <button class="nav-btn" onclick="showSection('stock')">Stock</button>
       <button class="nav-btn" onclick="showSection('movimentos')">Movimentos</button>
-      <button class="nav-btn" onclick="showSection('relatorios')">Relatórios</button>
       <button class="nav-btn" onclick="showSection('alertas')">Alertas <span id="alert-count"
           style="background:#E24B4A;color:#fff;border-radius:20px;padding:1px 6px;font-size:10px;margin-left:3px;"></span></button>
       <button class="nav-btn" onclick="showSection('necessidades')">Necessidades</button>
@@ -746,11 +745,6 @@
       <button class="nav-btn" id="nav-saldo" onclick="showSection('saldo')">🏦 Saldo</button>
       <button class="nav-btn" id="nav-mesas" onclick="showSection('mesas')">🪑 Mesas</button>
     </nav>
-
-    <!-- DASHBOARD -->
-    <div class="section active" id="sec-dashboard">
-      <div class="metrics" id="dash-metrics"></div>
-    </div>
 
     <!-- STOCK -->
     <div class="section" id="sec-stock">
@@ -845,8 +839,8 @@
       </div>
     </div>
 
-    <!-- RELATÓRIOS -->
-    <div class="section" id="sec-relatorios">
+    <!-- DASHBOARD (Antigo Relatórios) -->
+    <div class="section active" id="sec-relatorios">
       <div class="period-select">
         <button class="period-btn active" onclick="setPeriodo('diário',this)">Diário</button>
         <button class="period-btn" onclick="setPeriodo('semanal',this)">Semanal</button>
