@@ -1615,6 +1615,8 @@ async function applyRoleRestrictions() {
     
     btns.forEach(btn => {
         const action = btn.getAttribute('onclick') || '';
+        
+        // Coisas que SÓ o Gestor vê
         if (action.includes('relatorios') || 
             action.includes('alertas') || 
             action.includes('necessidades') || 
@@ -1624,6 +1626,11 @@ async function applyRoleRestrictions() {
             action.includes('relmensal') || 
             action.includes('saldo')) {
             btn.style.display = isGestor ? 'inline-block' : 'none';
+        }
+        
+        // Coisas que o Gestor NÃO vê (Exclusivo Vendedor)
+        if (action.includes('mesas')) {
+            btn.style.display = isGestor ? 'none' : 'inline-block';
         }
     });
 
