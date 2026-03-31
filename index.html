@@ -148,6 +148,21 @@
       padding: 14px 16px;
     }
 
+    /* Saldo specific: single row, smaller layout */
+    #saldo-metrics {
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    #saldo-metrics .metric-card {
+      padding: 10px 8px;
+    }
+    #saldo-metrics .metric-label {
+      font-size: 11px;
+    }
+    #saldo-metrics .metric-value {
+      font-size: 14px;
+    }
+
     .metric-label {
       font-size: 12px;
       color: var(--color-text-secondary);
