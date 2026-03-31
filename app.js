@@ -930,24 +930,42 @@ function renderRelatorios() {
             return match;
         };
 
-        var topProdsData = produtos.map(p => {
-            var pSales = movimentos.filter(m => m.tipo === 'saida' && m.prodId === p.id && getFilteredMovs(m));
+        // --- GRÁFICO GLOBAL DE RENTABILIDADE (Receita vs Custo) ---
+        var globalProdsData = produtos.map(p => {
+            var pSales = movimentos.filter(m => m.tipo === 'saida' && m.prodId === p.id); // Global: sem filtro de período
             var rev = pSales.reduce((a, m) => a + m.total, 0);
             var cost = pSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
-            return { nome: p.nome.split(' ').slice(0, 2).join(' '), receita: rev, custo: cost, total: rev + cost };
-        }).sort((a, b) => b.total - a.total).slice(0, 10);
+            return { 
+                nome: p.nome.split(' ').slice(0, 2).join(' '), 
+                receita: rev, 
+                custo: cost 
+            };
+        }).sort((a, b) => b.receita - a.receita);
+
+        var lucroContainer = document.getElementById('chart-lucro-container');
+        if (lucroContainer) {
+            var minWidth = globalProdsData.length * 45;
+            var parentW = lucroContainer.parentElement.clientWidth || 800;
+            lucroContainer.style.width = Math.max(parentW, minWidth) + 'px';
+        }
 
         if (chartLucro) chartLucro.destroy();
         chartLucro = new Chart(document.getElementById('chartLucro'), { 
             type: 'bar', 
             data: { 
-                labels: topProdsData.map(p => p.nome), 
+                labels: globalProdsData.map(p => p.nome), 
                 datasets: [
-                    { label: 'Receita', data: topProdsData.map(p => p.receita), backgroundColor: '#C0DD97', borderColor: '#639922', borderWidth: 1 }, 
-                    { label: 'Custo', data: topProdsData.map(p => p.custo), backgroundColor: '#F5C4B3', borderColor: '#D85A30', borderWidth: 1 }
+                    { label: 'Receita', data: globalProdsData.map(p => p.receita), backgroundColor: '#C0DD97', borderColor: '#639922', borderWidth: 1 }, 
+                    { label: 'Custo', data: globalProdsData.map(p => p.custo), backgroundColor: '#F5C4B3', borderColor: '#D85A30', borderWidth: 1 }
                 ] 
             }, 
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, labels: { font: { size: 11 }, boxWidth: 10 } } } } 
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                plugins: { 
+                    legend: { display: true, labels: { font: { size: 11 }, boxWidth: 10 } }
+                } 
+            } 
         });
         // --- FIM DOS GRÁFICOS MOVIDOS ---
 

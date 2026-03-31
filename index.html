@@ -293,6 +293,30 @@
       gap: 4px;
     }
 
+    .chart-wrap {
+      height: 300px;
+      position: relative;
+    }
+
+    .chart-scroll-wrap {
+      overflow-x: auto;
+      overflow-y: hidden;
+      width: 100%;
+      padding-bottom: 5px;
+    }
+
+    .chart-container-inner {
+      height: 300px;
+    }
+
+    .chart-desc {
+      font-size: 13px;
+      color: var(--color-text-secondary);
+      font-style: italic;
+      margin-top: 10px;
+      padding: 0 5px;
+    }
+
     label {
       font-size: 12px;
       color: var(--color-text-secondary);
@@ -850,16 +874,12 @@
       </div>
       <div class="metrics" id="rel-metrics"></div>
       
+
+      
       <div class="card">
         <div class="card-title">Unidades Vendidas</div>
         <div class="chart-wrap"><canvas id="chartVendas"></canvas></div>
         <p class="chart-desc">Volume total de itens vendidos. Ajuda a entender a rotatividade do stock e a popularidade bruta dos produtos.</p>
-      </div>
-      
-      <div class="card">
-        <div class="card-title">Receita vs Custo (Produto)</div>
-        <div class="chart-wrap"><canvas id="chartLucro"></canvas></div>
-        <p class="chart-desc">Compara o ganho bruto com o custo real de aquisição (FIFO). Essencial para identificar a rentabilidade de cada item.</p>
       </div>
 
       <div class="chart-row">
@@ -883,6 +903,15 @@
         <div class="card-title">Top 5 produtos mais vendidos</div>
         <div class="chart-wrap" style="height:220px;"><canvas id="chartTop5"></canvas></div>
         <p class="chart-desc">Os 5 itens com maior volume de saída, facilitando o foco nos produtos mais importantes da casa.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">Receita vs Custo (Produto) — Global</div>
+        <div class="chart-scroll-wrap">
+          <div class="chart-container-inner" id="chart-lucro-container">
+            <canvas id="chartLucro"></canvas>
+          </div>
+        </div>
+        <p class="chart-desc">Compara o ganho bruto acumulado com o custo de aquisição para todos os produtos da base. <b>Esta análise é global e independente do filtro de período acima.</b></p>
       </div>
       <div class="card" id="card-low-stock">
         <div class="card-title">Produtos com menos stock</div>
