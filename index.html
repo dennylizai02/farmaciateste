@@ -870,7 +870,7 @@
       <div class="card">
         <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
           Histórico de movimentos
-          <button class="btn" onclick="printDailyMovements()">🖨️ Imprimir Movimentos do Dia</button>
+          <button class="btn" onclick="printHistoricoMovimentos()">🖨️ Imprimir</button>
         </div>
         <div class="table-responsive">
           <div id="mov-table"></div>
@@ -880,12 +880,15 @@
 
     <!-- DASHBOARD (Antigo Relatórios) -->
     <div class="section active" id="sec-relatorios">
-      <div class="period-select">
+      <div class="period-select" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+        <div>
         <button class="period-btn active" onclick="setPeriodo('diário',this)">Diário</button>
         <button class="period-btn" onclick="setPeriodo('semanal',this)">Semanal</button>
         <button class="period-btn" onclick="setPeriodo('mensal',this)">Mensal</button>
         <button class="period-btn" onclick="setPeriodo('trimestral',this)">Trimestral</button>
         <button class="period-btn" onclick="setPeriodo('anual',this)">Anual</button>
+        </div>
+        <button class="btn" onclick="printFaturacao()">🖨️ Imprimir</button>
       </div>
       <div class="metrics" id="rel-metrics"></div>
       
@@ -1089,7 +1092,8 @@
           <div class="card-title" style="margin-bottom:0;">Relatório Mensal Completo</div>
           <div style="display:flex; gap:10px;">
             <input id="rm-mes" type="month" onchange="renderRelMensal()">
-            <button class="btn btn-primary" onclick="downloadRelMensalPDF()">Gravar
+            <button class="btn btn-primary" onclick="printMensal()">🖨️ Imprimir</button>
+            <button class="btn" onclick="downloadRelMensalPDF()">Gravar
               PDF</button>
           </div>
         </div>

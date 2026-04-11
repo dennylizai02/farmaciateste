@@ -1180,6 +1180,22 @@ function printMensal() {
     setTimeout(function () { window.print(); }, 30000);
 }
 
+function printFaturacao() {
+    var printArea = document.getElementById('print-area');
+    printArea.innerHTML = '<div class="card"><div class="card-title">Dashboard - ' + periodoActivo + '</div>' + document.getElementById('rel-metrics').innerHTML + '</div>';
+    document.querySelectorAll('#sec-relatorios .card').forEach(function(card) {
+        printArea.innerHTML += card.outerHTML;
+    });
+    setTimeout(function () { window.print(); }, 30000);
+}
+
+function printHistoricoMovimentos() {
+    var movTable = document.getElementById('mov-table');
+    var printArea = document.getElementById('print-area');
+    printArea.innerHTML = '<div class="card"><div class="card-title">Histórico de Movimentos</div>' + movTable.innerHTML + '</div>';
+    setTimeout(function () { window.print(); }, 30000);
+}
+
 function downloadRelMensalPDF() {
     prepareMensalPrintArea();
     var mesSel = document.getElementById('rm-mes').value;
@@ -2260,7 +2276,6 @@ function downloadPlanoPDF() {
             '<td style="padding:6px 8px;text-align:center;">' + item.qtd + '</td>' +
             '<td style="padding:6px 8px;text-align:right;">' + item.custo.toLocaleString() + '</td>' +
             '<td style="padding:6px 8px;text-align:right;font-weight:bold;">' + (item.qtd * item.custo).toLocaleString() + '</td>' +
-            '<td style="padding:6px 8px;">' + item.forn + '</td>' +
             '<td style="padding:6px 8px;">☐</td></tr>';
     });
 
@@ -2275,7 +2290,7 @@ function downloadPlanoPDF() {
         '<thead style="background:#f0f0f0;">' +
         '<tr><th style="padding:8px;text-align:left;">#</th><th style="padding:8px;text-align:left;">Produto</th>' +
         '<th style="padding:8px;text-align:center;">Qtd</th><th style="padding:8px;text-align:right;">Custo Unit.</th>' +
-        '<th style="padding:8px;text-align:right;">Custo Total</th><th style="padding:8px;text-align:left;">Fornecedor</th>' +
+        '<th style="padding:8px;text-align:right;">Custo Total</th>' +
         '<th style="padding:8px;text-align:center;">✓</th></tr></thead>' +
         '<tbody>' + rows.join('') + '</tbody></table>' +
         '<div style="text-align:right; font-size:16px; font-weight:bold; border-top:2px solid #000; padding-top:10px;">' +
