@@ -1177,7 +1177,7 @@ function renderRelMensal() {
 
 function printMensal() {
     prepareMensalPrintArea();
-    setTimeout(function () { window.print(); }, 500);
+    setTimeout(function () { window.print(); }, 30000);
 }
 
 function downloadRelMensalPDF() {
@@ -2197,6 +2197,56 @@ async function clearPlano() {
         renderPlanoCompras();
         showNotification('Plano limpo com sucesso!', 'success');
     }
+}
+
+function printPlanoCompras() {
+    if (planoItems.length === 0) { showNotification('Adicione produtos ao plano primeiro.'); return; }
+    var totalPlano = planoItems.reduce(function (a, it) { return a + (it.qtd * it.custo); }, 0);
+    var today = new Date().toLocaleDateString('pt-MZ', { year: 'numeric', month: 'long', day: 'numeric' });
+    var rows = planoItems.map(function (item, i) {
+        return '<tr>' +
+            '<td style="padding:6px 8px;border:1px solid #ccc;">' + (i + 1) + '</td>' +
+            '<td style="padding:6px 8px;border:1px solid #ccc;">' + item.nome + '</td>' +
+            '<td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">' + item.qtd + '</td>' +
+            '<td style="padding:6px 8px;border:1px solid #ccc;text-align:right;">' + item.custo.toLocaleString() + '</td>' +
+            '<td style="padding:6px 8px;border:1px solid #ccc;text-align:right;font-weight:bold;">' + (item.qtd * item.custo).toLocaleString() + '</td>' +
+            '<td style="padding:6px 8px;border:1px solid #ccc;">' + item.forn + '</td>' +
+            '<td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">☐</td></tr>';
+    });
+
+    var printContent = '<!DOCTYPE html><html><head>' +
+        '<title>Plano de Compras</title>' +
+        '<style>' +
+        'body { font-family: Arial, sans-serif; color: #000; padding: 20px; font-size: 14px; }' +
+        '.header { text-align: center; margin-bottom: 20px; }' +
+        '.header h2 { margin: 0; font-size: 22px; }' +
+        '.header .subtitle { font-size: 16px; font-weight: bold; margin-top: 5px; }' +
+        '.header .date { font-size: 13px; color: #555; margin-top: 3px; }' +
+        'table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px; }' +
+        'th { background: #f0f0f0; border: 1px solid #ccc; padding: 8px; text-align: left; }' +
+        'td { border: 1px solid #ccc; padding: 6px 8px; }' +
+        '.total { text-align: right; font-size: 16px; font-weight: bold; border-top: 2px solid #000; padding-top: 10px; }' +
+        '.signatures { margin-top: 40px; font-size: 12px; color: #777; display: flex; justify-content: space-between; }' +
+        '.footer { text-align: center; font-size: 11px; color: #999; margin-top: 30px; }' +
+        '@media print { body { padding: 0; } }' +
+        '</style></head><body>' +
+        '<div class="header">' +
+        '<h2>QUININA BOTTLE STORE</h2>' +
+        '<div class="subtitle">PLANO DE COMPRAS</div>' +
+        '<div class="date">' + today + '</div></div>' +
+        '<table><thead><tr>' +
+        '<th>#</th><th>Produto</th><th>Qtd</th><th>Custo Unit.</th><th>Custo Total</th><th>Fornecedor</th><th>✓</th>' +
+        '</tr></thead><tbody>' + rows.join('') + '</tbody></table>' +
+        '<div class="total">TOTAL ESTIMADO: ' + totalPlano.toLocaleString() + ' MZN</div>' +
+        '<div class="signatures"><div>_________________________<br>Assinatura do Comprador</div>' +
+        '<div>_________________________<br>Aprovado por</div></div>' +
+        '<div class="footer">Processado por Computador (Sistema de Gestão Quinina)</div>' +
+        '</body></html>';
+
+    var win = window.open('', '_blank');
+    win.document.write(printContent);
+    win.document.close();
+    win.onload = function() { win.print(); };
 }
 
 function downloadPlanoPDF() {
