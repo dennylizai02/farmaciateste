@@ -1495,7 +1495,7 @@ function generatePDF(element, filename, orientation) {
             console.error('PDF error:', err);
             element.style.cssText = origStyle;
         });
-    }, 20000);
+    }, 60000);
 }
 
 function printDoc(doc) {
