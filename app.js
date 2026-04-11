@@ -92,6 +92,8 @@ let mesaClientes = [];
 
 let tipoActivo = 'entrada';
 let periodoActivo = 'diário';
+let currentSortField = 'nome';
+let currentSortOrder = 'asc';
 let chartVendas, chartLucro, chartRelVendas, chartRelLucro, chartTop5, chartDiario, chartROI;
 let userRole = 'gestor';
 let activeMesa = null;
@@ -267,10 +269,42 @@ function getStatus(p) {
 // ====================== DASHBOARD ======================
 
 
+function handleSort(field) {
+    if (currentSortField === field) {
+        currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+        currentSortField = field;
+        currentSortOrder = 'asc';
+    }
+    renderStock();
+}
+
 function renderStock() {
     var q = (document.getElementById('search-prod').value || '').toLowerCase();
-    var filtered = produtos.filter(function (p) { return p.nome.toLowerCase().indexOf(q) !== -1 || (p.cat || '').toLowerCase().indexOf(q) !== -1; });
+    var filtered = produtos.filter(function (p) { 
+        return p.nome.toLowerCase().indexOf(q) !== -1 || (p.cat || '').toLowerCase().indexOf(q) !== -1; 
+    });
     
+    // Aplicar ordenação
+    filtered.sort(function(a, b) {
+        let valA, valB;
+        if (currentSortField === 'nome') { valA = a.nome.toLowerCase(); valB = b.nome.toLowerCase(); }
+        else if (currentSortField === 'cat') { valA = (a.cat || '').toLowerCase(); valB = (b.cat || '').toLowerCase(); }
+        else if (currentSortField === 'forn') { valA = (a.forn || '').toLowerCase(); valB = (b.forn || '').toLowerCase(); }
+        else if (currentSortField === 'estado') {
+            valA = (a.qtd === 0 ? 0 : (a.qtd <= a.min ? 1 : 2));
+            valB = (b.qtd === 0 ? 0 : (b.qtd <= b.min ? 1 : 2));
+        }
+        else if (currentSortField === 'margem') {
+            valA = a.venda > 0 ? (a.venda - a.custo) / a.venda : 0;
+            valB = b.venda > 0 ? (b.venda - b.custo) / b.venda : 0;
+        }
+
+        if (valA < valB) return currentSortOrder === 'asc' ? -1 : 1;
+        if (valA > valB) return currentSortOrder === 'asc' ? 1 : -1;
+        return 0;
+    });
+
     var totalCustoStock = filtered.reduce((a, p) => a + (p.qtd * p.custo), 0);
     var totalVendaStock = filtered.reduce((a, p) => a + (p.qtd * p.venda), 0);
     var lucroPreviso = totalVendaStock - totalCustoStock;
@@ -292,12 +326,21 @@ function renderStock() {
         }
     }
 
+    function getSortIcon(field) {
+        if (currentSortField !== field) return '';
+        return currentSortOrder === 'asc' ? ' ↑' : ' ↓';
+    }
+
     var isGestor = userRole === 'gestor';
-    var header = '<table><thead><tr><th>Produto</th><th>Categoria</th><th>Qtd</th>' + 
+    var header = '<table><thead><tr>' + 
+                 '<th onclick="handleSort(\'nome\')" style="cursor:pointer; user-select:none;">Produto' + getSortIcon('nome') + '</th>' + 
+                 '<th onclick="handleSort(\'cat\')" style="cursor:pointer; user-select:none;">Categoria' + getSortIcon('cat') + '</th>' + 
+                 '<th>Qtd</th>' + 
                  (isGestor ? '<th>Mín.</th><th>Custo (MT)</th>' : '') + 
                  '<th>Venda (MT)</th>' + 
-                 (isGestor ? '<th>Margem</th><th>Fornecedor</th>' : '') + 
-                 '<th>Estado</th>' + 
+                 (isGestor ? '<th onclick="handleSort(\'margem\')" style="cursor:pointer; user-select:none;">Margem' + getSortIcon('margem') + '</th>' : '') + 
+                 (isGestor ? '<th onclick="handleSort(\'forn\')" style="cursor:pointer; user-select:none;">Fornecedor' + getSortIcon('forn') + '</th>' : '') + 
+                 '<th onclick="handleSort(\'estado\')" style="cursor:pointer; user-select:none;">Estado' + getSortIcon('estado') + '</th>' + 
                  (isGestor ? '<th>Acções</th>' : '') + '</tr></thead><tbody>';
 
     document.getElementById('stock-table').innerHTML = filtered.length ?
@@ -1445,7 +1488,6 @@ function generatePDF(element, filename, orientation) {
     };
 
     // Delay to ensure DOM rendering completes for large tables/charts
-    // Increased to 5000ms as requested for large purchase lists
     setTimeout(function() {
         html2pdf().set(opt).from(element).save().then(function () {
             element.style.cssText = origStyle;
@@ -1453,7 +1495,7 @@ function generatePDF(element, filename, orientation) {
             console.error('PDF error:', err);
             element.style.cssText = origStyle;
         });
-    }, 5000);
+    }, 20000);
 }
 
 function printDoc(doc) {
