@@ -794,14 +794,16 @@
           <div class="form-group"><label>Nome do produto</label><input id="p-nome"
               placeholder="Ex: Laurentina Preta 600ml"></div>
           <div class="form-group"><label>Categoria</label>
-            <select id="p-cat">
+            <select id="p-cat" onchange="toggleCustomProdCat()">
               <option>Cervejas</option>
               <option>Vinho</option>
               <option>Espirituosas</option>
               <option>Refrigerantes</option>
               <option>Água</option>
               <option>Outros</option>
+              <option value="Outra...">Outra... (Especificar nova)</option>
             </select>
+            <input id="p-cat-custom" style="display:none; margin-top:4px;" placeholder="Nome da nova categoria">
           </div>
           <div class="form-group"><label>Qtd. actual</label><input id="p-qtd" type="number" min="0" placeholder="0">
           </div>

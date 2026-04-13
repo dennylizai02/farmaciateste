@@ -435,9 +435,14 @@ async function updateField(id, field, val) {
 async function addProduto() {
     var nome = document.getElementById('p-nome').value.trim();
     if (!nome) { showNotification('Insere o nome do produto'); return; }
+    var cat = document.getElementById('p-cat').value;
+    if (cat === 'Outra...') {
+        cat = document.getElementById('p-cat-custom').value.trim();
+        if (!cat) { showNotification('Escreve o nome da nova categoria de produto!'); return; }
+    }
     var novoProd = {
         nome: nome,
-        categoria: document.getElementById('p-cat').value,
+        categoria: cat,
         quantidade: parseInt(document.getElementById('p-qtd').value) || 0,
         stock_minimo: parseInt(document.getElementById('p-min').value) || 10,
         preco_custo: parseFloat(document.getElementById('p-custo').value) || 0,
@@ -451,6 +456,9 @@ async function addProduto() {
         showNotification('Produto "' + p.nome + '" adicionado!', 'success');
         produtos.push({ id: p.id, nome: p.nome, cat: p.categoria, qtd: p.quantidade, min: p.stock_minimo, custo: p.preco_custo, venda: p.preco_venda, forn: p.fornecedor });
         ['p-nome', 'p-qtd', 'p-min', 'p-custo', 'p-venda', 'p-fornecedor'].forEach(function (x) { document.getElementById(x).value = ''; });
+        document.getElementById('p-cat').value = 'Cervejas';
+        document.getElementById('p-cat-custom').style.display = 'none';
+        document.getElementById('p-cat-custom').value = '';
         renderStock(); populateProdutoSelect();
     } else { showNotification('Erro ao salvar no banco: ' + (res.error ? res.error.message : '')); }
 }
@@ -658,6 +666,14 @@ async function deleteMovimento(id) {
 function toggleCustomCat() {
     var sel = document.getElementById('d-categoria');
     var cust = document.getElementById('d-categoria-custom');
+    if (sel.value === 'Outra...') { cust.style.display = 'block'; cust.focus(); }
+    else { cust.style.display = 'none'; cust.value = ''; }
+}
+
+// ====================== STOCK - CATEGORIA PERSONALIZADA ======================
+function toggleCustomProdCat() {
+    var sel = document.getElementById('p-cat');
+    var cust = document.getElementById('p-cat-custom');
     if (sel.value === 'Outra...') { cust.style.display = 'block'; cust.focus(); }
     else { cust.style.display = 'none'; cust.value = ''; }
 }
