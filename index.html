@@ -747,14 +747,17 @@
 
 <body>
 
-  <div id="login-screen">
+<div id="login-screen">
     <div class="login-card">
-      <h2 style="margin-bottom: 2rem; font-size: 24px;">🍺 Pinto’s Bar</h2>
-      <input id="l-email" class="login-input" placeholder="Email">
-      <input id="l-pass" class="login-input" type="password" placeholder="Palavra-passe">
-      <button class="login-btn" onclick="loginUser()">Entrar</button>
+      <h2 style="margin-bottom: 2rem; font-size: 24px;">🍺 Pinto's Bar</h2>
+      <form onsubmit="event.preventDefault(); loginUser();">
+        <input id="l-email" class="login-input" placeholder="Email">
+        <input id="l-pass" class="login-input" type="password" placeholder="Palavra-passe">
+        <button type="submit" class="login-btn">Entrar</button>
+      </form>
       <div id="login-error" style="color:#E24B4A; font-size: 12px; margin-top: 1rem;"></div>
     </div>
+  </div>
   </div>
 
   <div class="app" style="display:none;">

@@ -6,11 +6,21 @@ const SUPABASE_URL = 'https://pbozvloeyppytskgeizu.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBib3p2bG9leXBweXRza2dlaXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NTQ5MjEsImV4cCI6MjA5MDAzMDkyMX0.3lbBJ5FCbECnCm5eM_y_NqyezKzjLiY4VMfzj5ltvdQ';
 
 let sb = null;
-try {
-    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-} catch (e) {
-    console.error('Supabase SDK not loaded:', e);
+
+function initSupabase() {
+    if (window.supabase) {
+        try {
+            sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            console.log('Supabase initialized');
+        } catch (e) {
+            console.error('Failed to create Supabase client:', e);
+        }
+    } else {
+        console.error('Supabase SDK not loaded');
+    }
 }
+
+initSupabase();
 
 // ====================== MODO DEMO (ISOLAMENTO) ======================
 const IS_DEMO = window.location.hostname.includes('demo') || 
@@ -1809,6 +1819,8 @@ async function loginUser() {
     const errorEl = document.getElementById('login-error');
     errorEl.textContent = 'A entrar...';
 
+    console.log('Login attempt:', email);
+
     // BYPASS para conta DEMO
     if (email === 'demo@pintos.bar' && pass === 'demo123') {
         localStorage.setItem('pintos_demo_active', 'true');
@@ -1817,25 +1829,36 @@ async function loginUser() {
         return;
     }
 
-    if (!sb) return;
-
-    const { data, error } = await sb.auth.signInWithPassword({ email: email, password: pass });
-    if (error) {
-        errorEl.textContent = 'Erro: ' + error.message;
+    if (!sb) {
+        console.error('Supabase not initialized');
+        errorEl.textContent = 'Sistema não conectado. Tentando novamente...';
+        // Retry init
+        initSupabase();
+        setTimeout(() => loginUser(), 500);
         return;
     }
-    
-    localStorage.removeItem('pintos_demo_active'); // Importante: limpar modo demo em login real
-    showNotification('Login efetuado com sucesso!', 'success');
-    
-    setTimeout(() => {
-        // Se a URL contiver parâmetros de demo, limpa-os e recarrega
-        if (window.location.search.includes('demo')) {
-            window.location.href = window.location.pathname;
-        } else {
-            window.location.reload();
+
+    try {
+        const { data, error } = await sb.auth.signInWithPassword({ email: email, password: pass });
+        if (error) {
+            errorEl.textContent = 'Erro: ' + error.message;
+            return;
         }
-    }, 1000);
+        
+        localStorage.removeItem('pintos_demo_active');
+        showNotification('Login efetuado com sucesso!', 'success');
+        
+        setTimeout(() => {
+            if (window.location.search.includes('demo')) {
+                window.location.href = window.location.pathname;
+            } else {
+                window.location.reload();
+            }
+        }, 1000);
+    } catch (err) {
+        console.error('Login error:', err);
+        errorEl.textContent = 'Erro de conexão: ' + err.message;
+    }
 }
 
 async function logoutUser() {
