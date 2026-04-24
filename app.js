@@ -1259,19 +1259,50 @@ function printMensal() {
 }
 
 function printFaturacao() {
+    var today = new Date().toLocaleDateString('pt-MZ', { year: 'numeric', month: 'long', day: 'numeric' });
     var printArea = document.getElementById('print-area');
-    printArea.innerHTML = '<div class="card"><div class="card-title">Dashboard - ' + periodoActivo + '</div>' + document.getElementById('rel-metrics').innerHTML + '</div>';
-    document.querySelectorAll('#sec-relatorios .card').forEach(function(card) {
-        printArea.innerHTML += card.outerHTML;
-    });
-    setTimeout(function () { window.print(); }, 30000);
+    printArea.innerHTML = `
+        <div style="font-family:sans-serif; color:#000; padding:20px; max-width:1100px; margin:0 auto; background:#fff;">
+            <div style="text-align:center; margin-bottom:20px;">
+                <h2 style="margin:0; font-size:24px;">QUININA BOTTLE STORE</h2>
+                <div style="font-size:16px; font-weight:bold; margin-top:5px;">RELATÓRIO DE FATURAÇÃO E DASHBOARD</div>
+                <div style="font-size:13px; color:#555; margin-top:3px;">${today} | Período: ${periodoActivo}</div>
+            </div>
+            <div style="margin-bottom:20px;">
+                ${document.getElementById('rel-metrics').innerHTML}
+            </div>
+            ${Array.from(document.querySelectorAll('#sec-relatorios .card')).map(card => {
+                if (card.querySelector('.btn')) return ''; // Skip cards that are just buttons
+                return `<div style="margin-bottom:20px; border:1px solid #ccc; padding:15px; border-radius:8px;">${card.innerHTML}</div>`;
+            }).join('')}
+            <div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">
+                Processado por Computador (Sistema de Gestão Quinina)
+            </div>
+        </div>
+    `;
+    setTimeout(function () { window.print(); }, 1000);
 }
 
 function printHistoricoMovimentos() {
+    var today = new Date().toLocaleDateString('pt-MZ', { year: 'numeric', month: 'long', day: 'numeric' });
     var movTable = document.getElementById('mov-table');
     var printArea = document.getElementById('print-area');
-    printArea.innerHTML = '<div class="card"><div class="card-title">Histórico de Movimentos</div>' + movTable.innerHTML + '</div>';
-    setTimeout(function () { window.print(); }, 30000);
+    printArea.innerHTML = `
+        <div style="font-family:sans-serif; color:#000; padding:20px; max-width:1100px; margin:0 auto; background:#fff;">
+            <div style="text-align:center; margin-bottom:20px;">
+                <h2 style="margin:0; font-size:24px;">QUININA BOTTLE STORE</h2>
+                <div style="font-size:16px; font-weight:bold; margin-top:5px;">HISTÓRICO DE MOVIMENTOS</div>
+                <div style="font-size:13px; color:#555; margin-top:3px;">${today}</div>
+            </div>
+            <div style="margin-top:20px;">
+                ${movTable.innerHTML}
+            </div>
+            <div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">
+                Processado por Computador (Sistema de Gestão Quinina)
+            </div>
+        </div>
+    `;
+    setTimeout(function () { window.print(); }, 1000);
 }
 
 function downloadRelMensalPDF() {
@@ -1338,37 +1369,70 @@ function prepareMensalPrintArea() {
 
     var printArea = document.getElementById('print-area');
     printArea.innerHTML = `
-        <div id="pdf-content" style="font-family:sans-serif; color:#000; padding:20px; max-width:800px; margin:0 auto; background:#fff;">
+        <div id="pdf-content" style="font-family:sans-serif; color:#000; padding:20px; max-width:1100px; margin:0 auto; background:#fff;">
             <div style="text-align:center; margin-bottom:20px;">
-                <h2 style="margin:0; font-size:24px;">PINTO'S BAR</h2>
-                <div style="font-size:14px; color:#555;">Relatório de Fecho e Performance Mensal</div>
-                <div style="font-weight:bold; margin-top:5px; font-size:18px;">Mês: ${mesSel.split('-').reverse().join('/')}</div>
+                <h2 style="margin:0; font-size:24px;">QUININA BOTTLE STORE</h2>
+                <div style="font-size:16px; font-weight:bold; margin-top:5px;">RELATÓRIO MENSAL DE PERFORMANCE</div>
+                <div style="font-size:13px; color:#555; margin-top:3px;">Mês: ${mesSel.split('-').reverse().join('/')}</div>
             </div>
             
-            <div style="display:flex; justify-content:space-between; margin-bottom:20px; border-bottom:2px solid #000; padding-bottom:10px;">
-                <div style="font-size:16px;"><b>Receita Total:</b> ${receita.toLocaleString()} MZN</div>
-                <div style="font-size:16px;"><b>Despesas Totais:</b> ${totalDespesas.toLocaleString()} MZN</div>
-                <div style="font-size:16px;"><b>Líquido Real:</b> <span style="color:${lucroLiquido >= 0 ? '#3B6D11' : '#A32D2D'};">${lucroLiquido.toLocaleString()} MZN</span></div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px; border-bottom:2px solid #000; padding-bottom:10px; font-size:14px;">
+                <div><b>Receita Total:</b> ${receita.toLocaleString()} MZN</div>
+                <div><b>Despesas Totais:</b> ${totalDespesas.toLocaleString()} MZN</div>
+                <div><b>Lucro Líquido:</b> <span style="color:${lucroLiquido >= 0 ? '#3B6D11' : '#A32D2D'}">${lucroLiquido.toLocaleString()} MZN</span></div>
+                <div><b>Crescimento:</b> <span style="color:${percL >= 0 ? '#3B6D11' : '#A32D2D'}">${percL}%</span></div>
             </div>
 
-            <div style="margin-bottom:20px;">
-                <h3 style="margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">📊 Insights Clínicos do Mês</h3>
-                <ul style="line-height:1.6; font-size:15px;">
-                    <li><b>Comparação Mensal:</b> O lucro Líquido ${percL >= 0 ? 'cresceu' : 'desceu'} <span style="font-weight:bold;color:${percL >= 0 ? 'green' : 'red'}">${percL > 0 ? '+' + percL : percL}%</span> em comparação ao mês passado (${lucroAnt.toLocaleString()} MZN).</li>
-                    <li><b>Produto mais vendido:</b> O seu best-seller do mês foi "${topProd}".</li>
-                    <li><b>O Melhor Dia do Mês:</b> O dia com mais margens de lucro foi: ${melhorDia ? melhorDia.split('-').reverse().join('/') : 'N/A'} gerando ${maxL.toLocaleString()} MZN de lucro bruto.</li>
-                    <li><b>Margem Bruta Média MZN:</b> Ao longo de todo o mês, cada garrafa vendida lucrou na média ${receita > 0 ? Math.round(lucroBruto / receita * 100) : 0}% sob o preço do Custo Real Dinâmico.</li>
-                    <li><b>Buraco de Quebras MZN:</b> Em mercadorias danificadas as perdas reflectem exactamente ${totalQuebras.toLocaleString()} MZN (do preço de compra perdido).</li>
-                </ul>
-            </div>
-
-            <div style="margin-bottom:20px;">
-                <h3 style="margin-bottom:10px; border-bottom:1px solid #ddd; padding-bottom:5px;">📈 Evolução do Lucro Bruto Diário</h3>
-                <div style="height:300px; width:100%;">
-                    <canvas id="printChartMensal"></canvas>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
+                <div style="border:1px solid #ccc; padding:10px; border-radius:8px;">
+                    <div style="font-weight:bold; margin-bottom:10px; text-align:center; border-bottom:1px solid #eee; padding-bottom:5px;">Evolução de Lucro Diário</div>
+                    <div style="height:250px;"><canvas id="printChartMensal"></canvas></div>
+                </div>
+                <div style="border:1px solid #ccc; padding:10px; border-radius:8px;">
+                    <div style="font-weight:bold; margin-bottom:10px; text-align:center; border-bottom:1px solid #eee; padding-bottom:5px;">Métricas e Insights</div>
+                    <div style="font-size:13px; line-height:1.6;">
+                        • <b>Melhor dia de vendas:</b> ${melhorDia ? melhorDia.split('-').reverse().join('/') : '—'}<br>
+                        • <b>Produto mais vendido:</b> ${topProd}<br>
+                        • <b>Ticket Médio:</b> ${(vendas.length > 0 ? receita / vendas.length : 0).toLocaleString()} MZN<br>
+                        • <b>Total de Quebras:</b> ${totalQuebras.toLocaleString()} MZN<br>
+                        • <b>Total de Despesas:</b> ${totalDespesas.toLocaleString()} MZN
+                    </div>
                 </div>
             </div>
-            <div style="text-align:center; font-size:11px; margin-top:40px; color:#777;">Processado por Computador (Sistema de Gestão Quinina)</div>
+
+            <div style="margin-top:20px;">
+                <div style="font-weight:bold; margin-bottom:10px;">Detalhamento de Vendas do Mês</div>
+                <table style="width:100%; border-collapse:collapse; font-size:12px; margin-bottom:20px;">
+                    <thead style="background:#f0f0f0;">
+                        <tr>
+                            <th style="border:1px solid #ccc; padding:6px; text-align:left;">Data</th>
+                            <th style="border:1px solid #ccc; padding:6px; text-align:left;">Produto</th>
+                            <th style="border:1px solid #ccc; padding:6px; text-align:right;">Qtd</th>
+                            <th style="border:1px solid #ccc; padding:6px; text-align:right;">Preço</th>
+                            <th style="border:1px solid #ccc; padding:6px; text-align:right;">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${vendas.map(m => `
+                            <tr>
+                                <td style="border:1px solid #ccc; padding:5px;">${m.data.split('-').reverse().slice(0, 2).join('/')}</td>
+                                <td style="border:1px solid #ccc; padding:5px;">${m.nome_v}</td>
+                                <td style="border:1px solid #ccc; padding:5px; text-align:right;">${m.qtd}</td>
+                                <td style="border:1px solid #ccc; padding:5px; text-align:right;">${m.preco.toLocaleString()}</td>
+                                <td style="border:1px solid #ccc; padding:5px; text-align:right; font-weight:bold;">${m.total.toLocaleString()}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="margin-top:40px; font-size:12px; color:#777; display:flex; justify-content:space-between;">
+                <div>_________________________<br>Assinatura do Gestor</div>
+                <div>_________________________<br>Assinatura do Proprietário</div>
+            </div>
+            <div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">
+                Processado por Computador (Sistema de Gestão Quinina)
+            </div>
         </div>
     `;
 
@@ -1542,28 +1606,35 @@ function prepareDocPrintArea(doc) {
     var printArea = document.getElementById('print-area');
     var details = doc.detalhes;
     var docName = doc.tipo === 'factura' ? 'FACTURA' : 'COTAÇÃO';
-    var rows = details.items.map(function (item) {
-        return '<tr style="border-bottom:1px dashed #ccc;"><td style="padding:4px 0;">' + item.nome + '</td>' +
-            '<td style="padding:4px 0;text-align:right;">' + item.qtd + '</td>' +
-            '<td style="padding:4px 0;text-align:right;">' + item.preco + '</td>' +
-            '<td style="padding:4px 0;text-align:right;">' + item.total.toFixed(2) + '</td></tr>';
+    var rows = details.items.map(function (item, i) {
+        return '<tr>' +
+            '<td style="border:1px solid #ccc; padding:6px; text-align:center;">' + (i + 1) + '</td>' +
+            '<td style="border:1px solid #ccc; padding:6px;">' + item.nome + '</td>' +
+            '<td style="border:1px solid #ccc; padding:6px; text-align:center;">' + item.qtd + '</td>' +
+            '<td style="border:1px solid #ccc; padding:6px; text-align:right;">' + item.preco.toLocaleString() + '</td>' +
+            '<td style="border:1px solid #ccc; padding:6px; text-align:right; font-weight:bold;">' + item.total.toLocaleString() + '</td></tr>';
     });
     printArea.innerHTML =
-        '<div style="font-family:monospace; color:#000; width:100%; max-width:800px; margin:0 auto; padding:20px;">' +
-        '<div style="text-align:center; font-size:24px; font-weight:bold; margin-bottom:10px;">QUININA BOTTLE STORE</div>' +
-        '<div style="text-align:center; font-size:14px; margin-bottom:20px;">Nuit: -------- | Contacto: --------</div>' +
-        '<div style="display:flex; justify-content:space-between; margin-bottom:20px; font-size:14px;">' +
-        '<div><b>' + docName + ' N.º:</b> ' + doc.id + '<br><b>Data:</b> ' + doc.data + '</div>' +
-        '<div style="text-align:right;"><b>Cliente:</b> ' + doc.cliente + '</div></div>' +
-        '<table style="width:100%; border-collapse:collapse; font-size:14px; margin-bottom:20px;">' +
-        '<thead style="border-bottom:2px solid #000; border-top:2px solid #000;">' +
-        '<tr><th style="padding:8px 0; text-align:left;">Descrição</th><th style="padding:8px 0; text-align:right;">Qtd</th><th style="padding:8px 0; text-align:right;">Preço</th><th style="padding:8px 0; text-align:right;">Total(MZN)</th></tr></thead>' +
+        '<div style="font-family:sans-serif; color:#000; padding:20px; max-width:800px; margin:0 auto; background:#fff;">' +
+        '<div style="text-align:center; margin-bottom:20px;">' +
+        '<h2 style="margin:0; font-size:24px;">QUININA BOTTLE STORE</h2>' +
+        '<div style="font-size:16px; font-weight:bold; margin-top:5px;">' + docName + ' N.º ' + doc.id + '</div>' +
+        '<div style="font-size:13px; color:#555; margin-top:3px;">Data: ' + doc.data + '</div></div>' +
+        '<div style="margin-bottom:20px; font-size:14px;"><b>Cliente:</b> ' + doc.cliente + '</div>' +
+        '<table style="width:100%; border-collapse:collapse; font-size:13px; margin-bottom:20px;">' +
+        '<thead style="background:#f0f0f0;">' +
+        '<tr><th style="border:1px solid #ccc; padding:8px; text-align:center;">#</th><th style="border:1px solid #ccc; padding:8px; text-align:left;">Descrição</th>' +
+        '<th style="border:1px solid #ccc; padding:8px; text-align:center;">Qtd</th><th style="border:1px solid #ccc; padding:8px; text-align:right;">Preço Unit.</th>' +
+        '<th style="border:1px solid #ccc; padding:8px; text-align:right;">Total (MZN)</th></tr></thead>' +
         '<tbody>' + rows.join('') + '</tbody></table>' +
         '<div style="text-align:right; font-size:14px;">' +
-        '<div>Subtotal: ' + (doc.total + (details.desconto || 0)).toFixed(2) + ' MZN</div>' +
-        (details.desconto > 0 ? '<div>Desconto: -' + details.desconto.toFixed(2) + ' MZN</div>' : '') +
-        '<div style="font-size:18px; font-weight:bold; margin-top:10px;">TOTAL: ' + doc.total.toFixed(2) + ' MZN</div></div>' +
-        '<div style="text-align:center; font-size:12px; margin-top:50px; border-top:1px dashed #ccc; padding-top:10px;">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador.</div></div>';
+        '<div>Subtotal: ' + (doc.total + (details.desconto || 0)).toLocaleString() + ' MZN</div>' +
+        (details.desconto > 0 ? '<div>Desconto: -' + details.desconto.toLocaleString() + ' MZN</div>' : '') +
+        '<div style="font-size:18px; font-weight:bold; margin-top:10px; border-top:2px solid #000; padding-top:10px;">TOTAL: ' + doc.total.toLocaleString() + ' MZN</div></div>' +
+        '<div style="margin-top:40px; font-size:12px; color:#777; display:flex; justify-content:space-between;">' +
+        '<div>_________________________<br>Entregue por</div>' +
+        '<div>_________________________<br>Recebido por</div></div>' +
+        '<div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador (Sistema de Gestão Quinina)</div></div>';
 }
 
 function generatePDF(element, filename, orientation) {
