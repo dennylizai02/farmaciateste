@@ -1255,7 +1255,8 @@ async function printMensal() {
     if (canvas) {
         var imgData = canvas.toDataURL('image/png');
         var parent = canvas.parentElement;
-        parent.innerHTML = `<img src="${imgData}" style="width:100%; height:auto;">`;
+        // Definir altura fixa para a imagem para manter consistência com o canvas original
+        parent.innerHTML = `<img src="${imgData}" style="width:100%; max-height:250px; object-fit: contain;">`;
     }
     
     var content = document.getElementById('print-area').innerHTML;
@@ -1437,11 +1438,10 @@ function prepareMensalPrintArea() {
                 <div><b>Lucro Líquido:</b> <span style="color:${lucroLiquido >= 0 ? '#3B6D11' : '#A32D2D'}">${lucroLiquido.toLocaleString()} MZN</span></div>
                 <div><b>Crescimento:</b> <span style="color:${percL >= 0 ? '#3B6D11' : '#A32D2D'}">${percL}%</span></div>
             </div>
-
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
-                <div style="border:1px solid #ccc; padding:10px; border-radius:8px;">
+                <div style="border:1px solid #ccc; padding:10px; border-radius:8px; display: flex; flex-direction: column;">
                     <div style="font-weight:bold; margin-bottom:10px; text-align:center; border-bottom:1px solid #eee; padding-bottom:5px;">Evolução de Lucro Diário</div>
-                    <div style="height:250px;"><canvas id="printChartMensal"></canvas></div>
+                    <div style="flex-grow: 1; min-height:250px; width: 100%;"><canvas id="printChartMensal" width="500" height="250" style="width:100% !important; height:250px !important;"></canvas></div>
                 </div>
                 <div style="border:1px solid #ccc; padding:10px; border-radius:8px;">
                     <div style="font-weight:bold; margin-bottom:10px; text-align:center; border-bottom:1px solid #eee; padding-bottom:5px;">Métricas e Insights</div>
@@ -1505,8 +1505,8 @@ function prepareMensalPrintArea() {
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
+            responsive: false,
+            maintainAspectRatio: true,
             animation: false,
             plugins: { legend: { display: false } }
         }
