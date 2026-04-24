@@ -1255,7 +1255,7 @@ function renderRelMensal() {
 
 function printMensal() {
     prepareMensalPrintArea();
-    setTimeout(function () { window.print(); }, 30000);
+    setTimeout(function () { window.print(); }, 1000);
 }
 
 function printFaturacao() {
