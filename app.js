@@ -1248,20 +1248,8 @@ function renderRelMensal() {
 
 function printMensal() {
     prepareMensalPrintArea();
-    var printArea = document.getElementById('print-area');
-    var content = printArea.innerHTML;
-    
-    var printContent = '<!DOCTYPE html><html><head>' +
-        '<title>Relatório Mensal</title>' +
-        '<style>' +
-        'body { font-family: Arial, sans-serif; color: #000; padding: 20px; }' +
-        '@media print { body { padding: 0; } }' +
-        '</style></head><body>' + content + '</body></html>';
-
-    var win = window.open('', '_blank');
-    win.document.write(printContent);
-    win.document.close();
-    win.onload = function() { win.print(); };
+    // Aguardar 1 segundo para o gráfico renderizar no #print-area
+    setTimeout(function () { window.print(); }, 1000);
 }
 
 function printFaturacao() {
@@ -1290,7 +1278,7 @@ function printFaturacao() {
         '@media print { body { padding: 0; } }' +
         '</style></head><body>' +
         '<div class="header">' +
-        '<h2>Pinto\u2019s Bar</h2>' +
+        '<h2>QUININA BOTTLE STORE</h2>' +
         '<div class="subtitle">RELATÓRIO DE FATURAÇÃO E DASHBOARD</div>' +
         '<div class="date">' + today + ' | Período: ' + periodoActivo + '</div></div>' +
         '<div class="metrics">' + (relMetrics ? relMetrics.innerHTML : '') + '</div>' +
@@ -1323,7 +1311,7 @@ function printHistoricoMovimentos() {
         '@media print { body { padding: 0; } }' +
         '</style></head><body>' +
         '<div class="header">' +
-        '<h2>Pinto\u2019s Bar</h2>' +
+        '<h2>QUININA BOTTLE STORE</h2>' +
         '<div class="subtitle">HISTÓRICO DE MOVIMENTOS</div>' +
         '<div class="date">' + today + '</div></div>' +
         '<div>' + movTable.innerHTML + '</div>' +
@@ -1402,7 +1390,7 @@ function prepareMensalPrintArea() {
     printArea.innerHTML = `
         <div id="pdf-content" style="font-family:sans-serif; color:#000; padding:20px; max-width:1100px; margin:0 auto; background:#fff;">
             <div style="text-align:center; margin-bottom:20px;">
-                <h2 style="margin:0; font-size:24px;">Pinto\u2019s Bar</h2>
+                <h2 style="margin:0; font-size:24px;">QUININA BOTTLE STORE</h2>
                 <div style="font-size:16px; font-weight:bold; margin-top:5px;">RELATÓRIO MENSAL DE PERFORMANCE</div>
                 <div style="font-size:13px; color:#555; margin-top:3px;">Mês: ${mesSel.split('-').reverse().join('/')}</div>
             </div>
@@ -1648,7 +1636,7 @@ function prepareDocPrintArea(doc) {
     printArea.innerHTML =
         '<div style="font-family:sans-serif; color:#000; padding:20px; max-width:800px; margin:0 auto; background:#fff;">' +
         '<div style="text-align:center; margin-bottom:20px;">' +
-        '<h2 style="margin:0; font-size:24px;">Pinto\u2019s Bar</h2>' +
+        '<h2 style="margin:0; font-size:24px;">QUININA BOTTLE STORE</h2>' +
         '<div style="font-size:16px; font-weight:bold; margin-top:5px;">' + docName + ' N.º ' + doc.id + '</div>' +
         '<div style="font-size:13px; color:#555; margin-top:3px;">Data: ' + doc.data + '</div></div>' +
         '<div style="margin-bottom:20px; font-size:14px;"><b>Cliente:</b> ' + doc.cliente + '</div>' +
@@ -1684,6 +1672,7 @@ function generatePDF(element, filename, orientation) {
     };
 
     // Delay to ensure DOM rendering completes for large tables/charts
+    // Reduzido para 2 segundos (60s era excessivo)
     setTimeout(function() {
         html2pdf().set(opt).from(element).save().then(function () {
             element.style.cssText = origStyle;
@@ -1691,7 +1680,7 @@ function generatePDF(element, filename, orientation) {
             console.error('PDF error:', err);
             element.style.cssText = origStyle;
         });
-    }, 60000);
+    }, 2000);
 }
 
 function printDoc(doc) {
@@ -2420,7 +2409,7 @@ function printPlanoCompras() {
         '@media print { body { padding: 0; } }' +
         '</style></head><body>' +
         '<div class="header">' +
-        '<h2>Pinto\u2019s Bar</h2>' +
+        '<h2>QUININA BOTTLE STORE</h2>' +
         '<div class="subtitle">PLANO DE COMPRAS</div>' +
         '<div class="date">' + today + '</div></div>' +
         '<table><thead><tr>' +
@@ -2456,7 +2445,7 @@ function downloadPlanoPDF() {
     printArea.innerHTML =
         '<div style="font-family:sans-serif; color:#000; padding:20px; max-width:800px; margin:0 auto; background:#fff;">' +
         '<div style="text-align:center; margin-bottom:20px;">' +
-        '<h2 style="margin:0; font-size:22px;">Pinto\u2019s Bar</h2>' +
+        '<h2 style="margin:0; font-size:22px;">QUININA BOTTLE STORE</h2>' +
         '<div style="font-size:16px; font-weight:bold; margin-top:5px;">PLANO DE COMPRAS</div>' +
         '<div style="font-size:13px; color:#555; margin-top:3px;">' + today + '</div></div>' +
         '<table style="width:100%; border-collapse:collapse; font-size:13px; margin-bottom:20px;">' +
