@@ -1255,32 +1255,60 @@ function renderRelMensal() {
 
 function printMensal() {
     prepareMensalPrintArea();
-    setTimeout(function () { window.print(); }, 1000);
+    var printArea = document.getElementById('print-area');
+    var content = printArea.innerHTML;
+    
+    var printContent = '<!DOCTYPE html><html><head>' +
+        '<title>Relatório Mensal</title>' +
+        '<style>' +
+        'body { font-family: Arial, sans-serif; color: #000; padding: 20px; }' +
+        '@media print { body { padding: 0; } }' +
+        '</style></head><body>' + content + '</body></html>';
+
+    var win = window.open('', '_blank');
+    win.document.write(printContent);
+    win.document.close();
+    win.onload = function() { win.print(); };
 }
 
 function printFaturacao() {
     var today = new Date().toLocaleDateString('pt-MZ', { year: 'numeric', month: 'long', day: 'numeric' });
-    var printArea = document.getElementById('print-area');
-    printArea.innerHTML = `
-        <div style="font-family:sans-serif; color:#000; padding:20px; max-width:1100px; margin:0 auto; background:#fff;">
-            <div style="text-align:center; margin-bottom:20px;">
-                <h2 style="margin:0; font-size:24px;">QUININA BOTTLE STORE</h2>
-                <div style="font-size:16px; font-weight:bold; margin-top:5px;">RELATÓRIO DE FATURAÇÃO E DASHBOARD</div>
-                <div style="font-size:13px; color:#555; margin-top:3px;">${today} | Período: ${periodoActivo}</div>
-            </div>
-            <div style="margin-bottom:20px;">
-                ${document.getElementById('rel-metrics').innerHTML}
-            </div>
-            ${Array.from(document.querySelectorAll('#sec-relatorios .card')).map(card => {
-                if (card.querySelector('.btn')) return ''; // Skip cards that are just buttons
-                return `<div style="margin-bottom:20px; border:1px solid #ccc; padding:15px; border-radius:8px;">${card.innerHTML}</div>`;
-            }).join('')}
-            <div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">
-                Processado por Computador (Sistema de Gestão Quinina)
-            </div>
-        </div>
-    `;
-    setTimeout(function () { window.print(); }, 1000);
+    var relMetrics = document.getElementById('rel-metrics');
+    var cards = Array.from(document.querySelectorAll('#sec-relatorios .card')).filter(card => !card.querySelector('.btn'));
+    
+    var printContent = '<!DOCTYPE html><html><head>' +
+        '<title>Relatório de Faturação</title>' +
+        '<style>' +
+        'body { font-family: Arial, sans-serif; color: #000; padding: 20px; font-size: 14px; }' +
+        '.header { text-align: center; margin-bottom: 20px; }' +
+        '.header h2 { margin: 0; font-size: 24px; }' +
+        '.header .subtitle { font-size: 16px; font-weight: bold; margin-top: 5px; }' +
+        '.header .date { font-size: 13px; color: #555; margin-top: 3px; }' +
+        '.metrics { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }' +
+        '.metric-card { border: 1px solid #ccc; padding: 10px 15px; border-radius: 8px; flex: 1; min-width: 120px; }' +
+        '.metric-label { font-size: 12px; color: #666; }' +
+        '.metric-value { font-size: 20px; font-weight: bold; }' +
+        '.card { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 20px; }' +
+        '.card-title { font-size: 16px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }' +
+        'table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 15px; }' +
+        'th { background: #f0f0f0; border: 1px solid #ccc; padding: 6px; text-align: left; }' +
+        'td { border: 1px solid #ccc; padding: 6px; }' +
+        '.footer { text-align: center; font-size: 11px; color: #999; margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 10px; }' +
+        '@media print { body { padding: 0; } }' +
+        '</style></head><body>' +
+        '<div class="header">' +
+        '<h2>QUININA BOTTLE STORE</h2>' +
+        '<div class="subtitle">RELATÓRIO DE FATURAÇÃO E DASHBOARD</div>' +
+        '<div class="date">' + today + ' | Período: ' + periodoActivo + '</div></div>' +
+        '<div class="metrics">' + (relMetrics ? relMetrics.innerHTML : '') + '</div>' +
+        cards.map(card => '<div class="card"><div class="card-title">' + (card.querySelector('.card-title') ? card.querySelector('.card-title').innerText : '') + '</div>' + card.innerHTML + '</div>').join('') +
+        '<div class="footer">Processado por Computador (Sistema de Gestão Quinina)</div>' +
+        '</body></html>';
+
+    var win = window.open('', '_blank');
+    win.document.write(printContent);
+    win.document.close();
+    win.onload = function() { win.print(); };
 }
 
 function printHistoricoMovimentos() {
