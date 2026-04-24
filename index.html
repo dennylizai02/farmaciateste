@@ -794,14 +794,16 @@
           <div class="form-group"><label>Nome do produto</label><input id="p-nome"
               placeholder="Ex: Laurentina Preta 600ml"></div>
           <div class="form-group"><label>Categoria</label>
-            <select id="p-cat">
+            <select id="p-cat" onchange="toggleCustomProdCat()">
               <option>Cervejas</option>
               <option>Vinho</option>
               <option>Espirituosas</option>
               <option>Refrigerantes</option>
               <option>Água</option>
               <option>Outros</option>
+              <option value="Outra...">Outra... (Especificar nova)</option>
             </select>
+            <input id="p-cat-custom" style="display:none; margin-top:4px;" placeholder="Nome da nova categoria">
           </div>
           <div class="form-group"><label>Qtd. actual</label><input id="p-qtd" type="number" min="0" placeholder="0">
           </div>
@@ -870,9 +872,10 @@
       <div class="card">
         <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
           Histórico de movimentos
-          <div>
+<div>
             <input type="date" id="mov-hist-date" onchange="renderMovimentos()" style="margin-right:10px;">
             <button class="btn" onclick="printDailyMovements()">🖨️ Imprimir Movimentos do Dia</button>
+            <button class="btn" onclick="printHistoricoMovimentos()" style="margin-left:5px;">🖨️ Imprimir</button>
           </div>
         </div>
         <div class="table-responsive">
@@ -883,12 +886,15 @@
 
     <!-- DASHBOARD (Antigo Relatórios) -->
     <div class="section active" id="sec-relatorios">
-      <div class="period-select">
+      <div class="period-select" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+        <div>
         <button class="period-btn active" onclick="setPeriodo('diário',this)">Diário</button>
         <button class="period-btn" onclick="setPeriodo('semanal',this)">Semanal</button>
         <button class="period-btn" onclick="setPeriodo('mensal',this)">Mensal</button>
         <button class="period-btn" onclick="setPeriodo('trimestral',this)">Trimestral</button>
         <button class="period-btn" onclick="setPeriodo('anual',this)">Anual</button>
+        </div>
+        <button class="btn" onclick="printFaturacao()">🖨️ Imprimir</button>
       </div>
       <div class="metrics" id="rel-metrics"></div>
       
@@ -1084,7 +1090,8 @@
           <div class="card-title" style="margin-bottom:0;">Relatório Mensal Completo</div>
           <div style="display:flex; gap:10px;">
             <input id="rm-mes" type="month" onchange="renderRelMensal()">
-            <button class="btn btn-primary" onclick="downloadRelMensalPDF()">Gravar
+            <button class="btn btn-primary" onclick="printMensal()">🖨️ Imprimir</button>
+            <button class="btn" onclick="downloadRelMensalPDF()">Gravar
               PDF</button>
           </div>
         </div>
@@ -1140,7 +1147,7 @@
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--color-border-tertiary);">
           <div style="font-size:14px;">Itens: <b><span id="plano-count">0</span></b></div>
           <div style="font-size:18px;font-weight:500;">Total Estimado: <span id="plano-total" style="color:#3B6D11;">0</span> MZN</div>
-          <button class="btn btn-primary" onclick="downloadPlanoPDF()">📄 Gerar PDF do Plano</button>
+          <button class="btn btn-primary" onclick="printPlanoCompras()">🖨️ Imprimir Plano</button>
         </div>
       </div>
     </div>

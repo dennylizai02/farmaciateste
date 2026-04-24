@@ -435,9 +435,14 @@ async function updateField(id, field, val) {
 async function addProduto() {
     var nome = document.getElementById('p-nome').value.trim();
     if (!nome) { showNotification('Insere o nome do produto'); return; }
+    var cat = document.getElementById('p-cat').value;
+    if (cat === 'Outra...') {
+        cat = document.getElementById('p-cat-custom').value.trim();
+        if (!cat) { showNotification('Escreve o nome da nova categoria de produto!'); return; }
+    }
     var novoProd = {
         nome: nome,
-        categoria: document.getElementById('p-cat').value,
+        categoria: cat,
         quantidade: parseInt(document.getElementById('p-qtd').value) || 0,
         stock_minimo: parseInt(document.getElementById('p-min').value) || 10,
         preco_custo: parseFloat(document.getElementById('p-custo').value) || 0,
@@ -451,6 +456,9 @@ async function addProduto() {
         showNotification('Produto "' + p.nome + '" adicionado!', 'success');
         produtos.push({ id: p.id, nome: p.nome, cat: p.categoria, qtd: p.quantidade, min: p.stock_minimo, custo: p.preco_custo, venda: p.preco_venda, forn: p.fornecedor });
         ['p-nome', 'p-qtd', 'p-min', 'p-custo', 'p-venda', 'p-fornecedor'].forEach(function (x) { document.getElementById(x).value = ''; });
+        document.getElementById('p-cat').value = 'Cervejas';
+        document.getElementById('p-cat-custom').style.display = 'none';
+        document.getElementById('p-cat-custom').value = '';
         renderStock(); populateProdutoSelect();
     } else { showNotification('Erro ao salvar no banco: ' + (res.error ? res.error.message : '')); }
 }
@@ -670,6 +678,14 @@ async function deleteMovimento(id) {
 function toggleCustomCat() {
     var sel = document.getElementById('d-categoria');
     var cust = document.getElementById('d-categoria-custom');
+    if (sel.value === 'Outra...') { cust.style.display = 'block'; cust.focus(); }
+    else { cust.style.display = 'none'; cust.value = ''; }
+}
+
+// ====================== STOCK - CATEGORIA PERSONALIZADA ======================
+function toggleCustomProdCat() {
+    var sel = document.getElementById('p-cat');
+    var cust = document.getElementById('p-cat-custom');
     if (sel.value === 'Outra...') { cust.style.display = 'block'; cust.focus(); }
     else { cust.style.display = 'none'; cust.value = ''; }
 }
@@ -1188,7 +1204,23 @@ function renderRelMensal() {
 
 function printMensal() {
     prepareMensalPrintArea();
-    setTimeout(function () { window.print(); }, 500);
+    setTimeout(function () { window.print(); }, 30000);
+}
+
+function printFaturacao() {
+    var printArea = document.getElementById('print-area');
+    printArea.innerHTML = '<div class="card"><div class="card-title">Dashboard - ' + periodoActivo + '</div>' + document.getElementById('rel-metrics').innerHTML + '</div>';
+    document.querySelectorAll('#sec-relatorios .card').forEach(function(card) {
+        printArea.innerHTML += card.outerHTML;
+    });
+    setTimeout(function () { window.print(); }, 30000);
+}
+
+function printHistoricoMovimentos() {
+    var movTable = document.getElementById('mov-table');
+    var printArea = document.getElementById('print-area');
+    printArea.innerHTML = '<div class="card"><div class="card-title">Histórico de Movimentos</div>' + movTable.innerHTML + '</div>';
+    setTimeout(function () { window.print(); }, 30000);
 }
 
 function downloadRelMensalPDF() {
@@ -2210,6 +2242,56 @@ async function clearPlano() {
     }
 }
 
+function printPlanoCompras() {
+    if (planoItems.length === 0) { showNotification('Adicione produtos ao plano primeiro.'); return; }
+    var totalPlano = planoItems.reduce(function (a, it) { return a + (it.qtd * it.custo); }, 0);
+    var today = new Date().toLocaleDateString('pt-MZ', { year: 'numeric', month: 'long', day: 'numeric' });
+    var rows = planoItems.map(function (item, i) {
+        return '<tr>' +
+            '<td style="padding:6px 8px;border:1px solid #ccc;">' + (i + 1) + '</td>' +
+            '<td style="padding:6px 8px;border:1px solid #ccc;">' + item.nome + '</td>' +
+            '<td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">' + item.qtd + '</td>' +
+            '<td style="padding:6px 8px;border:1px solid #ccc;text-align:right;">' + item.custo.toLocaleString() + '</td>' +
+            '<td style="padding:6px 8px;border:1px solid #ccc;text-align:right;font-weight:bold;">' + (item.qtd * item.custo).toLocaleString() + '</td>' +
+            '<td style="padding:6px 8px;border:1px solid #ccc;">' + item.forn + '</td>' +
+            '<td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">☐</td></tr>';
+    });
+
+    var printContent = '<!DOCTYPE html><html><head>' +
+        '<title>Plano de Compras</title>' +
+        '<style>' +
+        'body { font-family: Arial, sans-serif; color: #000; padding: 20px; font-size: 14px; }' +
+        '.header { text-align: center; margin-bottom: 20px; }' +
+        '.header h2 { margin: 0; font-size: 22px; }' +
+        '.header .subtitle { font-size: 16px; font-weight: bold; margin-top: 5px; }' +
+        '.header .date { font-size: 13px; color: #555; margin-top: 3px; }' +
+        'table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px; }' +
+        'th { background: #f0f0f0; border: 1px solid #ccc; padding: 8px; text-align: left; }' +
+        'td { border: 1px solid #ccc; padding: 6px 8px; }' +
+        '.total { text-align: right; font-size: 16px; font-weight: bold; border-top: 2px solid #000; padding-top: 10px; }' +
+        '.signatures { margin-top: 40px; font-size: 12px; color: #777; display: flex; justify-content: space-between; }' +
+        '.footer { text-align: center; font-size: 11px; color: #999; margin-top: 30px; }' +
+        '@media print { body { padding: 0; } }' +
+        '</style></head><body>' +
+        '<div class="header">' +
+        '<h2>QUININA BOTTLE STORE</h2>' +
+        '<div class="subtitle">PLANO DE COMPRAS</div>' +
+        '<div class="date">' + today + '</div></div>' +
+        '<table><thead><tr>' +
+        '<th>#</th><th>Produto</th><th>Qtd</th><th>Custo Unit.</th><th>Custo Total</th><th>Fornecedor</th><th>✓</th>' +
+        '</tr></thead><tbody>' + rows.join('') + '</tbody></table>' +
+        '<div class="total">TOTAL ESTIMADO: ' + totalPlano.toLocaleString() + ' MZN</div>' +
+        '<div class="signatures"><div>_________________________<br>Assinatura do Comprador</div>' +
+        '<div>_________________________<br>Aprovado por</div></div>' +
+        '<div class="footer">Processado por Computador (Sistema de Gestão Quinina)</div>' +
+        '</body></html>';
+
+    var win = window.open('', '_blank');
+    win.document.write(printContent);
+    win.document.close();
+    win.onload = function() { win.print(); };
+}
+
 function downloadPlanoPDF() {
     if (planoItems.length === 0) { showNotification('Adicione produtos ao plano primeiro.'); return; }
     var totalPlano = planoItems.reduce(function (a, it) { return a + (it.qtd * it.custo); }, 0);
@@ -2221,7 +2303,6 @@ function downloadPlanoPDF() {
             '<td style="padding:6px 8px;text-align:center;">' + item.qtd + '</td>' +
             '<td style="padding:6px 8px;text-align:right;">' + item.custo.toLocaleString() + '</td>' +
             '<td style="padding:6px 8px;text-align:right;font-weight:bold;">' + (item.qtd * item.custo).toLocaleString() + '</td>' +
-            '<td style="padding:6px 8px;">' + item.forn + '</td>' +
             '<td style="padding:6px 8px;">☐</td></tr>';
     });
 
@@ -2236,7 +2317,7 @@ function downloadPlanoPDF() {
         '<thead style="background:#f0f0f0;">' +
         '<tr><th style="padding:8px;text-align:left;">#</th><th style="padding:8px;text-align:left;">Produto</th>' +
         '<th style="padding:8px;text-align:center;">Qtd</th><th style="padding:8px;text-align:right;">Custo Unit.</th>' +
-        '<th style="padding:8px;text-align:right;">Custo Total</th><th style="padding:8px;text-align:left;">Fornecedor</th>' +
+        '<th style="padding:8px;text-align:right;">Custo Total</th>' +
         '<th style="padding:8px;text-align:center;">✓</th></tr></thead>' +
         '<tbody>' + rows.join('') + '</tbody></table>' +
         '<div style="text-align:right; font-size:16px; font-weight:bold; border-top:2px solid #000; padding-top:10px;">' +
