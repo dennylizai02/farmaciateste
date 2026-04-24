@@ -2469,7 +2469,6 @@ function printPlanoCompras() {
             '<td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">' + item.qtd + '</td>' +
             '<td style="padding:6px 8px;border:1px solid #ccc;text-align:right;">' + item.custo.toLocaleString() + '</td>' +
             '<td style="padding:6px 8px;border:1px solid #ccc;text-align:right;font-weight:bold;">' + (item.qtd * item.custo).toLocaleString() + '</td>' +
-            '<td style="padding:6px 8px;border:1px solid #ccc;">' + item.forn + '</td>' +
             '<td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">☐</td></tr>';
     });
 
@@ -2495,7 +2494,7 @@ function printPlanoCompras() {
             <div class="date">${today}</div>
         </div>
         <table><thead><tr>
-            <th>#</th><th>Produto</th><th>Qtd</th><th>Custo Unit.</th><th>Custo Total</th><th>Fornecedor</th><th>✓</th>
+            <th>#</th><th>Produto</th><th>Qtd</th><th>Custo Unit.</th><th>Custo Total</th><th>✓</th>
         </tr></thead><tbody>${rows.join('')}</tbody></table>
         <div class="total">TOTAL ESTIMADO: ${totalPlano.toLocaleString()} MZN</div>
         <div class="signatures"><div>_________________________<br>Assinatura do Comprador</div>
@@ -2520,7 +2519,7 @@ function downloadPlanoPDF() {
             '<td style="padding:6px 8px;text-align:center;">' + item.qtd + '</td>' +
             '<td style="padding:6px 8px;text-align:right;">' + item.custo.toLocaleString() + '</td>' +
             '<td style="padding:6px 8px;text-align:right;font-weight:bold;">' + (item.qtd * item.custo).toLocaleString() + '</td>' +
-            '<td style="padding:6px 8px;">☐</td></tr>';
+            '<td style="padding:6px 8px;text-align:center;">☐</td></tr>';
     });
 
     var printArea = document.getElementById('print-area');
