@@ -1307,23 +1307,33 @@ function printFaturacao() {
 function printHistoricoMovimentos() {
     var today = new Date().toLocaleDateString('pt-MZ', { year: 'numeric', month: 'long', day: 'numeric' });
     var movTable = document.getElementById('mov-table');
-    var printArea = document.getElementById('print-area');
-    printArea.innerHTML = `
-        <div style="font-family:sans-serif; color:#000; padding:20px; max-width:1100px; margin:0 auto; background:#fff;">
-            <div style="text-align:center; margin-bottom:20px;">
-                <h2 style="margin:0; font-size:24px;">Pinto\u2019s Bar</h2>
-                <div style="font-size:16px; font-weight:bold; margin-top:5px;">HISTÓRICO DE MOVIMENTOS</div>
-                <div style="font-size:13px; color:#555; margin-top:3px;">${today}</div>
-            </div>
-            <div style="margin-top:20px;">
-                ${movTable.innerHTML}
-            </div>
-            <div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">
-                Processado por Computador (Sistema de Gestão Quinina)
-            </div>
-        </div>
-    `;
-    setTimeout(function () { window.print(); }, 1000);
+    
+    var printContent = '<!DOCTYPE html><html><head>' +
+        '<title>Histórico de Movimentos</title>' +
+        '<style>' +
+        'body { font-family: Arial, sans-serif; color: #000; padding: 20px; font-size: 14px; }' +
+        '.header { text-align: center; margin-bottom: 20px; }' +
+        '.header h2 { margin: 0; font-size: 24px; }' +
+        '.header .subtitle { font-size: 16px; font-weight: bold; margin-top: 5px; }' +
+        '.header .date { font-size: 13px; color: #555; margin-top: 3px; }' +
+        'table { width: 100%; border-collapse: collapse; font-size: 12px; }' +
+        'th { background: #f0f0f0; border: 1px solid #ccc; padding: 8px; text-align: left; }' +
+        'td { border: 1px solid #ccc; padding: 6px 8px; }' +
+        '.footer { text-align: center; font-size: 11px; color: #999; margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 10px; }' +
+        '@media print { body { padding: 0; } }' +
+        '</style></head><body>' +
+        '<div class="header">' +
+        '<h2>Pinto\u2019s Bar</h2>' +
+        '<div class="subtitle">HISTÓRICO DE MOVIMENTOS</div>' +
+        '<div class="date">' + today + '</div></div>' +
+        '<div>' + movTable.innerHTML + '</div>' +
+        '<div class="footer">Processado por Computador (Sistema de Gestão)</div>' +
+        '</body></html>';
+
+    var win = window.open('', '_blank');
+    win.document.write(printContent);
+    win.document.close();
+    win.onload = function() { win.print(); };
 }
 
 function downloadRelMensalPDF() {
