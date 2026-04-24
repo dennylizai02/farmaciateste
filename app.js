@@ -119,7 +119,7 @@ function showSection(id) {
     }
 
     if (id === 'relatorios') renderRelatorios();
-    if (id === 'stock') renderStock();
+    if (id === 'stock') { renderStock(); renderAlertas(); }
     if (id === 'movimentos') renderMovimentos();
     if (id === 'relatorios') renderRelatorios();
     if (id === 'alertas') renderAlertas();
