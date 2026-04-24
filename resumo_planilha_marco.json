@@ -1,0 +1,2348 @@
+{
+  "fonte": "PLANILHA_CERTA_Marco.xlsm",
+  "data_extracao": "2026-03-27",
+  "moeda": "MZN (Metical Moçambicano)",
+  "resumo_financeiro": {},
+  "movimentacao_diaria_resumo": {
+    "data": "2026-03-23",
+    "valor_vendido_hoje_MZN": 4677,
+    "lucro_bruto_hoje_MZN": 1224.85,
+    "caixa_atual_MZN": 22984.04,
+    "facturamento_acumulado_MZN": 53152
+  },
+  "movimentacao_diaria_detalhe": [],
+  "transacoes_historicas": [
+    {
+      "data": "2025-05-23",
+      "mes_detalhado": "MAIO DE 2025",
+      "produto": "BALDE 20L",
+      "tipo": "COMPRA DE STOCK",
+      "quantidade": 5,
+      "preco_unitario_MZN": 120,
+      "preco_compra_unitario_MZN": null,
+      "valor_total_MZN": 600,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "mes": "MAIO",
+      "ano": 2025
+    },
+    {
+      "data": "2025-05-13",
+      "mes_detalhado": "MAIO DE 2025",
+      "produto": "capa de iphone 7plus",
+      "tipo": "VENDA",
+      "quantidade": 30,
+      "preco_unitario_MZN": 190,
+      "preco_compra_unitario_MZN": 78,
+      "valor_total_MZN": 5700,
+      "facturamento_MZN": 3360,
+      "lucro_MZN": 3360.0,
+      "mes": "MAIO",
+      "ano": 2025
+    },
+    {
+      "data": "2025-06-24",
+      "mes_detalhado": "JUNHO DE 2025",
+      "produto": "BALDE 20L",
+      "tipo": "VENDA",
+      "quantidade": 1,
+      "preco_unitario_MZN": 400,
+      "preco_compra_unitario_MZN": 120,
+      "valor_total_MZN": 400,
+      "facturamento_MZN": 280,
+      "lucro_MZN": 280.0,
+      "mes": "JUNHO",
+      "ano": 2025
+    },
+    {
+      "data": "2025-06-24",
+      "mes_detalhado": "JUNHO DE 2025",
+      "produto": "capa de iphone 7plus",
+      "tipo": "COMPRA DE STOCK",
+      "quantidade": 400,
+      "preco_unitario_MZN": 78,
+      "preco_compra_unitario_MZN": null,
+      "valor_total_MZN": 31200,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "mes": "JUNHO",
+      "ano": 2025
+    },
+    {
+      "data": "2025-06-23",
+      "mes_detalhado": "JUNHO DE 2025",
+      "produto": "BALDE 20L",
+      "tipo": "VENDA",
+      "quantidade": 17,
+      "preco_unitario_MZN": 400,
+      "preco_compra_unitario_MZN": 120,
+      "valor_total_MZN": 6800,
+      "facturamento_MZN": 4760,
+      "lucro_MZN": 4760.0,
+      "mes": "JUNHO",
+      "ano": 2025
+    },
+    {
+      "data": "2025-06-04",
+      "mes_detalhado": "JUNHO DE 2025",
+      "produto": "cartas",
+      "tipo": "VENDA",
+      "quantidade": 3,
+      "preco_unitario_MZN": 70,
+      "preco_compra_unitario_MZN": 30,
+      "valor_total_MZN": 210,
+      "facturamento_MZN": 120,
+      "lucro_MZN": 120.0,
+      "mes": "JUNHO",
+      "ano": 2025
+    },
+    {
+      "data": "2025-06-04",
+      "mes_detalhado": "JUNHO DE 2025",
+      "produto": "capa de iphone 7plus",
+      "tipo": "COMPRA DE STOCK",
+      "quantidade": 39,
+      "preco_unitario_MZN": 78,
+      "preco_compra_unitario_MZN": null,
+      "valor_total_MZN": 3042,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "mes": "JUNHO",
+      "ano": 2025
+    }
+  ],
+  "cadastro_produtos": [
+    {
+      "descricao": "DESCRIÇÃO",
+      "qt_inicial": "QT INICIAL",
+      "preco_compra_MZN": "VALOR DE COMPRA",
+      "preco_venda_MZN": "VALOR DE VENDA",
+      "stock_minimo": "STOCK MÍNIMO"
+    },
+    {
+      "descricao": "2 M garrafa de 550 ml",
+      "qt_inicial": 30,
+      "preco_compra_MZN": 51.67,
+      "preco_venda_MZN": 65,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "2 M lata",
+      "qt_inicial": 31,
+      "preco_compra_MZN": 45.83,
+      "preco_venda_MZN": 55,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "2 M txoti",
+      "qt_inicial": 12,
+      "preco_compra_MZN": 35.83,
+      "preco_venda_MZN": 50,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Acucar",
+      "qt_inicial": 10,
+      "preco_compra_MZN": 76,
+      "preco_venda_MZN": 90,
+      "stock_minimo": 5
+    },
+    {
+      "descricao": "Agua 0.5 l",
+      "qt_inicial": 28,
+      "preco_compra_MZN": 17,
+      "preco_venda_MZN": 25,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Agua 1.5 l",
+      "qt_inicial": 13,
+      "preco_compra_MZN": 34,
+      "preco_venda_MZN": 50,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Agua 6 l",
+      "qt_inicial": 20,
+      "preco_compra_MZN": 60,
+      "preco_venda_MZN": 80,
+      "stock_minimo": 4
+    },
+    {
+      "descricao": "Agua tonica (amarela)",
+      "qt_inicial": 14,
+      "preco_compra_MZN": 42,
+      "preco_venda_MZN": 50,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Amarula 750 ml",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 600,
+      "preco_venda_MZN": 700,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Anabell",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 300,
+      "preco_venda_MZN": 400,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "Balattines",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 600,
+      "preco_venda_MZN": 700,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "Beefeater",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 850,
+      "preco_venda_MZN": 900,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "Bernine garrafa 375 ml",
+      "qt_inicial": 22,
+      "preco_compra_MZN": 70,
+      "preco_venda_MZN": 85,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Bernine lata 500 ml",
+      "qt_inicial": 17,
+      "preco_compra_MZN": 90,
+      "preco_venda_MZN": 110,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Biscoito",
+      "qt_inicial": 100,
+      "preco_compra_MZN": 4,
+      "preco_venda_MZN": 5,
+      "stock_minimo": 20
+    },
+    {
+      "descricao": "Black Label ",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 1350,
+      "preco_venda_MZN": 1500,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "Bolacha Maria",
+      "qt_inicial": 12,
+      "preco_compra_MZN": 18,
+      "preco_venda_MZN": 20,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Brutal garrafa 375 ml",
+      "qt_inicial": 21,
+      "preco_compra_MZN": 52,
+      "preco_venda_MZN": 80,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Brutal lata 500 ml",
+      "qt_inicial": 16,
+      "preco_compra_MZN": 83,
+      "preco_venda_MZN": 100,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Captain Morgan",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 750,
+      "preco_venda_MZN": 850,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "CaptoRio",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 350,
+      "preco_venda_MZN": 500,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "Capy 1l ",
+      "qt_inicial": 9,
+      "preco_compra_MZN": 59,
+      "preco_venda_MZN": 70,
+      "stock_minimo": 3
+    },
+    {
+      "descricao": "Capy txoti",
+      "qt_inicial": 9,
+      "preco_compra_MZN": 25,
+      "preco_venda_MZN": 30,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Chandor",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 200,
+      "preco_venda_MZN": 250,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Chips (pequeno)",
+      "qt_inicial": 29,
+      "preco_compra_MZN": 17,
+      "preco_venda_MZN": 30,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Chocolate Admire",
+      "qt_inicial": 24,
+      "preco_compra_MZN": 14,
+      "preco_venda_MZN": 25,
+      "stock_minimo": 4
+    },
+    {
+      "descricao": "Compalinho",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 23,
+      "preco_venda_MZN": 30,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Corona 335 ml",
+      "qt_inicial": 29,
+      "preco_compra_MZN": 75,
+      "preco_venda_MZN": 90,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Dragao",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 10,
+      "preco_venda_MZN": 15,
+      "stock_minimo": 10
+    },
+    {
+      "descricao": "Dragon (24 latas)",
+      "qt_inicial": 5,
+      "preco_compra_MZN": 32,
+      "preco_venda_MZN": 50,
+      "stock_minimo": 3
+    },
+    {
+      "descricao": "Drost-hof",
+      "qt_inicial": 2,
+      "preco_compra_MZN": 300,
+      "preco_venda_MZN": 400,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "Escape",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 400,
+      "preco_venda_MZN": 500,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Flyng fish lata 500 ml",
+      "qt_inicial": 5,
+      "preco_compra_MZN": 84,
+      "preco_venda_MZN": 100,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Frozy (24 garrafas)",
+      "qt_inicial": 31,
+      "preco_compra_MZN": 11,
+      "preco_venda_MZN": 20,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Frozy energetico (24 garrafas)",
+      "qt_inicial": 19,
+      "preco_compra_MZN": 15,
+      "preco_venda_MZN": 25,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Gordon Gin",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 320,
+      "preco_venda_MZN": 400,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Gordon Pink",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 550,
+      "preco_venda_MZN": 650,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Grants",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 550,
+      "preco_venda_MZN": 650,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Hankey Banister",
+      "qt_inicial": 2,
+      "preco_compra_MZN": 320,
+      "preco_venda_MZN": 370,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Heineken lata 500 ml",
+      "qt_inicial": 22,
+      "preco_compra_MZN": 83,
+      "preco_venda_MZN": 100,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Heineken silver",
+      "qt_inicial": 6,
+      "preco_compra_MZN": 83,
+      "preco_venda_MZN": 100,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Heineken txoti",
+      "qt_inicial": 48,
+      "preco_compra_MZN": 64,
+      "preco_venda_MZN": 80,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Hunters Dry",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 57,
+      "preco_venda_MZN": 80,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Hunters gold",
+      "qt_inicial": 6,
+      "preco_compra_MZN": 57,
+      "preco_venda_MZN": 80,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Impala garrafa 500 ml",
+      "qt_inicial": 80,
+      "preco_compra_MZN": 34,
+      "preco_venda_MZN": 50,
+      "stock_minimo": 48
+    },
+    {
+      "descricao": "Impala lata 320 ml",
+      "qt_inicial": 33,
+      "preco_compra_MZN": 38,
+      "preco_venda_MZN": 80,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Impala txoti",
+      "qt_inicial": 26,
+      "preco_compra_MZN": 29,
+      "preco_venda_MZN": 33,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Imperial 750 ml",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 450,
+      "preco_venda_MZN": 500,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Jameson ",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 950,
+      "preco_venda_MZN": 1100,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "JC lata",
+      "qt_inicial": 21,
+      "preco_compra_MZN": 63,
+      "preco_venda_MZN": 80,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "JC Leroux",
+      "qt_inicial": 3,
+      "preco_compra_MZN": 400,
+      "preco_venda_MZN": 500,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Jose cuervo",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 1050,
+      "preco_venda_MZN": 1150,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Leite condensado",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 75,
+      "preco_venda_MZN": 90,
+      "stock_minimo": 3
+    },
+    {
+      "descricao": "Lite 330 ml",
+      "qt_inicial": 21,
+      "preco_compra_MZN": 29,
+      "preco_venda_MZN": 51,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Lite lata 410 ml",
+      "qt_inicial": 8,
+      "preco_compra_MZN": 51,
+      "preco_venda_MZN": 63,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Mac Gregor",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 330,
+      "preco_venda_MZN": 400,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Manica 500 ml",
+      "qt_inicial": 12,
+      "preco_compra_MZN": 52,
+      "preco_venda_MZN": 65,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Manica lata 320 ml",
+      "qt_inicial": 11,
+      "preco_compra_MZN": 46,
+      "preco_venda_MZN": 55,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Mayfair",
+      "qt_inicial": 18,
+      "preco_compra_MZN": 67,
+      "preco_venda_MZN": 80,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Mayonese",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 195,
+      "preco_venda_MZN": 220,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "Monster",
+      "qt_inicial": 8,
+      "preco_compra_MZN": 63,
+      "preco_venda_MZN": 80,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Ovo",
+      "qt_inicial": 24,
+      "preco_compra_MZN": 9,
+      "preco_venda_MZN": 10,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Papel hijienico",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 21,
+      "preco_venda_MZN": 30,
+      "stock_minimo": 5
+    },
+    {
+      "descricao": "Penso Napee ",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 55,
+      "preco_venda_MZN": 70,
+      "stock_minimo": 3
+    },
+    {
+      "descricao": "Preta garrafa 550 ml",
+      "qt_inicial": 21,
+      "preco_compra_MZN": 59,
+      "preco_venda_MZN": 75,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Pretinha 250 ml",
+      "qt_inicial": 33,
+      "preco_compra_MZN": 35,
+      "preco_venda_MZN": 50,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Red label",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 650,
+      "preco_venda_MZN": 750,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Redbull",
+      "qt_inicial": 14,
+      "preco_compra_MZN": 65,
+      "preco_venda_MZN": 80,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Refresco 1l ",
+      "qt_inicial": 6,
+      "preco_compra_MZN": 53,
+      "preco_venda_MZN": 65,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Refresco 2 l",
+      "qt_inicial": 14,
+      "preco_compra_MZN": 94,
+      "preco_venda_MZN": 120,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Refresco 300 ml",
+      "qt_inicial": 34,
+      "preco_compra_MZN": 16,
+      "preco_venda_MZN": 25,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Refresco em lata",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 42,
+      "preco_venda_MZN": 50,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Refresco garrafinhas plasticas",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 20,
+      "preco_venda_MZN": 25,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Savana dry",
+      "qt_inicial": 27,
+      "preco_compra_MZN": 64,
+      "preco_venda_MZN": 80,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Savana lemon",
+      "qt_inicial": 18,
+      "preco_compra_MZN": 64,
+      "preco_venda_MZN": 80,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Smirnof (vodka)",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 350,
+      "preco_venda_MZN": 500,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Steeton gin (azul)",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 450,
+      "preco_venda_MZN": 550,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "Steeton gin (branca)",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 300,
+      "preco_venda_MZN": 400,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "Steeton gin (rose)",
+      "qt_inicial": 2,
+      "preco_compra_MZN": 450,
+      "preco_venda_MZN": 550,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Stella Artois ",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 67,
+      "preco_venda_MZN": 80,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Sumo Ceres 1l ",
+      "qt_inicial": 6,
+      "preco_compra_MZN": 100,
+      "preco_venda_MZN": 130,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Sumo compal",
+      "qt_inicial": 6,
+      "preco_compra_MZN": 110,
+      "preco_venda_MZN": 125,
+      "stock_minimo": 3
+    },
+    {
+      "descricao": "Sumo Compal 0.5 l",
+      "qt_inicial": 6,
+      "preco_compra_MZN": 55,
+      "preco_venda_MZN": 70,
+      "stock_minimo": 6
+    },
+    {
+      "descricao": "Switch",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 42,
+      "preco_venda_MZN": 60,
+      "stock_minimo": 4
+    },
+    {
+      "descricao": "Tanqueray",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 1100,
+      "preco_venda_MZN": 1200,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Tipo tinto (6)",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 350,
+      "preco_venda_MZN": 450,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Tosti",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 650,
+      "preco_venda_MZN": 750,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Txilar garrafa 500 ml",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 40,
+      "preco_venda_MZN": 50,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Txilar lata 300 ml",
+      "qt_inicial": 20,
+      "preco_compra_MZN": 38,
+      "preco_venda_MZN": 50,
+      "stock_minimo": 12
+    },
+    {
+      "descricao": "Vinho 4th street",
+      "qt_inicial": 2,
+      "preco_compra_MZN": 250,
+      "preco_venda_MZN": 390,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "Vinho Alandra",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 280,
+      "preco_venda_MZN": 380,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Vinho Autum",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 170,
+      "preco_venda_MZN": 200,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Vinho cabriz",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 450,
+      "preco_venda_MZN": 550,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "Vinho Casa da concordia",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 250,
+      "preco_venda_MZN": 290,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "Vinho Cellar Cask",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 300,
+      "preco_venda_MZN": 400,
+      "stock_minimo": 2
+    },
+    {
+      "descricao": "Vinho gatao",
+      "qt_inicial": 2,
+      "preco_compra_MZN": 380,
+      "preco_venda_MZN": 450,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "Vinho Gazela",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 380,
+      "preco_venda_MZN": 450,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "Vinho Nederburg",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 400,
+      "preco_venda_MZN": 500,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "Vinho pe tinto",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 350,
+      "preco_venda_MZN": 450,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "vinho portada",
+      "qt_inicial": 0,
+      "preco_compra_MZN": 450,
+      "preco_venda_MZN": 550,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "Vinho Ribertson 750 ml",
+      "qt_inicial": 1,
+      "preco_compra_MZN": 500,
+      "preco_venda_MZN": 600,
+      "stock_minimo": 1
+    },
+    {
+      "descricao": "Wild Africa normal",
+      "qt_inicial": 3,
+      "preco_compra_MZN": 350,
+      "preco_venda_MZN": 500,
+      "stock_minimo": 2
+    }
+  ],
+  "controlo_stock_resumo": {
+    "produtos_abaixo_nivel_stock": 48,
+    "produtos_esgotados": 23,
+    "facturamento_total_MZN": 53152,
+    "lucro_total_MZN": 12997.6,
+    "valor_equivalente_stock_MZN": 54098
+  },
+  "controlo_stock_detalhe": [
+    {
+      "produto": "2 M garrafa de 550 ml",
+      "entradas": 24,
+      "saidas": 36,
+      "stock_actual": 18,
+      "facturamento_MZN": 2340,
+      "lucro_MZN": 479.8799999999999,
+      "estado": "SAUDÁVEL",
+      "valor_equivalente_MZN": 1170
+    },
+    {
+      "produto": "2 M lata",
+      "entradas": 12,
+      "saidas": 13,
+      "stock_actual": 30,
+      "facturamento_MZN": 715,
+      "lucro_MZN": 119.21000000000004,
+      "estado": "SAUDÁVEL",
+      "valor_equivalente_MZN": 1650
+    },
+    {
+      "produto": "2 M txoti",
+      "entradas": 3,
+      "saidas": 9,
+      "stock_actual": 150,
+      "facturamento_MZN": 42.510000000000005,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": 450,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Acucar",
+      "entradas": 10,
+      "saidas": "SAUDÁVEL",
+      "stock_actual": 900,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Agua 0.5 l",
+      "entradas": 8,
+      "saidas": 20,
+      "stock_actual": 200,
+      "facturamento_MZN": 64,
+      "lucro_MZN": "SAUDÁVEL",
+      "estado": 500,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Agua 1.5 l",
+      "entradas": 8,
+      "saidas": 5,
+      "stock_actual": 400,
+      "facturamento_MZN": 128,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": 250,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Agua 6 l",
+      "entradas": 5,
+      "saidas": 17,
+      "stock_actual": 8,
+      "facturamento_MZN": 1360,
+      "lucro_MZN": 340,
+      "estado": "SAUDÁVEL",
+      "valor_equivalente_MZN": 640
+    },
+    {
+      "produto": "Agua tonica (amarela)",
+      "entradas": 8,
+      "saidas": 6,
+      "stock_actual": 400,
+      "facturamento_MZN": 64,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": 300,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Amarula 750 ml",
+      "entradas": 1,
+      "saidas": 1,
+      "stock_actual": 700,
+      "facturamento_MZN": 100,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": 700,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Anabell",
+      "entradas": 1,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 400,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Beefeater",
+      "entradas": 1,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 900,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Bernine garrafa 375 ml",
+      "entradas": 1,
+      "saidas": 17,
+      "stock_actual": 6,
+      "facturamento_MZN": 1445,
+      "lucro_MZN": 255,
+      "estado": "NÍVEL BAIXO",
+      "valor_equivalente_MZN": 510
+    },
+    {
+      "produto": "Bernine lata 500 ml",
+      "entradas": 12,
+      "saidas": 15,
+      "stock_actual": 14,
+      "facturamento_MZN": 1650,
+      "lucro_MZN": 300,
+      "estado": "SAUDÁVEL",
+      "valor_equivalente_MZN": 1540
+    },
+    {
+      "produto": "Biscoito",
+      "entradas": 100,
+      "saidas": "SAUDÁVEL",
+      "stock_actual": 500,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Bolacha Maria",
+      "entradas": 12,
+      "saidas": "SAUDÁVEL",
+      "stock_actual": 240,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Brutal garrafa 375 ml",
+      "entradas": 5,
+      "saidas": 16,
+      "stock_actual": 400,
+      "facturamento_MZN": 140,
+      "lucro_MZN": "SAUDÁVEL",
+      "estado": 1280,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Brutal lata 500 ml",
+      "entradas": 6,
+      "saidas": 10,
+      "stock_actual": 12,
+      "facturamento_MZN": 1000,
+      "lucro_MZN": 170,
+      "estado": "NÍVEL BAIXO",
+      "valor_equivalente_MZN": 1200
+    },
+    {
+      "produto": "Capy 1l ",
+      "entradas": 3,
+      "saidas": 6,
+      "stock_actual": 210,
+      "facturamento_MZN": 33,
+      "lucro_MZN": "SAUDÁVEL",
+      "estado": 420,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Capy txoti",
+      "entradas": 1,
+      "saidas": 8,
+      "stock_actual": 30,
+      "facturamento_MZN": 5,
+      "lucro_MZN": "SAUDÁVEL",
+      "estado": 240,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Chips (pequeno)",
+      "entradas": 11,
+      "saidas": 18,
+      "stock_actual": 330,
+      "facturamento_MZN": 143,
+      "lucro_MZN": "SAUDÁVEL",
+      "estado": 540,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Chocolate Admire",
+      "entradas": 6,
+      "saidas": 18,
+      "stock_actual": 150,
+      "facturamento_MZN": 66,
+      "lucro_MZN": "SAUDÁVEL",
+      "estado": 450,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Corona 335 ml",
+      "entradas": 12,
+      "saidas": 28,
+      "stock_actual": 13,
+      "facturamento_MZN": 2520,
+      "lucro_MZN": 420,
+      "estado": "SAUDÁVEL",
+      "valor_equivalente_MZN": 1170
+    },
+    {
+      "produto": "Dragao",
+      "entradas": 3,
+      "saidas": -3,
+      "stock_actual": 45,
+      "facturamento_MZN": 15,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": -45,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Dragon (24 latas)",
+      "entradas": 3,
+      "saidas": 2,
+      "stock_actual": 150,
+      "facturamento_MZN": 54,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": 100,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Drost-hof",
+      "entradas": 2,
+      "saidas": "SAUDÁVEL",
+      "stock_actual": 800,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Flyng fish lata 500 ml",
+      "entradas": 1,
+      "saidas": 4,
+      "stock_actual": 100,
+      "facturamento_MZN": 16,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": 400,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Frozy (24 garrafas)",
+      "entradas": 15,
+      "saidas": 16,
+      "stock_actual": 300,
+      "facturamento_MZN": 135,
+      "lucro_MZN": "SAUDÁVEL",
+      "estado": 320,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Frozy energetico (24 garrafas)",
+      "entradas": 10,
+      "saidas": 9,
+      "stock_actual": 250,
+      "facturamento_MZN": 100,
+      "lucro_MZN": "SAUDÁVEL",
+      "estado": 225,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Gordon Gin",
+      "entradas": 1,
+      "saidas": 1,
+      "stock_actual": 1,
+      "facturamento_MZN": 400,
+      "lucro_MZN": 80,
+      "estado": "NÍVEL BAIXO",
+      "valor_equivalente_MZN": 400
+    },
+    {
+      "produto": "Gordon Pink",
+      "entradas": 1,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 650,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Grants",
+      "entradas": 1,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 650,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Hankey Banister",
+      "entradas": 2,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 740,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Heineken lata 500 ml",
+      "entradas": 6,
+      "saidas": 20,
+      "stock_actual": 8,
+      "facturamento_MZN": 2000,
+      "lucro_MZN": 340,
+      "estado": "NÍVEL BAIXO",
+      "valor_equivalente_MZN": 800
+    },
+    {
+      "produto": "Heineken silver",
+      "entradas": 3,
+      "saidas": 3,
+      "stock_actual": 300,
+      "facturamento_MZN": 51,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": 300,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Heineken txoti",
+      "entradas": 6,
+      "saidas": 29,
+      "stock_actual": 25,
+      "facturamento_MZN": 2320,
+      "lucro_MZN": 464,
+      "estado": "SAUDÁVEL",
+      "valor_equivalente_MZN": 2000
+    },
+    {
+      "produto": "Hunters gold",
+      "entradas": 4,
+      "saidas": 2,
+      "stock_actual": 320,
+      "facturamento_MZN": 92,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": 160,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Impala garrafa 500 ml",
+      "entradas": 188,
+      "saidas": 231,
+      "stock_actual": 37,
+      "facturamento_MZN": 11550,
+      "lucro_MZN": 3696,
+      "estado": "NÍVEL BAIXO",
+      "valor_equivalente_MZN": 1850
+    },
+    {
+      "produto": "Impala lata 320 ml",
+      "entradas": 12,
+      "saidas": 10,
+      "stock_actual": 35,
+      "facturamento_MZN": 800,
+      "lucro_MZN": 420,
+      "estado": "SAUDÁVEL",
+      "valor_equivalente_MZN": 2800
+    },
+    {
+      "produto": "Impala txoti",
+      "entradas": 6,
+      "saidas": 20,
+      "stock_actual": 198,
+      "facturamento_MZN": 24,
+      "lucro_MZN": "SAUDÁVEL",
+      "estado": 660,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Imperial 750 ml",
+      "entradas": 1,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 500,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Jameson ",
+      "entradas": 1,
+      "saidas": 1,
+      "stock_actual": "NÍVEL BAIXO",
+      "facturamento_MZN": 1100,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "JC lata",
+      "entradas": 5,
+      "saidas": 16,
+      "stock_actual": 400,
+      "facturamento_MZN": 85,
+      "lucro_MZN": "SAUDÁVEL",
+      "estado": 1280,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "JC Leroux",
+      "entradas": 3,
+      "saidas": "SAUDÁVEL",
+      "stock_actual": 1500,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Jose cuervo",
+      "entradas": 1,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 1150,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Lite 330 ml",
+      "entradas": 12,
+      "saidas": 24,
+      "stock_actual": 9,
+      "facturamento_MZN": 1224,
+      "lucro_MZN": 528,
+      "estado": "NÍVEL BAIXO",
+      "valor_equivalente_MZN": 459
+    },
+    {
+      "produto": "Lite lata 410 ml",
+      "entradas": 5,
+      "saidas": 3,
+      "stock_actual": 315,
+      "facturamento_MZN": 60,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": 189,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Mac Gregor",
+      "entradas": 1,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 400,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Manica 500 ml",
+      "entradas": 24,
+      "saidas": 26,
+      "stock_actual": 10,
+      "facturamento_MZN": 1690,
+      "lucro_MZN": 338,
+      "estado": "NÍVEL BAIXO",
+      "valor_equivalente_MZN": 650
+    },
+    {
+      "produto": "Manica lata 320 ml",
+      "entradas": 2,
+      "saidas": 9,
+      "stock_actual": 110,
+      "facturamento_MZN": 18,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": 495,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Mayfair",
+      "entradas": 6,
+      "saidas": 12,
+      "stock_actual": 12,
+      "facturamento_MZN": 960,
+      "lucro_MZN": 156,
+      "estado": "NÍVEL BAIXO",
+      "valor_equivalente_MZN": 960
+    },
+    {
+      "produto": "Monster",
+      "entradas": 5,
+      "saidas": 3,
+      "stock_actual": 400,
+      "facturamento_MZN": 85,
+      "lucro_MZN": "SAUDÁVEL",
+      "estado": 240,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Ovo",
+      "entradas": 18,
+      "saidas": 6,
+      "stock_actual": 180,
+      "facturamento_MZN": 18,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": 60,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Preta garrafa 550 ml",
+      "entradas": 24,
+      "saidas": 28,
+      "stock_actual": 17,
+      "facturamento_MZN": 2100,
+      "lucro_MZN": 448,
+      "estado": "SAUDÁVEL",
+      "valor_equivalente_MZN": 1275
+    },
+    {
+      "produto": "Pretinha 250 ml",
+      "entradas": 12,
+      "saidas": 26,
+      "stock_actual": 19,
+      "facturamento_MZN": 1300,
+      "lucro_MZN": 390,
+      "estado": "SAUDÁVEL",
+      "valor_equivalente_MZN": 950
+    },
+    {
+      "produto": "Redbull",
+      "entradas": 4,
+      "saidas": 10,
+      "stock_actual": 320,
+      "facturamento_MZN": 60,
+      "lucro_MZN": "SAUDÁVEL",
+      "estado": 800,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Refresco 1l ",
+      "entradas": 6,
+      "saidas": 8,
+      "stock_actual": 4,
+      "facturamento_MZN": 520,
+      "lucro_MZN": 96,
+      "estado": "NÍVEL BAIXO",
+      "valor_equivalente_MZN": 260
+    },
+    {
+      "produto": "Refresco 2 l",
+      "entradas": 32,
+      "saidas": 35,
+      "stock_actual": 11,
+      "facturamento_MZN": 4200,
+      "lucro_MZN": 910,
+      "estado": "SAUDÁVEL",
+      "valor_equivalente_MZN": 1320
+    },
+    {
+      "produto": "Refresco 300 ml",
+      "entradas": 26,
+      "saidas": 43,
+      "stock_actual": 17,
+      "facturamento_MZN": 1075,
+      "lucro_MZN": 387,
+      "estado": "SAUDÁVEL",
+      "valor_equivalente_MZN": 425
+    },
+    {
+      "produto": "Savana dry",
+      "entradas": 25,
+      "saidas": 2,
+      "stock_actual": 2000,
+      "facturamento_MZN": 400,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": 160,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Savana lemon",
+      "entradas": 6,
+      "saidas": 12,
+      "stock_actual": 480,
+      "facturamento_MZN": 96,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": 960,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Smirnof (vodka)",
+      "entradas": 1,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 500,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Steeton gin (branca)",
+      "entradas": 1,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 400,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Steeton gin (rose)",
+      "entradas": 2,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 1100,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Sumo Ceres 1l ",
+      "entradas": 4,
+      "saidas": 2,
+      "stock_actual": 520,
+      "facturamento_MZN": 120,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": 260,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Sumo compal",
+      "entradas": 5,
+      "saidas": 1,
+      "stock_actual": 625,
+      "facturamento_MZN": 75,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": 125,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Sumo Compal 0.5 l",
+      "entradas": 5,
+      "saidas": 1,
+      "stock_actual": 350,
+      "facturamento_MZN": 75,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": 70,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Txilar lata 300 ml",
+      "entradas": 8,
+      "saidas": 12,
+      "stock_actual": 400,
+      "facturamento_MZN": 96,
+      "lucro_MZN": "NÍVEL BAIXO",
+      "estado": 600,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Vinho 4th street",
+      "entradas": 2,
+      "saidas": "SAUDÁVEL",
+      "stock_actual": 780,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Vinho Alandra",
+      "entradas": 1,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 380,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Vinho Autum",
+      "entradas": 2,
+      "saidas": 1,
+      "stock_actual": 2,
+      "facturamento_MZN": 200,
+      "lucro_MZN": 30,
+      "estado": "NÍVEL BAIXO",
+      "valor_equivalente_MZN": 400
+    },
+    {
+      "produto": "Vinho cabriz",
+      "entradas": 1,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 550,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Vinho Casa da concordia",
+      "entradas": 1,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 290,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Vinho Cellar Cask",
+      "entradas": 1,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 400,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Vinho gatao",
+      "entradas": 1,
+      "saidas": 1,
+      "stock_actual": 2,
+      "facturamento_MZN": 450,
+      "lucro_MZN": 70,
+      "estado": "SAUDÁVEL",
+      "valor_equivalente_MZN": 900
+    },
+    {
+      "produto": "Vinho Gazela",
+      "entradas": 1,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 450,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Vinho Nederburg",
+      "entradas": 1,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 500,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Vinho pe tinto",
+      "entradas": 1,
+      "saidas": "NÍVEL BAIXO",
+      "stock_actual": 450,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "vinho portada",
+      "entradas": 1,
+      "saidas": 1,
+      "stock_actual": "NÍVEL BAIXO",
+      "facturamento_MZN": 550,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Vinho Ribertson 750 ml",
+      "entradas": 1,
+      "saidas": 600,
+      "stock_actual": 100,
+      "facturamento_MZN": "ESGOTADO",
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    },
+    {
+      "produto": "Wild Africa normal",
+      "entradas": 3,
+      "saidas": "SAUDÁVEL",
+      "stock_actual": 1500,
+      "facturamento_MZN": 0,
+      "lucro_MZN": 0,
+      "estado": null,
+      "valor_equivalente_MZN": 0
+    }
+  ],
+  "top_produtos_por_lucro": [
+    {
+      "produto": "Impala garrafa 500 ml",
+      "entradas": 176,
+      "saidas": 186,
+      "lucro_MZN": 2976,
+      "stock_atual": 70
+    },
+    {
+      "produto": "Refresco 2 l",
+      "entradas": 26,
+      "saidas": 27,
+      "lucro_MZN": 702,
+      "stock_atual": 13
+    },
+    {
+      "produto": "Impala lata 320 ml",
+      "entradas": 12,
+      "saidas": 10,
+      "lucro_MZN": 420,
+      "stock_atual": 35
+    },
+    {
+      "produto": "2 M garrafa de 550 ml",
+      "entradas": 12,
+      "saidas": 28,
+      "lucro_MZN": 373.2399999999999,
+      "stock_atual": 14
+    },
+    {
+      "produto": "Refresco 300 ml",
+      "entradas": 26,
+      "saidas": 39,
+      "lucro_MZN": 351,
+      "stock_atual": 21
+    },
+    {
+      "produto": "Heineken txoti",
+      "entradas": 0,
+      "saidas": 21,
+      "lucro_MZN": 336,
+      "stock_atual": 27
+    },
+    {
+      "produto": "Lite 330 ml",
+      "entradas": 12,
+      "saidas": 15,
+      "lucro_MZN": 330,
+      "stock_atual": 18
+    },
+    {
+      "produto": "Manica 500 ml",
+      "entradas": 24,
+      "saidas": 24,
+      "lucro_MZN": 312,
+      "stock_atual": 12
+    },
+    {
+      "produto": "Heineken lata 500 ml",
+      "entradas": 6,
+      "saidas": 18,
+      "lucro_MZN": 306,
+      "stock_atual": 10
+    },
+    {
+      "produto": "Pretinha 250 ml",
+      "entradas": 12,
+      "saidas": 20,
+      "lucro_MZN": 300,
+      "stock_atual": 25
+    },
+    {
+      "produto": "Corona 335 ml",
+      "entradas": 0,
+      "saidas": 19,
+      "lucro_MZN": 285,
+      "stock_atual": 10
+    },
+    {
+      "produto": "Preta garrafa 550 ml",
+      "entradas": 12,
+      "saidas": 17,
+      "lucro_MZN": 272,
+      "stock_atual": 16
+    },
+    {
+      "produto": "Bernine garrafa 375 ml",
+      "entradas": 1,
+      "saidas": 17,
+      "lucro_MZN": 255,
+      "stock_atual": 6
+    },
+    {
+      "produto": "Bernine lata 500 ml",
+      "entradas": 6,
+      "saidas": 12,
+      "lucro_MZN": 240,
+      "stock_atual": 11
+    },
+    {
+      "produto": "Savana dry",
+      "entradas": 0,
+      "saidas": 15,
+      "lucro_MZN": 240,
+      "stock_atual": 12
+    },
+    {
+      "produto": "Agua 6 l",
+      "entradas": 0,
+      "saidas": 11,
+      "lucro_MZN": 220,
+      "stock_atual": 9
+    },
+    {
+      "produto": "Brutal lata 500 ml",
+      "entradas": 6,
+      "saidas": 10,
+      "lucro_MZN": 170,
+      "stock_atual": 12
+    },
+    {
+      "produto": "Mayfair",
+      "entradas": 0,
+      "saidas": 12,
+      "lucro_MZN": 156,
+      "stock_atual": 6
+    },
+    {
+      "produto": "Brutal garrafa 375 ml",
+      "entradas": 0,
+      "saidas": 5,
+      "lucro_MZN": 140,
+      "stock_atual": 16
+    },
+    {
+      "produto": "Chips (pequeno)",
+      "entradas": 0,
+      "saidas": 10,
+      "lucro_MZN": 130,
+      "stock_atual": 19
+    },
+    {
+      "produto": "Sumo Ceres 1l ",
+      "entradas": 0,
+      "saidas": 4,
+      "lucro_MZN": 120,
+      "stock_atual": 2
+    },
+    {
+      "produto": "Amarula 750 ml",
+      "entradas": 1,
+      "saidas": 100,
+      "lucro_MZN": 1,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Vinho Ribertson 750 ml",
+      "entradas": 0,
+      "saidas": 1,
+      "lucro_MZN": 100,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Frozy (24 garrafas)",
+      "entradas": 0,
+      "saidas": 11,
+      "lucro_MZN": 99,
+      "stock_atual": 20
+    },
+    {
+      "produto": "Refresco 1l ",
+      "entradas": 6,
+      "saidas": 8,
+      "lucro_MZN": 96,
+      "stock_atual": 4
+    },
+    {
+      "produto": "Hunters gold",
+      "entradas": 0,
+      "saidas": 4,
+      "lucro_MZN": 92,
+      "stock_atual": 2
+    },
+    {
+      "produto": "Frozy energetico (24 garrafas)",
+      "entradas": 0,
+      "saidas": 9,
+      "lucro_MZN": 90,
+      "stock_atual": 10
+    },
+    {
+      "produto": "JC lata",
+      "entradas": 0,
+      "saidas": 5,
+      "lucro_MZN": 85,
+      "stock_atual": 16
+    },
+    {
+      "produto": "Monster",
+      "entradas": 0,
+      "saidas": 5,
+      "lucro_MZN": 85,
+      "stock_atual": 3
+    },
+    {
+      "produto": "2 M lata",
+      "entradas": 12,
+      "saidas": 9,
+      "lucro_MZN": 82.53000000000003,
+      "stock_atual": 34
+    },
+    {
+      "produto": "Agua 1.5 l",
+      "entradas": 0,
+      "saidas": 5,
+      "lucro_MZN": 80,
+      "stock_atual": 8
+    },
+    {
+      "produto": "Gordon Gin",
+      "entradas": 1,
+      "saidas": 1,
+      "lucro_MZN": 80,
+      "stock_atual": 1
+    },
+    {
+      "produto": "Sumo compal",
+      "entradas": 0,
+      "saidas": 5,
+      "lucro_MZN": 75,
+      "stock_atual": 1
+    },
+    {
+      "produto": "Txilar lata 300 ml",
+      "entradas": 0,
+      "saidas": 6,
+      "lucro_MZN": 72,
+      "stock_atual": 14
+    },
+    {
+      "produto": "Vinho gatao",
+      "entradas": 1,
+      "saidas": 1,
+      "lucro_MZN": 70,
+      "stock_atual": 2
+    },
+    {
+      "produto": "Agua tonica (amarela)",
+      "entradas": 0,
+      "saidas": 8,
+      "lucro_MZN": 64,
+      "stock_atual": 6
+    },
+    {
+      "produto": "Agua 0.5 l",
+      "entradas": 0,
+      "saidas": 8,
+      "lucro_MZN": 64,
+      "stock_atual": 20
+    },
+    {
+      "produto": "Redbull",
+      "entradas": 0,
+      "saidas": 4,
+      "lucro_MZN": 60,
+      "stock_atual": 10
+    },
+    {
+      "produto": "Lite lata 410 ml",
+      "entradas": 0,
+      "saidas": 5,
+      "lucro_MZN": 60,
+      "stock_atual": 3
+    },
+    {
+      "produto": "Chocolate Admire",
+      "entradas": 0,
+      "saidas": 5,
+      "lucro_MZN": 55,
+      "stock_atual": 19
+    },
+    {
+      "produto": "Heineken silver",
+      "entradas": 0,
+      "saidas": 3,
+      "lucro_MZN": 51,
+      "stock_atual": 3
+    },
+    {
+      "produto": "Dragon (24 latas)",
+      "entradas": 0,
+      "saidas": 2,
+      "lucro_MZN": 36,
+      "stock_atual": 3
+    },
+    {
+      "produto": "Capy 1l ",
+      "entradas": 0,
+      "saidas": 3,
+      "lucro_MZN": 33,
+      "stock_atual": 6
+    },
+    {
+      "produto": "Vinho Autum",
+      "entradas": 2,
+      "saidas": 1,
+      "lucro_MZN": 30,
+      "stock_atual": 2
+    },
+    {
+      "produto": "2 M txoti",
+      "entradas": 0,
+      "saidas": 2,
+      "lucro_MZN": 28.340000000000003,
+      "stock_atual": 10
+    },
+    {
+      "produto": "Impala txoti",
+      "entradas": 0,
+      "saidas": 6,
+      "lucro_MZN": 24,
+      "stock_atual": 20
+    },
+    {
+      "produto": "Ovo",
+      "entradas": 0,
+      "saidas": 18,
+      "lucro_MZN": 18,
+      "stock_atual": 6
+    },
+    {
+      "produto": "Flyng fish lata 500 ml",
+      "entradas": 0,
+      "saidas": 1,
+      "lucro_MZN": 16,
+      "stock_atual": 4
+    },
+    {
+      "produto": "Dragao",
+      "entradas": 0,
+      "saidas": 3,
+      "lucro_MZN": 15,
+      "stock_atual": -3
+    },
+    {
+      "produto": "Sumo Compal 0.5 l",
+      "entradas": 0,
+      "saidas": 1,
+      "lucro_MZN": 15,
+      "stock_atual": 5
+    },
+    {
+      "produto": "Capy txoti",
+      "entradas": 0,
+      "saidas": 1,
+      "lucro_MZN": 5,
+      "stock_atual": 8
+    },
+    {
+      "produto": "Jose cuervo",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    },
+    {
+      "produto": "Leite condensado",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Escape",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Captain Morgan",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Mac Gregor",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    },
+    {
+      "produto": "CaptoRio",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Manica lata 320 ml",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 11
+    },
+    {
+      "produto": "Acucar",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 10
+    },
+    {
+      "produto": "Mayonese",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Anabell",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    },
+    {
+      "produto": "Gordon Pink",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    },
+    {
+      "produto": "Papel hijienico",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Penso Napee ",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Grants",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    },
+    {
+      "produto": "Hankey Banister",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 2
+    },
+    {
+      "produto": "Red label",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Chandor",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Biscoito",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 100
+    },
+    {
+      "produto": "Black Label ",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Hunters Dry",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Refresco em lata",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Refresco garrafinhas plasticas",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Compalinho",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Savana lemon",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 18
+    },
+    {
+      "produto": "Smirnof (vodka)",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    },
+    {
+      "produto": "Steeton gin (azul)",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Steeton gin (branca)",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    },
+    {
+      "produto": "Steeton gin (rose)",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 2
+    },
+    {
+      "produto": "Stella Artois ",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Bolacha Maria",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 12
+    },
+    {
+      "produto": "Balattines",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Beefeater",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    },
+    {
+      "produto": "Switch",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Tanqueray",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Tipo tinto (6)",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Tosti",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Txilar garrafa 500 ml",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 0
+    },
+    {
+      "produto": "Imperial 750 ml",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    },
+    {
+      "produto": "Vinho 4th street",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 2
+    },
+    {
+      "produto": "Vinho Alandra",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    },
+    {
+      "produto": "Jameson ",
+      "entradas": 1,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    },
+    {
+      "produto": "Vinho cabriz",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    },
+    {
+      "produto": "Vinho Casa da concordia",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    },
+    {
+      "produto": "Vinho Cellar Cask",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    },
+    {
+      "produto": "Drost-hof",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 2
+    },
+    {
+      "produto": "Vinho Gazela",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    },
+    {
+      "produto": "Vinho Nederburg",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    },
+    {
+      "produto": "Vinho pe tinto",
+      "entradas": 0,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    },
+    {
+      "produto": "vinho portada",
+      "entradas": 1,
+      "saidas": 0,
+      "lucro_MZN": 0,
+      "stock_atual": 1
+    }
+  ]
+}

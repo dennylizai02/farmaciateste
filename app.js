@@ -596,9 +596,21 @@ function rebuildFifo() {
 function renderMovimentos() {
     populateProdutoSelect();
     var tipoLabel = { entrada: 'Entrada', saida: 'Venda', quebra: 'Quebra' };
-    document.getElementById('mov-table').innerHTML = movimentos.length ?
+    
+    var dateFilter = document.getElementById('mov-hist-date') ? document.getElementById('mov-hist-date').value : '';
+    var movsToShow = movimentos;
+    
+    if (dateFilter) {
+        movsToShow = movimentos.filter(function(m) {
+            return m.data === dateFilter;
+        });
+    } else {
+        movsToShow = movimentos.slice(0, 30);
+    }
+
+    document.getElementById('mov-table').innerHTML = movsToShow.length ?
         '<table><thead><tr><th>Data/Hora</th><th>Tipo</th><th>Produto</th><th>Qtd</th><th>Preço unit.</th><th>Total</th><th>Pagamento</th><th>Notas</th><th>Acções</th></tr></thead><tbody>' +
-        movimentos.slice(0, 30).map(function (m) {
+        movsToShow.map(function (m) {
             var cor = m.tipo === 'entrada' ? 'badge-ok' : m.tipo === 'saida' ? 'badge' : 'badge-low';
             var style = m.tipo === 'saida' ? ' style="background:#E6F1FB;color:#185FA5;"' : '';
             return '<tr><td style="color:var(--color-text-secondary);font-size:12px;">' + (m.dataHora || m.data) + '</td>' +
@@ -839,19 +851,18 @@ function renderAlertas() {
         `;
     }
 
-    document.getElementById('alertas-list').innerHTML = todos.length ?
-        todos.map(function (p) {
-            return '<div class="alert-item">' +
-                '<div><div style="font-size:14px;font-weight:500;">' + p.nome + '</div><div style="font-size:12px;color:var(--color-text-secondary);">' + p.cat + ' — mínimo: ' + p.min + ' unidades</div></div>' +
-                '<div style="text-align:right;"><div style="font-size:18px;font-weight:500;color:' + (p.qtd === 0 ? '#A32D2D' : '#854F0B') + ';">' + p.qtd + ' un.</div>' + getStatus(p) + '</div></div>';
-        }).join('') : '<div class="empty">Nenhum alerta activo — stock em boa situação!</div>';
-
     var quebras = movimentos.filter(function (m) { return m.tipo === 'quebra'; });
-    document.getElementById('quebras-list').innerHTML = quebras.length ?
-        '<table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Custo estimado</th><th>Notas</th></tr></thead><tbody>' +
-        quebras.map(function (m) {
-            return '<tr><td style="font-size:12px;color:var(--color-text-secondary);">' + m.data + '</td><td>' + (m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td style="color:#A32D2D;">' + m.total.toLocaleString() + ' MZN</td><td style="font-size:12px;color:var(--color-text-secondary);">' + (m.nota || '—') + '</td></tr>';
-        }).join('') + '</tbody></table>' : '<div class="empty">Nenhuma quebra registada</div>';
+    var quebrasEl = document.getElementById('quebras-list');
+    if (quebrasEl) {
+        // Ordena quebras das mais recentes para as mais antigas e pega as últimas 5? 
+        // O utilizador pediu: "Coloca as 5 ultimas quebras e um scroll para que se possa visualizar todas as outras"
+        // Como implementamos o scroll por CSS no HTML (max-height), aqui apenas renderizamos todas as quebras. 
+        quebrasEl.innerHTML = quebras.length ?
+            '<table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Custo estimado</th><th>Notas</th></tr></thead><tbody>' +
+            quebras.map(function (m) {
+                return '<tr><td style="font-size:12px;color:var(--color-text-secondary);">' + m.data + '</td><td>' + (m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td style="color:#A32D2D;">' + m.total.toLocaleString() + ' MZN</td><td style="font-size:12px;color:var(--color-text-secondary);">' + (m.nota || '—') + '</td></tr>';
+            }).join('') + '</tbody></table>' : '<div class="empty">Nenhuma quebra registada</div>';
+    }
 }
 
 // ====================== RELATÓRIOS ======================

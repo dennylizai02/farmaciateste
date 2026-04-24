@@ -773,8 +773,7 @@
       <button class="nav-btn active" onclick="showSection('relatorios')">Dashboard</button>
       <button class="nav-btn" onclick="showSection('stock')">Stock</button>
       <button class="nav-btn" onclick="showSection('movimentos')">Movimentos</button>
-      <button class="nav-btn" onclick="showSection('alertas')">Alertas <span id="alert-count"
-          style="background:#E24B4A;color:#fff;border-radius:20px;padding:1px 6px;font-size:10px;margin-left:3px;"></span></button>
+
       <button class="nav-btn" onclick="showSection('necessidades')">Necessidades</button>
       <button class="nav-btn" onclick="showSection('caixa')" style="margin-left:auto;">Fecho de Caixa</button>
       <button class="nav-btn" onclick="showSection('despesas')">Despesas</button>
@@ -788,6 +787,7 @@
     <!-- STOCK -->
     <div class="section" id="sec-stock">
       <div class="metrics" id="stock-metrics"></div>
+      <div class="metrics" id="alertas-metrics"></div>
     <div class="card" id="stock-add-card">
         <div class="card-title">Adicionar produto</div>
         <div class="form-row">
@@ -870,7 +870,10 @@
       <div class="card">
         <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
           Histórico de movimentos
-          <button class="btn" onclick="printDailyMovements()">🖨️ Imprimir Movimentos do Dia</button>
+          <div>
+            <input type="date" id="mov-hist-date" onchange="renderMovimentos()" style="margin-right:10px;">
+            <button class="btn" onclick="printDailyMovements()">🖨️ Imprimir Movimentos do Dia</button>
+          </div>
         </div>
         <div class="table-responsive">
           <div id="mov-table"></div>
@@ -942,17 +945,9 @@
         <div class="card-title">Produtos com menos stock</div>
         <div id="dash-low-table"></div>
       </div>
-    </div>
-
-    <div class="section" id="sec-alertas">
-      <div class="metrics" id="alertas-metrics"></div>
-      <div class="card">
-        <h3>⚠️ Alertas de Stock Baixo</h3>
-        <div id="alertas-list"></div>
-      </div>
       <div class="card" style="margin-top:20px;">
-        <h3>📉 Histórico de Quebras</h3>
-        <div id="quebras-list"></div>
+        <div class="card-title">Histórico de Quebras</div>
+        <div id="quebras-list" style="max-height: 250px; overflow-y: auto;"></div>
       </div>
     </div>
 
