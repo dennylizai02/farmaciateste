@@ -1246,17 +1246,27 @@ function renderRelMensal() {
         '</tbody></table>' : '<div class="empty">Nenhuma despesa neste mês</div>';
 }
 
-function printMensal() {
+async function printMensal() {
     prepareMensalPrintArea();
-    var printArea = document.getElementById('print-area');
-    var content = printArea.innerHTML;
+    // Aguardar o gráfico ser renderizado no background
+    await new Promise(r => setTimeout(r, 800));
     
-    var printContent = '<!DOCTYPE html><html><head>' +
-        '<title>Relatório Mensal</title>' +
-        '<style>' +
-        'body { font-family: Arial, sans-serif; color: #000; padding: 20px; }' +
-        '@media print { body { padding: 0; } }' +
-        '</style></head><body>' + content + '</body></html>';
+    var canvas = document.getElementById('printChartMensal');
+    if (canvas) {
+        var imgData = canvas.toDataURL('image/png');
+        var parent = canvas.parentElement;
+        parent.innerHTML = `<img src="${imgData}" style="width:100%; height:auto;">`;
+    }
+    
+    var content = document.getElementById('print-area').innerHTML;
+    var printContent = `<!DOCTYPE html><html><head><title>Relatório Mensal</title>
+        <style>
+            body { font-family: sans-serif; color: #000; padding: 20px; }
+            @media print { body { padding: 0; } }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th, td { border: 1px solid #ccc; padding: 6px; font-size: 12px; }
+            th { background: #f0f0f0; }
+        </style></head><body>${content}</body></html>`;
 
     var win = window.open('', '_blank');
     win.document.write(printContent);
@@ -1264,39 +1274,52 @@ function printMensal() {
     win.onload = function() { win.print(); };
 }
 
-function printFaturacao() {
+async function printFaturacao() {
     var today = new Date().toLocaleDateString('pt-MZ', { year: 'numeric', month: 'long', day: 'numeric' });
-    var relMetrics = document.getElementById('rel-metrics');
+    
+    // Capturar gráficos do Dashboard se existirem
+    var charts = document.querySelectorAll('#sec-relatorios canvas');
+    var chartImgs = Array.from(charts).map(c => c.toDataURL('image/png'));
+
     var cards = Array.from(document.querySelectorAll('#sec-relatorios .card')).filter(card => !card.querySelector('.btn'));
     
-    var printContent = '<!DOCTYPE html><html><head>' +
-        '<title>Relatório de Faturação</title>' +
-        '<style>' +
-        'body { font-family: Arial, sans-serif; color: #000; padding: 20px; font-size: 14px; }' +
-        '.header { text-align: center; margin-bottom: 20px; }' +
-        '.header h2 { margin: 0; font-size: 24px; }' +
-        '.header .subtitle { font-size: 16px; font-weight: bold; margin-top: 5px; }' +
-        '.header .date { font-size: 13px; color: #555; margin-top: 3px; }' +
-        '.metrics { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }' +
-        '.metric-card { border: 1px solid #ccc; padding: 10px 15px; border-radius: 8px; flex: 1; min-width: 120px; }' +
-        '.metric-label { font-size: 12px; color: #666; }' +
-        '.metric-value { font-size: 20px; font-weight: bold; }' +
-        '.card { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 20px; }' +
-        '.card-title { font-size: 16px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }' +
-        'table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 15px; }' +
-        'th { background: #f0f0f0; border: 1px solid #ccc; padding: 6px; text-align: left; }' +
-        'td { border: 1px solid #ccc; padding: 6px; }' +
-        '.footer { text-align: center; font-size: 11px; color: #999; margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 10px; }' +
-        '@media print { body { padding: 0; } }' +
-        '</style></head><body>' +
-        '<div class="header">' +
-        '<h2>Pinto\u2019s Bar</h2>' +
-        '<div class="subtitle">RELATÓRIO DE FATURAÇÃO E DASHBOARD</div>' +
-        '<div class="date">' + today + ' | Período: ' + periodoActivo + '</div></div>' +
-        '<div class="metrics">' + (relMetrics ? relMetrics.innerHTML : '') + '</div>' +
-        cards.map(card => '<div class="card"><div class="card-title">' + (card.querySelector('.card-title') ? card.querySelector('.card-title').innerText : '') + '</div>' + card.innerHTML + '</div>').join('') +
-        '<div class="footer">Processado por Computador (Sistema de Gestão Quinina)</div>' +
-        '</body></html>';
+    var printContent = `<!DOCTYPE html><html><head><title>Relatório de Faturação</title>
+        <style>
+            body { font-family: Arial, sans-serif; color: #000; padding: 20px; font-size: 14px; }
+            .header { text-align: center; margin-bottom: 20px; }
+            .header h2 { margin: 0; font-size: 24px; }
+            .header .subtitle { font-size: 16px; font-weight: bold; margin-top: 5px; }
+            .header .date { font-size: 13px; color: #555; margin-top: 3px; }
+            .card { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 20px; page-break-inside: avoid; }
+            .card-title { font-size: 16px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 15px; }
+            th { background: #f0f0f0; border: 1px solid #ccc; padding: 6px; text-align: left; }
+            td { border: 1px solid #ccc; padding: 6px; }
+            .footer { text-align: center; font-size: 11px; color: #999; margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 10px; }
+            @media print { body { padding: 0; } }
+            .metrics { display: flex; flex-wrap: wrap; gap: 10px; }
+            .metric-card { border: 1px solid #eee; padding: 10px; border-radius: 4px; flex: 1; }
+        </style></head><body>
+        <div class="header">
+            <h2>Pinto's Bar</h2>
+            <div class="subtitle">RELATÓRIO DE FATURAÇÃO E DASHBOARD</div>
+            <div class="date">${today} | Período: ${periodoActivo}</div>
+        </div>
+        <div class="card">
+            <div class="card-title">Métricas Gerais</div>
+            <div class="metrics">${document.getElementById('rel-metrics').innerHTML}</div>
+        </div>
+        ${cards.map((card, i) => {
+            var html = card.innerHTML;
+            // Se o card tiver um canvas, substituir pelo índice correspondente da imagem capturada
+            if (html.indexOf('<canvas') !== -1 && chartImgs.length > 0) {
+                html = html.replace(/<canvas[^>]*><\/canvas>/, `<img src="${chartImgs[0]}" style="width:100%; height:auto;">`);
+                chartImgs.shift();
+            }
+            return `<div class="card">${html}</div>`;
+        }).join('')}
+        <div class="footer">Processado por Computador (Sistema de Gestão Pinto's Bar)</div>
+        </body></html>`;
 
     var win = window.open('', '_blank');
     win.document.write(printContent);
@@ -1322,10 +1345,11 @@ function printHistoricoMovimentos() {
         '.footer { text-align: center; font-size: 11px; color: #999; margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 10px; }' +
         '@media print { body { padding: 0; } }' +
         '</style></head><body>' +
-        '<div class="header">' +
-        '<h2>Pinto\u2019s Bar</h2>' +
-        '<div class="subtitle">HISTÓRICO DE MOVIMENTOS</div>' +
-        '<div class="date">' + today + '</div></div>' +
+        <div class="header">
+            <h2>Pinto's Bar</h2>
+            <div class="subtitle">HISTÓRICO DE MOVIMENTOS</div>
+            <div class="date">${today}</div>
+        </div>
         '<div>' + movTable.innerHTML + '</div>' +
         '<div class="footer">Processado por Computador (Sistema de Gestão)</div>' +
         '</body></html>';
@@ -1402,7 +1426,7 @@ function prepareMensalPrintArea() {
     printArea.innerHTML = `
         <div id="pdf-content" style="font-family:sans-serif; color:#000; padding:20px; max-width:1100px; margin:0 auto; background:#fff;">
             <div style="text-align:center; margin-bottom:20px;">
-                <h2 style="margin:0; font-size:24px;">Pinto\u2019s Bar</h2>
+                <h2 style="margin:0; font-size:24px;">Pinto's Bar</h2>
                 <div style="font-size:16px; font-weight:bold; margin-top:5px;">RELATÓRIO MENSAL DE PERFORMANCE</div>
                 <div style="font-size:13px; color:#555; margin-top:3px;">Mês: ${mesSel.split('-').reverse().join('/')}</div>
             </div>
@@ -1462,7 +1486,7 @@ function prepareMensalPrintArea() {
                 <div>_________________________<br>Assinatura do Proprietário</div>
             </div>
             <div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">
-                Processado por Computador (Sistema de Gestão Quinina)
+                Processado por Computador (Sistema de Gestão Pinto's Bar)
             </div>
         </div>
     `;
@@ -1665,7 +1689,7 @@ function prepareDocPrintArea(doc) {
         '<div style="margin-top:40px; font-size:12px; color:#777; display:flex; justify-content:space-between;">' +
         '<div>_________________________<br>Entregue por</div>' +
         '<div>_________________________<br>Recebido por</div></div>' +
-        '<div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador (Sistema de Gestão Quinina)</div></div>';
+        '<div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador (Sistema de Gestão Pinto's Bar)</div></div>';
 }
 
 function generatePDF(element, filename, orientation) {
@@ -1695,8 +1719,54 @@ function generatePDF(element, filename, orientation) {
 }
 
 function printDoc(doc) {
-    prepareDocPrintArea(doc);
-    window.print();
+    var details = doc.detalhes;
+    var docName = doc.tipo === 'factura' ? 'FACTURA' : 'COTAÇÃO';
+    var rows = details.items.map(function (item, i) {
+        return '<tr>' +
+            '<td style="border:1px solid #ccc; padding:6px; text-align:center;">' + (i + 1) + '</td>' +
+            '<td style="border:1px solid #ccc; padding:6px;">' + item.nome + '</td>' +
+            '<td style="border:1px solid #ccc; padding:6px; text-align:center;">' + item.qtd + '</td>' +
+            '<td style="border:1px solid #ccc; padding:6px; text-align:right;">' + item.preco.toLocaleString() + '</td>' +
+            '<td style="border:1px solid #ccc; padding:6px; text-align:right; font-weight:bold;">' + item.total.toLocaleString() + '</td></tr>';
+    });
+    
+    var printContent = `<!DOCTYPE html><html><head><title>${docName}</title>
+        <style>
+            body { font-family: sans-serif; color: #000; padding: 20px; }
+            .header { text-align: center; margin-bottom: 20px; }
+            .header h2 { margin: 0; font-size: 24px; }
+            .header .subtitle { font-size: 16px; font-weight: bold; margin-top: 5px; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+            th, td { border: 1px solid #ccc; padding: 6px; font-size: 13px; }
+            th { background: #f0f0f0; }
+            .total-box { text-align: right; font-size: 14px; }
+            .signatures { margin-top: 40px; display: flex; justify-content: space-between; font-size: 12px; }
+            .footer { text-align: center; font-size: 11px; color: #999; margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 10px; }
+        </style></head><body>
+        <div class="header">
+            <h2>Pinto's Bar</h2>
+            <div class="subtitle">${docName} N.º ${doc.id}</div>
+            <div class="date">Data: ${doc.data}</div>
+        </div>
+        <div style="margin-bottom:20px;"><b>Cliente:</b> ${doc.cliente}</div>
+        <table><thead><tr><th>#</th><th>Descrição</th><th>Qtd</th><th>Preço Unit.</th><th>Total (MZN)</th></tr></thead>
+        <tbody>${rows.join('')}</tbody></table>
+        <div class="total-box">
+            <div>Subtotal: ${(doc.total + (details.desconto || 0)).toLocaleString()} MZN</div>
+            ${details.desconto > 0 ? `<div>Desconto: -${details.desconto.toLocaleString()} MZN</div>` : ''}
+            <div style="font-size:18px; font-weight:bold; margin-top:10px; border-top:2px solid #000; padding-top:10px;">TOTAL: ${doc.total.toLocaleString()} MZN</div>
+        </div>
+        <div class="signatures">
+            <div>_________________________<br>Entregue por</div>
+            <div>_________________________<br>Recebido por</div>
+        </div>
+        <div class="footer">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador (Sistema de Gestão Pinto's Bar)</div>
+        </body></html>`;
+
+    var win = window.open('', '_blank');
+    win.document.write(printContent);
+    win.document.close();
+    win.onload = function() { win.print(); };
 }
 
 function renderDocsHistory() {
@@ -2419,17 +2489,18 @@ function printPlanoCompras() {
         '.footer { text-align: center; font-size: 11px; color: #999; margin-top: 30px; }' +
         '@media print { body { padding: 0; } }' +
         '</style></head><body>' +
-        '<div class="header">' +
-        '<h2>Pinto\u2019s Bar</h2>' +
-        '<div class="subtitle">PLANO DE COMPRAS</div>' +
-        '<div class="date">' + today + '</div></div>' +
+        <div class="header">
+            <h2>Pinto's Bar</h2>
+            <div class="subtitle">PLANO DE COMPRAS</div>
+            <div class="date">${today}</div>
+        </div>
         '<table><thead><tr>' +
         '<th>#</th><th>Produto</th><th>Qtd</th><th>Custo Unit.</th><th>Custo Total</th><th>Fornecedor</th><th>✓</th>' +
         '</tr></thead><tbody>' + rows.join('') + '</tbody></table>' +
         '<div class="total">TOTAL ESTIMADO: ' + totalPlano.toLocaleString() + ' MZN</div>' +
         '<div class="signatures"><div>_________________________<br>Assinatura do Comprador</div>' +
         '<div>_________________________<br>Aprovado por</div></div>' +
-        '<div class="footer">Processado por Computador (Sistema de Gestão Quinina)</div>' +
+        '<div class="footer">Processado por Computador (Sistema de Gestão Pinto's Bar)</div>' +
         '</body></html>';
 
     var win = window.open('', '_blank');
@@ -2471,7 +2542,7 @@ function downloadPlanoPDF() {
         '<div style="margin-top:40px; font-size:12px; color:#777;">' +
         '<div style="display:flex; justify-content:space-between;"><div>_________________________<br>Assinatura do Comprador</div>' +
         '<div>_________________________<br>Aprovado por</div></div></div>' +
-        '<div style="text-align:center; font-size:11px; margin-top:30px; color:#999;">Processado por Computador (Sistema de Gestão Quinina)</div></div>';
+        '<div style="text-align:center; font-size:11px; margin-top:30px; color:#999;">Processado por Computador (Sistema de Gestão Pinto's Bar)</div></div>';
 
     generatePDF(printArea, 'Plano_Compras_' + new Date().toISOString().split('T')[0] + '.pdf');
 }
