@@ -1290,7 +1290,7 @@ function printFaturacao() {
         '@media print { body { padding: 0; } }' +
         '</style></head><body>' +
         '<div class="header">' +
-        '<h2>Pinto's Bar</h2>' +
+        '<h2>Pinto\u2019s Bar</h2>' +
         '<div class="subtitle">RELATÓRIO DE FATURAÇÃO E DASHBOARD</div>' +
         '<div class="date">' + today + ' | Período: ' + periodoActivo + '</div></div>' +
         '<div class="metrics">' + (relMetrics ? relMetrics.innerHTML : '') + '</div>' +
@@ -1311,7 +1311,7 @@ function printHistoricoMovimentos() {
     printArea.innerHTML = `
         <div style="font-family:sans-serif; color:#000; padding:20px; max-width:1100px; margin:0 auto; background:#fff;">
             <div style="text-align:center; margin-bottom:20px;">
-                <h2 style="margin:0; font-size:24px;">Pinto's Bar</h2>
+                <h2 style="margin:0; font-size:24px;">Pinto\u2019s Bar</h2>
                 <div style="font-size:16px; font-weight:bold; margin-top:5px;">HISTÓRICO DE MOVIMENTOS</div>
                 <div style="font-size:13px; color:#555; margin-top:3px;">${today}</div>
             </div>
@@ -1392,7 +1392,7 @@ function prepareMensalPrintArea() {
     printArea.innerHTML = `
         <div id="pdf-content" style="font-family:sans-serif; color:#000; padding:20px; max-width:1100px; margin:0 auto; background:#fff;">
             <div style="text-align:center; margin-bottom:20px;">
-                <h2 style="margin:0; font-size:24px;">Pinto's Bar</h2>
+                <h2 style="margin:0; font-size:24px;">Pinto\u2019s Bar</h2>
                 <div style="font-size:16px; font-weight:bold; margin-top:5px;">RELATÓRIO MENSAL DE PERFORMANCE</div>
                 <div style="font-size:13px; color:#555; margin-top:3px;">Mês: ${mesSel.split('-').reverse().join('/')}</div>
             </div>
@@ -1638,7 +1638,7 @@ function prepareDocPrintArea(doc) {
     printArea.innerHTML =
         '<div style="font-family:sans-serif; color:#000; padding:20px; max-width:800px; margin:0 auto; background:#fff;">' +
         '<div style="text-align:center; margin-bottom:20px;">' +
-        '<h2 style="margin:0; font-size:24px;">Pinto's Bar</h2>' +
+        '<h2 style="margin:0; font-size:24px;">Pinto\u2019s Bar</h2>' +
         '<div style="font-size:16px; font-weight:bold; margin-top:5px;">' + docName + ' N.º ' + doc.id + '</div>' +
         '<div style="font-size:13px; color:#555; margin-top:3px;">Data: ' + doc.data + '</div></div>' +
         '<div style="margin-bottom:20px; font-size:14px;"><b>Cliente:</b> ' + doc.cliente + '</div>' +
@@ -2410,7 +2410,7 @@ function printPlanoCompras() {
         '@media print { body { padding: 0; } }' +
         '</style></head><body>' +
         '<div class="header">' +
-        '<h2>Pinto's Bar</h2>' +
+        '<h2>Pinto\u2019s Bar</h2>' +
         '<div class="subtitle">PLANO DE COMPRAS</div>' +
         '<div class="date">' + today + '</div></div>' +
         '<table><thead><tr>' +
@@ -2446,7 +2446,7 @@ function downloadPlanoPDF() {
     printArea.innerHTML =
         '<div style="font-family:sans-serif; color:#000; padding:20px; max-width:800px; margin:0 auto; background:#fff;">' +
         '<div style="text-align:center; margin-bottom:20px;">' +
-        '<h2 style="margin:0; font-size:22px;">Pinto's Bar</h2>' +
+        '<h2 style="margin:0; font-size:22px;">Pinto\u2019s Bar</h2>' +
         '<div style="font-size:16px; font-weight:bold; margin-top:5px;">PLANO DE COMPRAS</div>' +
         '<div style="font-size:13px; color:#555; margin-top:3px;">' + today + '</div></div>' +
         '<table style="width:100%; border-collapse:collapse; font-size:13px; margin-bottom:20px;">' +
