@@ -1301,7 +1301,7 @@ async function printFaturacao() {
             .metric-card { border: 1px solid #eee; padding: 10px; border-radius: 4px; flex: 1; }
         </style></head><body>
         <div class="header">
-            <h2>Pinto's Bar</h2>
+            <h2>Pinto\u2019s Bar</h2>
             <div class="subtitle">RELATÓRIO DE FATURAÇÃO E DASHBOARD</div>
             <div class="date">${today} | Período: ${periodoActivo}</div>
         </div>
@@ -1318,7 +1318,7 @@ async function printFaturacao() {
             }
             return `<div class="card">${html}</div>`;
         }).join('')}
-        <div class="footer">Processado por Computador (Sistema de Gestão Pinto's Bar)</div>
+        <div class="footer">Processado por Computador (Sistema de Gestão Pinto\u2019s Bar)</div>
         </body></html>`;
 
     var win = window.open('', '_blank');
@@ -1331,28 +1331,28 @@ function printHistoricoMovimentos() {
     var today = new Date().toLocaleDateString('pt-MZ', { year: 'numeric', month: 'long', day: 'numeric' });
     var movTable = document.getElementById('mov-table');
     
-    var printContent = '<!DOCTYPE html><html><head>' +
-        '<title>Histórico de Movimentos</title>' +
-        '<style>' +
-        'body { font-family: Arial, sans-serif; color: #000; padding: 20px; font-size: 14px; }' +
-        '.header { text-align: center; margin-bottom: 20px; }' +
-        '.header h2 { margin: 0; font-size: 24px; }' +
-        '.header .subtitle { font-size: 16px; font-weight: bold; margin-top: 5px; }' +
-        '.header .date { font-size: 13px; color: #555; margin-top: 3px; }' +
-        'table { width: 100%; border-collapse: collapse; font-size: 12px; }' +
-        'th { background: #f0f0f0; border: 1px solid #ccc; padding: 8px; text-align: left; }' +
-        'td { border: 1px solid #ccc; padding: 6px 8px; }' +
-        '.footer { text-align: center; font-size: 11px; color: #999; margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 10px; }' +
-        '@media print { body { padding: 0; } }' +
-        '</style></head><body>' +
+    var printContent = `<!DOCTYPE html><html><head>
+        <title>Histórico de Movimentos</title>
+        <style>
+            body { font-family: Arial, sans-serif; color: #000; padding: 20px; font-size: 14px; }
+            .header { text-align: center; margin-bottom: 20px; }
+            .header h2 { margin: 0; font-size: 24px; }
+            .header .subtitle { font-size: 16px; font-weight: bold; margin-top: 5px; }
+            .header .date { font-size: 13px; color: #555; margin-top: 3px; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; }
+            th { background: #f0f0f0; border: 1px solid #ccc; padding: 8px; text-align: left; }
+            td { border: 1px solid #ccc; padding: 6px 8px; }
+            .footer { text-align: center; font-size: 11px; color: #999; margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 10px; }
+            @media print { body { padding: 0; } }
+        </style></head><body>
         <div class="header">
-            <h2>Pinto's Bar</h2>
+            <h2>Pinto\u2019s Bar</h2>
             <div class="subtitle">HISTÓRICO DE MOVIMENTOS</div>
             <div class="date">${today}</div>
         </div>
-        '<div>' + movTable.innerHTML + '</div>' +
-        '<div class="footer">Processado por Computador (Sistema de Gestão)</div>' +
-        '</body></html>';
+        <div>${movTable.innerHTML}</div>
+        <div class="footer">Processado por Computador (Sistema de Gestão)</div>
+        </body></html>`;
 
     var win = window.open('', '_blank');
     win.document.write(printContent);
@@ -1426,7 +1426,7 @@ function prepareMensalPrintArea() {
     printArea.innerHTML = `
         <div id="pdf-content" style="font-family:sans-serif; color:#000; padding:20px; max-width:1100px; margin:0 auto; background:#fff;">
             <div style="text-align:center; margin-bottom:20px;">
-                <h2 style="margin:0; font-size:24px;">Pinto's Bar</h2>
+                <h2 style="margin:0; font-size:24px;">Pinto\u2019s Bar</h2>
                 <div style="font-size:16px; font-weight:bold; margin-top:5px;">RELATÓRIO MENSAL DE PERFORMANCE</div>
                 <div style="font-size:13px; color:#555; margin-top:3px;">Mês: ${mesSel.split('-').reverse().join('/')}</div>
             </div>
@@ -1486,7 +1486,7 @@ function prepareMensalPrintArea() {
                 <div>_________________________<br>Assinatura do Proprietário</div>
             </div>
             <div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">
-                Processado por Computador (Sistema de Gestão Pinto's Bar)
+                Processado por Computador (Sistema de Gestão Pinto\u2019s Bar)
             </div>
         </div>
     `;
@@ -1689,7 +1689,7 @@ function prepareDocPrintArea(doc) {
         '<div style="margin-top:40px; font-size:12px; color:#777; display:flex; justify-content:space-between;">' +
         '<div>_________________________<br>Entregue por</div>' +
         '<div>_________________________<br>Recebido por</div></div>' +
-        '<div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador (Sistema de Gestão Pinto's Bar)</div></div>';
+        '<div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador (Sistema de Gestão Pinto\u2019s Bar)</div></div>';
 }
 
 function generatePDF(element, filename, orientation) {
@@ -1744,7 +1744,7 @@ function printDoc(doc) {
             .footer { text-align: center; font-size: 11px; color: #999; margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 10px; }
         </style></head><body>
         <div class="header">
-            <h2>Pinto's Bar</h2>
+            <h2>Pinto\u2019s Bar</h2>
             <div class="subtitle">${docName} N.º ${doc.id}</div>
             <div class="date">Data: ${doc.data}</div>
         </div>
@@ -1760,7 +1760,7 @@ function printDoc(doc) {
             <div>_________________________<br>Entregue por</div>
             <div>_________________________<br>Recebido por</div>
         </div>
-        <div class="footer">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador (Sistema de Gestão Pinto's Bar)</div>
+        <div class="footer">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador (Sistema de Gestão Pinto\u2019s Bar)</div>
         </body></html>`;
 
     var win = window.open('', '_blank');
@@ -2473,35 +2473,35 @@ function printPlanoCompras() {
             '<td style="padding:6px 8px;border:1px solid #ccc;text-align:center;">☐</td></tr>';
     });
 
-    var printContent = '<!DOCTYPE html><html><head>' +
-        '<title>Plano de Compras</title>' +
-        '<style>' +
-        'body { font-family: Arial, sans-serif; color: #000; padding: 20px; font-size: 14px; }' +
-        '.header { text-align: center; margin-bottom: 20px; }' +
-        '.header h2 { margin: 0; font-size: 22px; }' +
-        '.header .subtitle { font-size: 16px; font-weight: bold; margin-top: 5px; }' +
-        '.header .date { font-size: 13px; color: #555; margin-top: 3px; }' +
-        'table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px; }' +
-        'th { background: #f0f0f0; border: 1px solid #ccc; padding: 8px; text-align: left; }' +
-        'td { border: 1px solid #ccc; padding: 6px 8px; }' +
-        '.total { text-align: right; font-size: 16px; font-weight: bold; border-top: 2px solid #000; padding-top: 10px; }' +
-        '.signatures { margin-top: 40px; font-size: 12px; color: #777; display: flex; justify-content: space-between; }' +
-        '.footer { text-align: center; font-size: 11px; color: #999; margin-top: 30px; }' +
-        '@media print { body { padding: 0; } }' +
-        '</style></head><body>' +
+    var printContent = `<!DOCTYPE html><html><head>
+        <title>Plano de Compras</title>
+        <style>
+            body { font-family: Arial, sans-serif; color: #000; padding: 20px; font-size: 14px; }
+            .header { text-align: center; margin-bottom: 20px; }
+            .header h2 { margin: 0; font-size: 22px; }
+            .header .subtitle { font-size: 16px; font-weight: bold; margin-top: 5px; }
+            .header .date { font-size: 13px; color: #555; margin-top: 3px; }
+            table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px; }
+            th { background: #f0f0f0; border: 1px solid #ccc; padding: 8px; text-align: left; }
+            td { border: 1px solid #ccc; padding: 6px 8px; }
+            .total { text-align: right; font-size: 16px; font-weight: bold; border-top: 2px solid #000; padding-top: 10px; }
+            .signatures { margin-top: 40px; font-size: 12px; color: #777; display: flex; justify-content: space-between; }
+            .footer { text-align: center; font-size: 11px; color: #999; margin-top: 30px; }
+            @media print { body { padding: 0; } }
+        </style></head><body>
         <div class="header">
-            <h2>Pinto's Bar</h2>
+            <h2>Pinto\u2019s Bar</h2>
             <div class="subtitle">PLANO DE COMPRAS</div>
             <div class="date">${today}</div>
         </div>
-        '<table><thead><tr>' +
-        '<th>#</th><th>Produto</th><th>Qtd</th><th>Custo Unit.</th><th>Custo Total</th><th>Fornecedor</th><th>✓</th>' +
-        '</tr></thead><tbody>' + rows.join('') + '</tbody></table>' +
-        '<div class="total">TOTAL ESTIMADO: ' + totalPlano.toLocaleString() + ' MZN</div>' +
-        '<div class="signatures"><div>_________________________<br>Assinatura do Comprador</div>' +
-        '<div>_________________________<br>Aprovado por</div></div>' +
-        '<div class="footer">Processado por Computador (Sistema de Gestão Pinto's Bar)</div>' +
-        '</body></html>';
+        <table><thead><tr>
+            <th>#</th><th>Produto</th><th>Qtd</th><th>Custo Unit.</th><th>Custo Total</th><th>Fornecedor</th><th>✓</th>
+        </tr></thead><tbody>${rows.join('')}</tbody></table>
+        <div class="total">TOTAL ESTIMADO: ${totalPlano.toLocaleString()} MZN</div>
+        <div class="signatures"><div>_________________________<br>Assinatura do Comprador</div>
+            <div>_________________________<br>Aprovado por</div></div>
+        <div class="footer">Processado por Computador (Sistema de Gestão Pinto\u2019s Bar)</div>
+        </body></html>`;
 
     var win = window.open('', '_blank');
     win.document.write(printContent);
@@ -2542,7 +2542,7 @@ function downloadPlanoPDF() {
         '<div style="margin-top:40px; font-size:12px; color:#777;">' +
         '<div style="display:flex; justify-content:space-between;"><div>_________________________<br>Assinatura do Comprador</div>' +
         '<div>_________________________<br>Aprovado por</div></div></div>' +
-        '<div style="text-align:center; font-size:11px; margin-top:30px; color:#999;">Processado por Computador (Sistema de Gestão Pinto's Bar)</div></div>';
+        '<div style="text-align:center; font-size:11px; margin-top:30px; color:#999;">Processado por Computador (Sistema de Gestão Pinto\u2019s Bar)</div></div>';
 
     generatePDF(printArea, 'Plano_Compras_' + new Date().toISOString().split('T')[0] + '.pdf');
 }
