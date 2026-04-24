@@ -871,8 +871,9 @@
       <div class="card">
         <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
           Histórico de movimentos
-<div>
+          <div>
             <input type="date" id="mov-hist-date" onchange="renderMovimentos()" style="margin-right:10px;">
+            <button class="btn btn-danger" onclick="deleteSelectedMovimentos()" style="margin-right:5px;">🗑️ Eliminar Selecionados</button>
             <button class="btn" onclick="printDailyMovements()">🖨️ Imprimir Movimentos do Dia</button>
             <button class="btn" onclick="printHistoricoMovimentos()" style="margin-left:5px;">🖨️ Imprimir</button>
           </div>

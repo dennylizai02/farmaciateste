@@ -617,11 +617,12 @@ function renderMovimentos() {
     }
 
     document.getElementById('mov-table').innerHTML = movsToShow.length ?
-        '<table><thead><tr><th>Data/Hora</th><th>Tipo</th><th>Produto</th><th>Qtd</th><th>Preço unit.</th><th>Total</th><th>Pagamento</th><th>Notas</th><th>Acções</th></tr></thead><tbody>' +
+        '<table><thead><tr><th><input type="checkbox" onclick="toggleSelectAllMovs(this)"></th><th>Data/Hora</th><th>Tipo</th><th>Produto</th><th>Qtd</th><th>Preço unit.</th><th>Total</th><th>Pagamento</th><th>Notas</th><th>Acções</th></tr></thead><tbody>' +
         movsToShow.map(function (m) {
             var cor = m.tipo === 'entrada' ? 'badge-ok' : m.tipo === 'saida' ? 'badge' : 'badge-low';
             var style = m.tipo === 'saida' ? ' style="background:#E6F1FB;color:#185FA5;"' : '';
-            return '<tr><td style="color:var(--color-text-secondary);font-size:12px;">' + (m.dataHora || m.data) + '</td>' +
+            return '<tr><td><input type="checkbox" class="mov-checkbox" data-id="' + m.id + '"></td>' +
+                '<td style="color:var(--color-text-secondary);font-size:12px;">' + (m.dataHora || m.data) + '</td>' +
                 '<td><span class="badge ' + cor + '"' + style + '>' + tipoLabel[m.tipo] + '</span></td>' +
                 '<td>' + (m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td>' + m.preco + ' MZN</td>' +
                 '<td style="font-weight:500;">' + m.total.toLocaleString() + ' MZN</td>' +
@@ -631,8 +632,40 @@ function renderMovimentos() {
         }).join('') + '</tbody></table>' : '<div class="empty">Nenhum movimento registado</div>';
 }
 
+function toggleSelectAllMovs(master) {
+    const checks = document.querySelectorAll('.mov-checkbox');
+    checks.forEach(c => c.checked = master.checked);
+}
+
+async function deleteSelectedMovimentos() {
+    const selected = Array.from(document.querySelectorAll('.mov-checkbox:checked')).map(c => parseInt(c.getAttribute('data-id')));
+    if (selected.length === 0) {
+        showNotification('Nenhum movimento selecionado.', 'info');
+        return;
+    }
+    
+    if (!(await showConfirm('Tem certeza que deseja eliminar ' + selected.length + ' movimentos selecionados? O stock será revertido para todos.'))) return;
+    
+    showNotification('A eliminar ' + selected.length + ' movimentos...', 'info');
+    
+    for (let id of selected) {
+        await deleteMovimentoInternal(id);
+    }
+    
+    await fetchData();
+    renderMovimentos(); renderStock(); renderRelatorios(); renderCaixa(); renderAlertas(); renderNecessidades(); renderDocsHistory();
+    showNotification(selected.length + ' movimentos eliminados com sucesso!', 'success');
+}
+
 async function deleteMovimento(id) {
     if (!(await showConfirm('Tem certeza que deseja anular este movimento? O stock será revertido.'))) return;
+    await deleteMovimentoInternal(id);
+    await fetchData();
+    renderMovimentos(); renderStock(); renderRelatorios(); renderCaixa(); renderAlertas(); renderNecessidades(); renderDocsHistory();
+    showNotification('Movimento anulado com sucesso!', 'success');
+}
+
+async function deleteMovimentoInternal(id) {
     var m = movimentos.find(function (x) { return x.id === id; });
     if (!m) return;
     var p = produtos.find(function (x) { return x.id === m.prodId; });
@@ -665,12 +698,8 @@ async function deleteMovimento(id) {
         
         movimentos = movimentos.filter(function (x) { return x.id !== id; });
         rebuildFifo();
-        showNotification('Movimento anulado com sucesso!', 'success');
-        await fetchData(); 
-        renderMovimentos(); renderStock(); renderRelatorios(); renderCaixa(); renderAlertas(); renderNecessidades(); renderDocsHistory();
     } catch (err) {
-        console.error('Erro ao anular movimento:', err);
-        showNotification('Erro ao anular movimento.');
+        console.error('Erro ao anular movimento ' + id + ':', err);
     }
 }
 
