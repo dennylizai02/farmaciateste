@@ -22,24 +22,7 @@ function initSupabase() {
 
 initSupabase();
 
-// ====================== MODO DEMO (ISOLAMENTO) ======================
-const IS_DEMO = window.location.hostname.includes('demo') || 
-                window.location.search.includes('demo') || 
-                localStorage.getItem('pintos_demo_active') === 'true';
-
-const PREFIX = IS_DEMO ? 'demo_' : '';
-
-if (IS_DEMO) {
-    console.log('--- AMBIENTE DE DEMONSTRAÇÃO ACTIVO ---');
-    window.addEventListener('DOMContentLoaded', function() {
-        var header = document.querySelector('.logo') || document.querySelector('.app > div') || document.body;
-        var badge = document.createElement('div');
-        badge.id = 'demo-badge';
-        badge.style.cssText = 'background:#854F0B; color:#fff; font-size:10px; padding:2px 8px; border-radius:4px; margin-left:10px; display:inline-block; vertical-align:middle; font-weight:bold;';
-        badge.textContent = 'MODO DEMO (TESTE)';
-        if (header) header.appendChild(badge);
-    });
-}
+const PREFIX = '';
 
 // ====================== NOTIFICAÇÕES ======================
 function showNotification(msg, type = 'error') {
@@ -1787,17 +1770,6 @@ function setDefaultDates() {
 async function checkSession() {
     if (!sb) return;
 
-    // Caso de Bypass para Modo Demo
-    if (localStorage.getItem('pintos_demo_active') === 'true') {
-        userRole = 'gestor'; // Permitir ver tudo no modo demo
-        document.getElementById('login-screen').style.display = 'none';
-        document.querySelector('.app').style.display = 'block';
-        document.getElementById('user-label').textContent = 'demo@pintos.bar (MODO TESTE)';
-        applyRoleRestrictions();
-        initApp();
-        return;
-    }
-
     const { data } = await sb.auth.getSession();
     if (data.session) {
         const email = data.session.user.email;
@@ -1821,18 +1793,9 @@ async function loginUser() {
 
     console.log('Login attempt:', email);
 
-    // BYPASS para conta DEMO
-    if (email === 'demo@pintos.bar' && pass === 'demo123') {
-        localStorage.setItem('pintos_demo_active', 'true');
-        showNotification('Entrando em Modo Demonstração...', 'info');
-        setTimeout(() => window.location.reload(), 1000);
-        return;
-    }
-
     if (!sb) {
         console.error('Supabase not initialized');
         errorEl.textContent = 'Sistema não conectado. Tentando novamente...';
-        // Retry init
         initSupabase();
         setTimeout(() => loginUser(), 500);
         return;
