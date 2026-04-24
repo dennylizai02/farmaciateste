@@ -480,9 +480,29 @@ async function updateFornecedor(id, val) {
 
 // ====================== MOVIMENTOS ======================
 function populateProdutoSelect() {
-    var sel = document.getElementById('m-produto');
-    if (sel) sel.innerHTML = produtos.map(function (p) { return '<option value="' + p.id + '">' + p.nome + '</option>'; }).join('');
+    var list = document.getElementById('m-produto-list');
+    if (list) {
+        list.innerHTML = produtos.map(function (p) { return '<option value="' + p.nome + '">'; }).join('');
+    }
+    // Update the hidden select if it exists or other selects
+    var selPlano = document.getElementById('plano-produto');
+    if (selPlano) selPlano.innerHTML = produtos.map(function (p) { return '<option value="' + p.id + '">' + p.nome + '</option>'; }).join('');
+    
+    var selDoc = document.getElementById('doc-produto');
+    if (selDoc) selDoc.innerHTML = produtos.map(function (p) { return '<option value="' + p.id + '">' + p.nome + '</option>'; }).join('');
+    
     updateMovPrice();
+}
+
+function onProductSearch() {
+    var val = document.getElementById('m-produto-search').value;
+    var p = produtos.find(x => x.nome === val);
+    if (p) {
+        document.getElementById('m-produto').value = p.id;
+        updateMovPrice();
+    } else {
+        document.getElementById('m-produto').value = '';
+    }
 }
 
 function setTipo(t) {
@@ -556,6 +576,8 @@ async function addMovimento() {
         showNotification('Movimento registado!', 'success');
         movimentos.unshift({ id: mm.id, tipo: mm.tipo, prodId: mm.produto_id, qtd: mm.quantidade, preco: mm.preco_unitario, total: mm.total, data: mm.data.split('T')[0], nota: mm.nota.replace(/\[C:[\d.]+\]\s*/, ''), metodo: mm.metodo_pagamento, nome_v: p.nome, custo_aplicado: null });
         document.getElementById('m-qtd').value = 1; document.getElementById('m-nota').value = '';
+        if (document.getElementById('m-produto-search')) document.getElementById('m-produto-search').value = '';
+        if (document.getElementById('m-produto')) document.getElementById('m-produto').value = '';
         rebuildFifo(); // Recalcula o motor de lucros
         renderMovimentos(); renderAlertas(); renderStock(); renderCaixa(); renderNecessidades();
         var ac = document.getElementById('alert-count');

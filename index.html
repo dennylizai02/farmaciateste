@@ -842,7 +842,11 @@
           <button class="tipo-btn" id="tipo-quebra" onclick="setTipo('quebra')">⚠ Quebra</button>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Produto</label><select id="m-produto" onchange="updateMovPrice()"></select>
+          <div class="form-group">
+            <label>Produto</label>
+            <input id="m-produto-search" list="m-produto-list" oninput="onProductSearch()" placeholder="Escreva para pesquisar...">
+            <datalist id="m-produto-list"></datalist>
+            <input type="hidden" id="m-produto">
           </div>
           <div class="form-group"><label>Quantidade</label><input id="m-qtd" type="number" min="1" value="1"
               oninput="updateMovTotal()"></div>
