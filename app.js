@@ -224,8 +224,19 @@ async function fetchData() {
                 if (match) cApp = parseFloat(match[1]);
                 m.nota = m.nota.replace(/\[C:[\d.]+\]\s*/, '');
             }
+            
             var dObj = new Date(m.data);
-            var localDate = dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
+            var localDate, localHora;
+            
+            if (!isNaN(dObj.getTime())) {
+                localDate = dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
+                localHora = dObj.toLocaleString('pt-MZ', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+            } else {
+                // Fallback para datas que não o JS não consegue parsar directamente
+                localDate = m.data ? m.data.split('T')[0] : '—';
+                localHora = m.data || '—';
+            }
+
             return {
                 id: m.id,
                 tipo: m.tipo,
@@ -234,7 +245,7 @@ async function fetchData() {
                 preco: m.preco_unitario,
                 total: m.total,
                 data: localDate,
-                dataHora: dObj.toLocaleString('pt-MZ', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }),
+                dataHora: localHora,
                 nota: m.nota,
                 metodo: m.metodo_pagamento,
                 nome_v: m.produtos ? m.produtos.nome : '—',
@@ -245,17 +256,29 @@ async function fetchData() {
     if (dRes.data) {
         despesas = dRes.data.map(function (d) {
             var dObj = new Date(d.data);
-            var localDate = dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
+            var localDate;
+            if (!isNaN(dObj.getTime())) {
+                localDate = dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
+            } else {
+                localDate = d.data ? d.data.split('T')[0] : '—';
+            }
             return { id: d.id, categoria: d.categoria, descricao: d.descricao, valor: d.valor, metodo: d.metodo_pagamento, data: localDate };
         });
     }
     if (docRes.data) {
         documentos = docRes.data.map(function (d) {
             var dObj = new Date(d.data);
-            var localDate = dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
+            var localDate;
+            if (!isNaN(dObj.getTime())) {
+                localDate = dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
+            } else {
+                localDate = d.data ? d.data.split('T')[0] : '—';
+            }
             return { id: d.id, tipo: d.tipo, cliente: d.cliente, data: localDate, total: d.total, detalhes: d.detalhes || [] };
         });
     }
+    // Ordenar movimentos explicitamente por ID decrescente para garantir que os mais recentes aparecem primeiro
+    movimentos.sort((a, b) => b.id - a.id);
     rebuildFifo();
 }
 
@@ -635,7 +658,7 @@ function renderMovimentos() {
             return m.data && m.data.substring(0, 10) === dateFilter;
         });
     } else {
-        movsToShow = movimentos.slice(0, 50); // Aumentado para 50 para melhor visibilidade
+        movsToShow = movimentos.slice(0, 100); // Aumentado para 100 para melhor visibilidade de movimentos antigos
     }
 
     document.getElementById('mov-table').innerHTML = movsToShow.length ?
