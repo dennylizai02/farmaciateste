@@ -928,11 +928,11 @@ function renderAlertas() {
 // ====================== RELATÓRIOS ======================
 function renderRelatorios() {
     var meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    var labels, vendasData, lucroData, unidData;
+    var labels, vendasData, lucroData, unidData, quebrasData;
     var vendTotal = movimentos.filter(function (m) { return m.tipo === 'saida'; }).reduce(function (a, m) { return a + m.total; }, 0);
 
     if (periodoActivo === 'diário') {
-        labels = []; vendasData = []; lucroData = []; unidData = [];
+        labels = []; vendasData = []; lucroData = []; unidData = []; quebrasData = [];
         for (var i = 6; i >= 0; i--) {
             var d = new Date(); d.setDate(d.getDate() - i);
             var key = d.toISOString().split('T')[0];
@@ -941,10 +941,11 @@ function renderRelatorios() {
             var rec = mSales.reduce((a, m) => a + m.total, 0);
             var luc = rec - mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
             var unid = mSales.reduce((a, m) => a + m.qtd, 0);
-            vendasData.push(rec); lucroData.push(luc); unidData.push(unid);
+            var loss = movimentos.filter(m => m.tipo === 'quebra' && m.data === key).reduce((a, m) => a + m.total, 0);
+            vendasData.push(rec); lucroData.push(luc); unidData.push(unid); quebrasData.push(loss);
         }
     } else if (periodoActivo === 'semanal') {
-        labels = []; vendasData = []; lucroData = []; unidData = [];
+        labels = []; vendasData = []; lucroData = []; unidData = []; quebrasData = [];
         var now = new Date();
         for (var i = 3; i >= 0; i--) {
             var start = new Date(); start.setDate(now.getDate() - (i + 1) * 7);
@@ -957,52 +958,71 @@ function renderRelatorios() {
                 var d = new Date(m.data);
                 return m.tipo === 'saida' && d >= start && d < end;
             });
+            var mLoss = movimentos.filter(m => {
+                var d = new Date(m.data);
+                return m.tipo === 'quebra' && d >= start && d < end;
+            });
             var rec = mSales.reduce((a, m) => a + m.total, 0);
             var luc = rec - mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
             var unid = mSales.reduce((a, m) => a + m.qtd, 0);
-            vendasData.push(rec); lucroData.push(luc); unidData.push(unid);
+            var loss = mLoss.reduce((a, m) => a + m.total, 0);
+            vendasData.push(rec); lucroData.push(luc); unidData.push(unid); quebrasData.push(loss);
         }
-    } else if (periodoActivo === 'mensal') {
         var agora = new Date();
-        labels = []; vendasData = []; lucroData = []; unidData = [];
+        labels = []; vendasData = []; lucroData = []; unidData = []; quebrasData = [];
         for (var i = 5; i >= 0; i--) {
             var d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
             var mKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
             labels.push(meses[d.getMonth()]);
             var mSales = movimentos.filter(m => m.tipo === 'saida' && m.data.startsWith(mKey));
+            var mLoss = movimentos.filter(m => m.tipo === 'quebra' && m.data.startsWith(mKey));
             var rec = mSales.reduce((a, m) => a + m.total, 0);
             var luc = rec - mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
             var unid = mSales.reduce((a, m) => a + m.qtd, 0);
-            vendasData.push(rec); lucroData.push(luc); unidData.push(unid);
+            var loss = mLoss.reduce((a, m) => a + m.total, 0);
+            vendasData.push(rec); lucroData.push(luc); unidData.push(unid); quebrasData.push(loss);
         }
     } else if (periodoActivo === 'trimestral') {
         labels = ['T1', 'T2', 'T3', 'T4'];
-        vendasData = [0, 0, 0, 0]; lucroData = [0, 0, 0, 0]; unidData = [0, 0, 0, 0];
+        vendasData = [0, 0, 0, 0]; lucroData = [0, 0, 0, 0]; unidData = [0, 0, 0, 0]; quebrasData = [0, 0, 0, 0];
         var anoActual = new Date().getFullYear();
-        movimentos.filter(m => m.tipo === 'saida' && m.data.startsWith(String(anoActual))).forEach(m => {
+        movimentos.filter(m => m.data.startsWith(String(anoActual))).forEach(m => {
             var trim = Math.floor(new Date(m.data).getMonth() / 3);
-            vendasData[trim] += m.total;
-            lucroData[trim] += (m.total - (m.fifo_cost || 0));
-            unidData[trim] += m.qtd;
+            if (m.tipo === 'saida') {
+                vendasData[trim] += m.total;
+                lucroData[trim] += (m.total - (m.fifo_cost || 0));
+                unidData[trim] += m.qtd;
+            } else if (m.tipo === 'quebra') {
+                quebrasData[trim] += m.total;
+            }
         });
     } else {
         labels = [new Date().getFullYear() - 2, new Date().getFullYear() - 1, new Date().getFullYear()];
-        vendasData = [0, 0, 0]; lucroData = [0, 0, 0]; unidData = [0, 0, 0];
-        movimentos.filter(m => m.tipo === 'saida').forEach(m => {
+        vendasData = [0, 0, 0]; lucroData = [0, 0, 0]; unidData = [0, 0, 0]; quebrasData = [0, 0, 0];
+        movimentos.forEach(m => {
             var ano = new Date(m.data).getFullYear();
             var idx = labels.indexOf(ano);
             if (idx !== -1) {
-                vendasData[idx] += m.total;
-                lucroData[idx] += (m.total - (m.fifo_cost || 0));
-                unidData[idx] += m.qtd;
+                if (m.tipo === 'saida') {
+                    vendasData[idx] += m.total;
+                    lucroData[idx] += (m.total - (m.fifo_cost || 0));
+                    unidData[idx] += m.qtd;
+                } else if (m.tipo === 'quebra') {
+                    quebrasData[idx] += m.total;
+                }
             }
         });
     }
 
-    var totalV = vendasData[vendasData.length - 1];
-    var totalL = lucroData[lucroData.length - 1];
-    var totalQ = movimentos.filter(function (m) { return m.tipo === 'quebra'; }).reduce(function (a, m) { return a + m.total; }, 0);
-    var totalMov = movimentos.filter(function (m) { return m.tipo === 'saida'; }).reduce(function (a, m) { return a + m.qtd; }, 0);
+    var activeIndex = vendasData.length - 1;
+    if (periodoActivo === 'trimestral') {
+        activeIndex = Math.floor(new Date().getMonth() / 3);
+    }
+    
+    var totalV = vendasData[activeIndex] || 0;
+    var totalL = lucroData[activeIndex] || 0;
+    var totalMov = unidData[activeIndex] || 0;
+    var totalQ = quebrasData[activeIndex] || 0;
 
     document.getElementById('rel-metrics').innerHTML =
         '<div class="metric-card"><div class="metric-label">Receita (período)</div><div class="metric-value">' + Math.round(totalV).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
