@@ -968,6 +968,7 @@ function renderRelatorios() {
             var loss = mLoss.reduce((a, m) => a + m.total, 0);
             vendasData.push(rec); lucroData.push(luc); unidData.push(unid); quebrasData.push(loss);
         }
+    } else if (periodoActivo === 'mensal') {
         var agora = new Date();
         labels = []; vendasData = []; lucroData = []; unidData = []; quebrasData = [];
         for (var i = 5; i >= 0; i--) {
