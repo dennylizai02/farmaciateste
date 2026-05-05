@@ -127,7 +127,8 @@ function showSection(id) {
 }
 
 function printDailyMovements() {
-    var hoje = new Date().toISOString().split('T')[0];
+    var d = new Date();
+    var hoje = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
     var movs = movimentos.filter(function (m) { 
         return m.data === hoje && (m.tipo === 'saida' || m.tipo === 'quebra'); 
     });
@@ -223,6 +224,8 @@ async function fetchData() {
                 if (match) cApp = parseFloat(match[1]);
                 m.nota = m.nota.replace(/\[C:[\d.]+\]\s*/, '');
             }
+            var dObj = new Date(m.data);
+            var localDate = dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
             return {
                 id: m.id,
                 tipo: m.tipo,
@@ -230,8 +233,8 @@ async function fetchData() {
                 qtd: m.quantidade,
                 preco: m.preco_unitario,
                 total: m.total,
-                data: m.data.split('T')[0],
-                dataHora: new Date(m.data).toLocaleString('pt-MZ', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }),
+                data: localDate,
+                dataHora: dObj.toLocaleString('pt-MZ', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }),
                 nota: m.nota,
                 metodo: m.metodo_pagamento,
                 nome_v: m.produtos ? m.produtos.nome : '—',
@@ -241,12 +244,16 @@ async function fetchData() {
     }
     if (dRes.data) {
         despesas = dRes.data.map(function (d) {
-            return { id: d.id, categoria: d.categoria, descricao: d.descricao, valor: d.valor, metodo: d.metodo_pagamento, data: d.data.split('T')[0] };
+            var dObj = new Date(d.data);
+            var localDate = dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
+            return { id: d.id, categoria: d.categoria, descricao: d.descricao, valor: d.valor, metodo: d.metodo_pagamento, data: localDate };
         });
     }
     if (docRes.data) {
         documentos = docRes.data.map(function (d) {
-            return { id: d.id, tipo: d.tipo, cliente: d.cliente, data: d.data.split('T')[0], total: d.total, detalhes: d.detalhes || [] };
+            var dObj = new Date(d.data);
+            var localDate = dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
+            return { id: d.id, tipo: d.tipo, cliente: d.cliente, data: localDate, total: d.total, detalhes: d.detalhes || [] };
         });
     }
     rebuildFifo();
@@ -625,10 +632,10 @@ function renderMovimentos() {
     
     if (dateFilter) {
         movsToShow = movimentos.filter(function(m) {
-            return m.data === dateFilter;
+            return m.data && m.data.substring(0, 10) === dateFilter;
         });
     } else {
-        movsToShow = movimentos.slice(0, 30);
+        movsToShow = movimentos.slice(0, 50); // Aumentado para 50 para melhor visibilidade
     }
 
     document.getElementById('mov-table').innerHTML = movsToShow.length ?
@@ -935,7 +942,7 @@ function renderRelatorios() {
         labels = []; vendasData = []; lucroData = []; unidData = []; quebrasData = [];
         for (var i = 6; i >= 0; i--) {
             var d = new Date(); d.setDate(d.getDate() - i);
-            var key = d.toISOString().split('T')[0];
+            var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
             labels.push(d.getDate() + '/' + (d.getMonth() + 1));
             var mSales = movimentos.filter(m => m.tipo === 'saida' && m.data === key);
             var rec = mSales.reduce((a, m) => a + m.total, 0);
