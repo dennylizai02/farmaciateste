@@ -184,6 +184,25 @@ function setPeriodo(p, btn) {
 }
 
 // ====================== DATA ======================
+async function fetchAllRows(table, selectExpr, orderColumn, ascending) {
+    var pageSize = 1000;
+    var from = 0;
+    var rows = [];
+
+    while (true) {
+        var res = await sb
+            .from(PREFIX + table)
+            .select(selectExpr)
+            .order(orderColumn, { ascending: ascending })
+            .range(from, from + pageSize - 1);
+
+        if (res.error) return { data: rows, error: res.error };
+        if (res.data && res.data.length > 0) rows = rows.concat(res.data);
+        if (!res.data || res.data.length < pageSize) return { data: rows, error: null };
+        from += pageSize;
+    }
+}
+
 async function fetchData() {
     if (!sb) { console.warn('Supabase not available'); return; }
 
@@ -191,10 +210,10 @@ async function fetchData() {
     try {
         var results = await Promise.all([
             sb.from(PREFIX + 'produtos').select('*').order('nome'),
-            sb.from(PREFIX + 'movimentos').select('*, produtos(nome)').order('data', { ascending: false }).limit(300),
-            sb.from(PREFIX + 'despesas').select('*').order('data', { ascending: false }).limit(100),
-            sb.from(PREFIX + 'documentos').select('*').order('data', { ascending: false }).limit(100),
-            sb.from(PREFIX + 'saldo_caixa').select('*').order('data', { ascending: false }),
+            fetchAllRows('movimentos', '*, produtos(nome)', 'data', false),
+            fetchAllRows('despesas', '*', 'data', false),
+            fetchAllRows('documentos', '*', 'data', false),
+            fetchAllRows('saldo_caixa', '*', 'data', false),
             sb.from(PREFIX + 'mesas_clientes').select('*, mesas_pedidos(*)').order('created_at', { ascending: false })
         ]);
         pRes = results[0]; mRes = results[1]; dRes = results[2]; docRes = results[3];
