@@ -630,36 +630,19 @@ async function addMovimento() {
     }
 }
 
-// ====================== MOTOR FIFO (CUSTO DINÂMICO) ======================
+// ====================== MOTOR DE CUSTO (MARGEM DIRECTA) ======================
 function rebuildFifo() {
-    var sorted = [...movimentos].sort((a, b) => a.data.localeCompare(b.data) || a.id - b.id);
-    var lotes = {};
-    for (var m of sorted) {
-        if (m.tipo === 'entrada') {
-            if (!lotes[m.prodId]) lotes[m.prodId] = [];
-            lotes[m.prodId].push({ qtd: m.qtd, preco: m.preco });
-        } else {
-            var toConsume = m.qtd;
-            var cost = 0;
-            if (lotes[m.prodId]) {
-                while (toConsume > 0 && lotes[m.prodId].length > 0) {
-                    var lot = lotes[m.prodId][0];
-                    var take = Math.min(toConsume, lot.qtd);
-                    cost += take * lot.preco;
-                    toConsume -= take;
-                    lot.qtd -= take;
-                    if (lot.qtd <= 0) lotes[m.prodId].shift();
-                }
-            }
-            if (toConsume > 0) {
-                var p = produtos.find(x => x.id === m.prodId);
-                cost += toConsume * (p ? p.custo : 0);
-            }
-            // Guarda na memória do movimento
+    // Margem Directa: custo = preço de custo do produto × quantidade
+    // Simples, transparente, e não depende de registos de entrada históricos
+    for (var m of movimentos) {
+        if (m.tipo === 'saida' || m.tipo === 'quebra') {
+            var p = produtos.find(x => x.id === m.prodId);
+            var custoUnit = p ? p.custo : 0;
+            // Override do utilizador (se existir)
             if (m.custo_aplicado != null && !isNaN(m.custo_aplicado)) {
-                m.fifo_cost = m.custo_aplicado * m.qtd; // Override do Utilizador
+                m.fifo_cost = m.custo_aplicado * m.qtd;
             } else {
-                m.fifo_cost = cost; // Motor FiFo
+                m.fifo_cost = custoUnit * m.qtd;
             }
         }
     }
@@ -988,9 +971,12 @@ function renderRelatorios() {
             labels.push(d.getDate() + '/' + (d.getMonth() + 1));
             var mSales = movimentos.filter(m => m.tipo === 'saida' && m.data === key);
             var rec = mSales.reduce((a, m) => a + m.total, 0);
-            var luc = rec - mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+            var custoVendas = mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
             var unid = mSales.reduce((a, m) => a + m.qtd, 0);
-            var loss = movimentos.filter(m => m.tipo === 'quebra' && m.data === key).reduce((a, m) => a + m.total, 0);
+            var mQuebras = movimentos.filter(m => m.tipo === 'quebra' && m.data === key);
+            var loss = mQuebras.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+            var despDia = despesas.filter(d => d.data === key).reduce((a, d) => a + d.valor, 0);
+            var luc = rec - custoVendas - loss - despDia;
             vendasData.push(rec); lucroData.push(luc); unidData.push(unid); quebrasData.push(loss);
         }
     } else if (periodoActivo === 'semanal') {
@@ -1012,9 +998,11 @@ function renderRelatorios() {
                 return m.tipo === 'quebra' && d >= start && d < end;
             });
             var rec = mSales.reduce((a, m) => a + m.total, 0);
-            var luc = rec - mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+            var custoVendas = mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
             var unid = mSales.reduce((a, m) => a + m.qtd, 0);
-            var loss = mLoss.reduce((a, m) => a + m.total, 0);
+            var loss = mLoss.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+            var despSem = despesas.filter(d => { var dd = new Date(d.data); return dd >= start && dd < end; }).reduce((a, d) => a + d.valor, 0);
+            var luc = rec - custoVendas - loss - despSem;
             vendasData.push(rec); lucroData.push(luc); unidData.push(unid); quebrasData.push(loss);
         }
     } else if (periodoActivo === 'mensal') {
@@ -1027,9 +1015,11 @@ function renderRelatorios() {
             var mSales = movimentos.filter(m => m.tipo === 'saida' && m.data.startsWith(mKey));
             var mLoss = movimentos.filter(m => m.tipo === 'quebra' && m.data.startsWith(mKey));
             var rec = mSales.reduce((a, m) => a + m.total, 0);
-            var luc = rec - mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+            var custoVendas = mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
             var unid = mSales.reduce((a, m) => a + m.qtd, 0);
-            var loss = mLoss.reduce((a, m) => a + m.total, 0);
+            var loss = mLoss.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+            var despMes = despesas.filter(d => d.data.startsWith(mKey)).reduce((a, d) => a + d.valor, 0);
+            var luc = rec - custoVendas - loss - despMes;
             vendasData.push(rec); lucroData.push(luc); unidData.push(unid); quebrasData.push(loss);
         }
     } else if (periodoActivo === 'trimestral') {
@@ -1043,8 +1033,13 @@ function renderRelatorios() {
                 lucroData[trim] += (m.total - (m.fifo_cost || 0));
                 unidData[trim] += m.qtd;
             } else if (m.tipo === 'quebra') {
-                quebrasData[trim] += m.total;
+                quebrasData[trim] += (m.fifo_cost || 0);
+                lucroData[trim] -= (m.fifo_cost || 0);
             }
+        });
+        despesas.filter(d => d.data.startsWith(String(anoActual))).forEach(d => {
+            var trim = Math.floor(new Date(d.data).getMonth() / 3);
+            lucroData[trim] -= d.valor;
         });
     } else {
         labels = [new Date().getFullYear() - 2, new Date().getFullYear() - 1, new Date().getFullYear()];
@@ -1058,8 +1053,16 @@ function renderRelatorios() {
                     lucroData[idx] += (m.total - (m.fifo_cost || 0));
                     unidData[idx] += m.qtd;
                 } else if (m.tipo === 'quebra') {
-                    quebrasData[idx] += m.total;
+                    quebrasData[idx] += (m.fifo_cost || 0);
+                    lucroData[idx] -= (m.fifo_cost || 0);
                 }
+            }
+        });
+        despesas.forEach(d => {
+            var ano = new Date(d.data).getFullYear();
+            var idx = labels.indexOf(ano);
+            if (idx !== -1) {
+                lucroData[idx] -= d.valor;
             }
         });
     }
@@ -1267,7 +1270,8 @@ function renderRelMensal() {
 
     var custoVendas = vendas.reduce(function (a, m) { return a + (m.fifo_cost || 0); }, 0);
     var lucroBruto = totalVendas - custoVendas;
-    var lucroLiquido = lucroBruto - totalDespesas;
+    var custoQuebras = quebras.reduce(function (a, m) { return a + (m.fifo_cost || 0); }, 0);
+    var lucroLiquido = lucroBruto - totalDespesas - custoQuebras;
 
     // Métricas
     document.getElementById('rm-metrics').innerHTML =
@@ -1276,7 +1280,7 @@ function renderRelMensal() {
         '<div class="metric-card"><div class="metric-label">Lucro Bruto</div><div class="metric-value" style="color:#3B6D11;">' + lucroBruto.toLocaleString() + '</div><div class="metric-sub">MZN | Margem ' + (totalVendas > 0 ? Math.round(lucroBruto / totalVendas * 100) : 0) + '%</div></div>' +
         '<div class="metric-card"><div class="metric-label">Total Quebras</div><div class="metric-value" style="color:#854F0B;">' + totalQuebras.toLocaleString() + '</div><div class="metric-sub">MZN | ' + quebras.length + ' quebras</div></div>' +
         '<div class="metric-card"><div class="metric-label">Total Despesas</div><div class="metric-value" style="color:#A32D2D;">' + totalDespesas.toLocaleString() + '</div><div class="metric-sub">MZN | ' + despMes.length + ' lançamentos</div></div>' +
-        '<div class="metric-card"><div class="metric-label">Lucro Líquido</div><div class="metric-value" style="color:' + (lucroLiquido >= 0 ? '#3B6D11' : '#A32D2D') + ';">' + lucroLiquido.toLocaleString() + '</div><div class="metric-sub">MZN (Bruto − Despesas)</div></div>';
+        '<div class="metric-card"><div class="metric-label">Lucro Líquido</div><div class="metric-value" style="color:' + (lucroLiquido >= 0 ? '#3B6D11' : '#A32D2D') + ';">' + lucroLiquido.toLocaleString() + '</div><div class="metric-sub">MZN (Bruto − Despesas − Quebras)</div></div>';
 
     // Tabela Vendas
     document.getElementById('rm-vendas').innerHTML = vendas.length ?
@@ -1453,7 +1457,7 @@ function prepareMensalPrintArea() {
     var totalDespesas = despMes.reduce((a, d) => a + d.valor, 0);
     var quebras = movMes.filter(m => m.tipo === 'quebra');
     var totalQuebras = quebras.reduce((a, m) => a + (m.fifo_cost || 0), 0);
-    var lucroLiquido = lucroBruto - totalDespesas;
+    var lucroLiquido = lucroBruto - totalDespesas - totalQuebras;
 
     // Prev month computation
     var dObj = new Date(mesSel + '-01T00:00:00');
@@ -1463,7 +1467,8 @@ function prepareMensalPrintArea() {
     var recAnt = vAnt.reduce((a, m) => a + m.total, 0);
     var custAnt = vAnt.reduce((a, m) => a + (m.fifo_cost || 0), 0);
     var despAnt = despesas.filter(d => d.data.substring(0, 7) === mesAnt).reduce((a, d) => a + d.valor, 0);
-    var lucroAnt = (recAnt - custAnt) - despAnt;
+    var quebrasAnt = movimentos.filter(m => m.data.substring(0, 7) === mesAnt && m.tipo === 'quebra').reduce((a, m) => a + (m.fifo_cost || 0), 0);
+    var lucroAnt = (recAnt - custAnt) - despAnt - quebrasAnt;
 
     var percL = 0;
     if (lucroAnt !== 0) {
