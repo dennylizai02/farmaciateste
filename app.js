@@ -1316,7 +1316,7 @@ function renderRelMensal() {
 
     var vendas = movMes.filter(function (m) { return m.tipo === 'saida'; });
     var compras = movMes.filter(function (m) { return m.tipo === 'entrada'; });
-    var quebras = movMes.filter(function (m) { return m.tipo === 'quebra'; });
+    var quebras = movMes.filter(function (m) { return m.tipo === 'quebra' && m.nota !== '[Quarentena]'; });
 
     var totalVendas = vendas.reduce(function (a, m) { return a + m.total; }, 0);
     var totalCompras = compras.reduce(function (a, m) { return a + m.total; }, 0);
