@@ -893,12 +893,17 @@
     <!-- DASHBOARD (Antigo Relatórios) -->
     <div class="section active" id="sec-relatorios">
       <div class="period-select" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
-        <div>
+        <div class="period-select">
         <button class="period-btn active" onclick="setPeriodo('diário',this)">Diário</button>
         <button class="period-btn" onclick="setPeriodo('semanal',this)">Semanal</button>
         <button class="period-btn" onclick="setPeriodo('mensal',this)">Mensal</button>
         <button class="period-btn" onclick="setPeriodo('trimestral',this)">Trimestral</button>
         <button class="period-btn" onclick="setPeriodo('anual',this)">Anual</button>
+        <select id="periodo-count" onchange="renderRelatorios()" style="margin-left:10px; padding:2px 8px; font-size:12px; border-radius:15px;">
+            <option value="7">Últimos 7 dias</option>
+            <option value="14">Últimos 14 dias</option>
+            <option value="30">Últimos 30 dias</option>
+        </select>
         </div>
         <button class="btn" onclick="printFaturacao()">🖨️ Imprimir</button>
       </div>

@@ -180,6 +180,17 @@ function setPeriodo(p, btn) {
     periodoActivo = p;
     document.querySelectorAll('.period-btn').forEach(function (b) { b.classList.remove('active'); });
     if (btn) btn.classList.add('active');
+    
+    var sel = document.getElementById('periodo-count');
+    if (sel) {
+        if (p === 'diário') sel.innerHTML = '<option value="7">Últimos 7 dias</option><option value="14">Últimos 14 dias</option><option value="30">Últimos 30 dias</option>';
+        else if (p === 'semanal') sel.innerHTML = '<option value="4">Últimas 4 sem.</option><option value="8">Últimas 8 sem.</option><option value="10">Últimas 10 sem.</option>';
+        else if (p === 'mensal') sel.innerHTML = '<option value="6">Últimos 6 meses</option><option value="12">Últimos 12 meses</option>';
+        else sel.innerHTML = '<option value="0">Padrão</option>';
+        
+        sel.style.display = (p === 'diário' || p === 'semanal' || p === 'mensal') ? 'inline-block' : 'none';
+    }
+    
     renderRelatorios();
 }
 
@@ -433,10 +444,11 @@ async function updateQtd(id, val) {
         if (!(await showConfirm('Deseja aumentar o stock de "' + p.nome + '" em ' + diff + ' unidades? Será gerada uma Entrada.'))) { renderStock(); return; }
         tipo = 'entrada';
     } else {
-        var resp = prompt('Diminuição de ' + diff + ' unidades em "' + p.nome + '". Foi Saída (venda) ou Quebra? Digite "S" para Saída ou "Q" para Quebra:');
+        var resp = prompt('Diminuição de ' + diff + ' unidades em "' + p.nome + '". Foi Saída (venda), Quebra ou Ajuste/Quarentena? Digite "S" para Saída, "Q" para Quebra ou "A" para Ajuste:');
         if (!resp) { renderStock(); return; }
         if (resp.toUpperCase() === 'S') tipo = 'saida';
         else if (resp.toUpperCase() === 'Q') tipo = 'quebra';
+        else if (resp.toUpperCase() === 'A') tipo = 'ajuste';
         else { showNotification('Opção inválida. Operação cancelada.'); renderStock(); return; }
     }
 
@@ -635,7 +647,7 @@ function rebuildFifo() {
     // Margem Directa: custo = preço de custo do produto × quantidade
     // Simples, transparente, e não depende de registos de entrada históricos
     for (var m of movimentos) {
-        if (m.tipo === 'saida' || m.tipo === 'quebra') {
+        if (m.tipo === 'saida' || m.tipo === 'quebra' || m.tipo === 'ajuste') {
             var p = produtos.find(x => x.id === m.prodId);
             var custoUnit = p ? p.custo : 0;
             // Override do utilizador (se existir)
@@ -650,7 +662,7 @@ function rebuildFifo() {
 
 function renderMovimentos() {
     populateProdutoSelect();
-    var tipoLabel = { entrada: 'Entrada', saida: 'Venda', quebra: 'Quebra' };
+    var tipoLabel = { entrada: 'Entrada', saida: 'Venda', quebra: 'Quebra', ajuste: 'Ajuste/Quar.' };
     
     var dateFilter = document.getElementById('mov-hist-date') ? document.getElementById('mov-hist-date').value : '';
     var movsToShow = movimentos;
@@ -666,8 +678,8 @@ function renderMovimentos() {
     document.getElementById('mov-table').innerHTML = movsToShow.length ?
         '<table><thead><tr><th><input type="checkbox" onclick="toggleSelectAllMovs(this)"></th><th>Data/Hora</th><th>Tipo</th><th>Produto</th><th>Qtd</th><th>Preço unit.</th><th>Total</th><th>Pagamento</th><th>Notas</th><th>Acções</th></tr></thead><tbody>' +
         movsToShow.map(function (m) {
-            var cor = m.tipo === 'entrada' ? 'badge-ok' : m.tipo === 'saida' ? 'badge' : 'badge-low';
-            var style = m.tipo === 'saida' ? ' style="background:#E6F1FB;color:#185FA5;"' : '';
+            var cor = m.tipo === 'entrada' ? 'badge-ok' : m.tipo === 'saida' ? 'badge' : (m.tipo === 'ajuste' ? 'badge' : 'badge-low');
+            var style = m.tipo === 'saida' ? ' style="background:#E6F1FB;color:#185FA5;"' : (m.tipo === 'ajuste' ? ' style="background:#F3F4F6;color:#4B5563;"' : '');
             return '<tr><td><input type="checkbox" class="mov-checkbox" data-id="' + m.id + '"></td>' +
                 '<td style="color:var(--color-text-secondary);font-size:12px;">' + (m.dataHora || m.data) + '</td>' +
                 '<td><span class="badge ' + cor + '"' + style + '>' + tipoLabel[m.tipo] + '</span></td>' +
@@ -963,9 +975,12 @@ function renderRelatorios() {
     var labels, vendasData, lucroData, unidData, quebrasData;
     var vendTotal = movimentos.filter(function (m) { return m.tipo === 'saida'; }).reduce(function (a, m) { return a + m.total; }, 0);
 
+    var countVal = document.getElementById('periodo-count') ? parseInt(document.getElementById('periodo-count').value) : 0;
+
     if (periodoActivo === 'diário') {
         labels = []; vendasData = []; lucroData = []; unidData = []; quebrasData = [];
-        for (var i = 6; i >= 0; i--) {
+        var loops = countVal > 0 ? countVal : 7;
+        for (var i = loops - 1; i >= 0; i--) {
             var d = new Date(); d.setDate(d.getDate() - i);
             var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
             labels.push(d.getDate() + '/' + (d.getMonth() + 1));
@@ -976,13 +991,14 @@ function renderRelatorios() {
             var mQuebras = movimentos.filter(m => m.tipo === 'quebra' && m.data === key);
             var loss = mQuebras.reduce((a, m) => a + (m.fifo_cost || 0), 0);
             var despDia = despesas.filter(d => d.data === key).reduce((a, d) => a + d.valor, 0);
-            var luc = rec - custoVendas - loss - despDia;
+            var luc = rec - custoVendas; // Apenas vendas para o relatório Diário
             vendasData.push(rec); lucroData.push(luc); unidData.push(unid); quebrasData.push(loss);
         }
     } else if (periodoActivo === 'semanal') {
         labels = []; vendasData = []; lucroData = []; unidData = []; quebrasData = [];
         var now = new Date();
-        for (var i = 3; i >= 0; i--) {
+        var loops = countVal > 0 ? countVal : 4;
+        for (var i = loops - 1; i >= 0; i--) {
             var start = new Date(); start.setDate(now.getDate() - (i + 1) * 7);
             var end = new Date(); end.setDate(now.getDate() - i * 7);
             var fStart = start.getDate() + '/' + (start.getMonth() + 1);
@@ -1002,13 +1018,14 @@ function renderRelatorios() {
             var unid = mSales.reduce((a, m) => a + m.qtd, 0);
             var loss = mLoss.reduce((a, m) => a + (m.fifo_cost || 0), 0);
             var despSem = despesas.filter(d => { var dd = new Date(d.data); return dd >= start && dd < end; }).reduce((a, d) => a + d.valor, 0);
-            var luc = rec - custoVendas - loss - despSem;
+            var luc = rec - custoVendas; // Apenas vendas para o relatório Semanal
             vendasData.push(rec); lucroData.push(luc); unidData.push(unid); quebrasData.push(loss);
         }
     } else if (periodoActivo === 'mensal') {
         var agora = new Date();
         labels = []; vendasData = []; lucroData = []; unidData = []; quebrasData = [];
-        for (var i = 5; i >= 0; i--) {
+        var loops = countVal > 0 ? countVal : 6;
+        for (var i = loops - 1; i >= 0; i--) {
             var d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
             var mKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
             labels.push(meses[d.getMonth()]);
