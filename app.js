@@ -423,6 +423,41 @@ function renderStock() {
             row += '</tr>';
             return row;
         }).join('') + '</tbody></table>' : '<div class="empty">Nenhum produto encontrado</div>';
+    renderQuarentena();
+}
+
+function renderQuarentena() {
+    var qList = document.getElementById('quarentena-list');
+    if (!qList) return;
+    
+    var qs = movimentos.filter(m => m.tipo === 'quebra' && m.nota === '[Quarentena]');
+    
+    if (qs.length === 0) {
+        qList.innerHTML = '<tr><td colspan="4" class="empty">Nenhum produto em quarentena.</td></tr>';
+        return;
+    }
+    
+    var html = '';
+    qs.forEach(function(m) {
+        var p = produtos.find(x => x.id === m.prodId);
+        var pNome = p ? p.nome : 'Produto Removido';
+        var mDate = new Date(m.dataHora || m.data).toLocaleString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+        
+        html += '<tr>' +
+            '<td>' + mDate + '</td>' +
+            '<td>' + pNome + '</td>' +
+            '<td>' + m.qtd + '</td>' +
+            '<td><button class="btn btn-primary" style="padding:4px 8px; font-size:11px;" onclick="devolverQuarentena(' + m.id + ')">Devolver ao Stock</button></td>' +
+            '</tr>';
+    });
+    
+    qList.innerHTML = html;
+}
+
+async function devolverQuarentena(id) {
+    if (await showConfirm("Devolver este item ao stock e anular a quarentena?")) {
+        deleteMovimento(id);
+    }
 }
 
 async function updateQtd(id, val) {
@@ -446,9 +481,9 @@ async function updateQtd(id, val) {
     } else {
         var resp = prompt('Diminuição de ' + diff + ' unidades em "' + p.nome + '". Foi Saída (venda), Quebra ou Ajuste/Quarentena? Digite "S" para Saída, "Q" para Quebra ou "A" para Ajuste:');
         if (!resp) { renderStock(); return; }
-        if (resp.toUpperCase() === 'S') tipo = 'saida';
-        else if (resp.toUpperCase() === 'Q') tipo = 'quebra';
-        else if (resp.toUpperCase() === 'A') tipo = 'ajuste';
+        if (resp.toUpperCase() === 'S') { tipo = 'saida'; nota = '[Ajuste Manual]'; }
+        else if (resp.toUpperCase() === 'Q') { tipo = 'quebra'; nota = '[Ajuste Manual]'; }
+        else if (resp.toUpperCase() === 'A') { tipo = 'quebra'; nota = '[Quarentena]'; }
         else { showNotification('Opção inválida. Operação cancelada.'); renderStock(); return; }
     }
 
@@ -647,7 +682,7 @@ function rebuildFifo() {
     // Margem Directa: custo = preço de custo do produto × quantidade
     // Simples, transparente, e não depende de registos de entrada históricos
     for (var m of movimentos) {
-        if (m.tipo === 'saida' || m.tipo === 'quebra' || m.tipo === 'ajuste') {
+        if (m.tipo === 'saida' || m.tipo === 'quebra') {
             var p = produtos.find(x => x.id === m.prodId);
             var custoUnit = p ? p.custo : 0;
             // Override do utilizador (se existir)
@@ -678,11 +713,14 @@ function renderMovimentos() {
     document.getElementById('mov-table').innerHTML = movsToShow.length ?
         '<table><thead><tr><th><input type="checkbox" onclick="toggleSelectAllMovs(this)"></th><th>Data/Hora</th><th>Tipo</th><th>Produto</th><th>Qtd</th><th>Preço unit.</th><th>Total</th><th>Pagamento</th><th>Notas</th><th>Acções</th></tr></thead><tbody>' +
         movsToShow.map(function (m) {
-            var cor = m.tipo === 'entrada' ? 'badge-ok' : m.tipo === 'saida' ? 'badge' : (m.tipo === 'ajuste' ? 'badge' : 'badge-low');
-            var style = m.tipo === 'saida' ? ' style="background:#E6F1FB;color:#185FA5;"' : (m.tipo === 'ajuste' ? ' style="background:#F3F4F6;color:#4B5563;"' : '');
-            return '<tr><td><input type="checkbox" class="mov-checkbox" data-id="' + m.id + '"></td>' +
-                '<td style="color:var(--color-text-secondary);font-size:12px;">' + (m.dataHora || m.data) + '</td>' +
-                '<td><span class="badge ' + cor + '"' + style + '>' + tipoLabel[m.tipo] + '</span></td>' +
+            var isQuar = (m.tipo === 'quebra' && m.nota === '[Quarentena]');
+            var cor = m.tipo === 'entrada' ? 'badge-ok' : m.tipo === 'saida' ? 'badge' : (isQuar ? 'badge' : 'badge-low');
+            var style = m.tipo === 'saida' ? ' style="background:#E6F1FB;color:#185FA5;"' : (isQuar ? ' style="background:#F3F4F6;color:#4B5563;"' : '');
+            var label = isQuar ? 'Quarentena' : tipoLabel[m.tipo];
+        
+        return '<tr><td><input type="checkbox" class="mov-checkbox" data-id="' + m.id + '"></td>' +
+            '<td style="color:var(--color-text-secondary);font-size:12px;">' + (m.dataHora || m.data) + '</td>' +
+            '<td><span class="badge ' + cor + '"' + style + '>' + label + '</span></td>' +
                 '<td>' + (m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td>' + m.preco + ' MZN</td>' +
                 '<td style="font-weight:500;">' + m.total.toLocaleString() + ' MZN</td>' +
                 '<td><span class="badge">' + (m.metodo || '—') + '</span></td>' +
@@ -988,7 +1026,7 @@ function renderRelatorios() {
             var rec = mSales.reduce((a, m) => a + m.total, 0);
             var custoVendas = mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
             var unid = mSales.reduce((a, m) => a + m.qtd, 0);
-            var mQuebras = movimentos.filter(m => m.tipo === 'quebra' && m.data === key);
+            var mQuebras = movimentos.filter(m => m.tipo === 'quebra' && m.nota !== '[Quarentena]' && m.data === key);
             var loss = mQuebras.reduce((a, m) => a + (m.fifo_cost || 0), 0);
             var despDia = despesas.filter(d => d.data === key).reduce((a, d) => a + d.valor, 0);
             var luc = rec - custoVendas; // Apenas vendas para o relatório Diário
@@ -1011,7 +1049,7 @@ function renderRelatorios() {
             });
             var mLoss = movimentos.filter(m => {
                 var d = new Date(m.data);
-                return m.tipo === 'quebra' && d >= start && d < end;
+                return m.tipo === 'quebra' && m.nota !== '[Quarentena]' && d >= start && d < end;
             });
             var rec = mSales.reduce((a, m) => a + m.total, 0);
             var custoVendas = mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
@@ -1029,8 +1067,8 @@ function renderRelatorios() {
             var d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
             var mKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
             labels.push(meses[d.getMonth()]);
-            var mSales = movimentos.filter(m => m.tipo === 'saida' && m.data.startsWith(mKey));
-            var mLoss = movimentos.filter(m => m.tipo === 'quebra' && m.data.startsWith(mKey));
+            var mSales = movimentos.filter(m => m.tipo === 'saida' && (m.data || '').startsWith(mKey));
+            var mLoss = movimentos.filter(m => m.tipo === 'quebra' && m.nota !== '[Quarentena]' && (m.data || '').startsWith(mKey));
             var rec = mSales.reduce((a, m) => a + m.total, 0);
             var custoVendas = mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
             var unid = mSales.reduce((a, m) => a + m.qtd, 0);
