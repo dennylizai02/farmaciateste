@@ -2,8 +2,8 @@
 // PINTO'S BAR — app.js (Supabase + Chart.js) - BUILD 20260331-2357
 // ============================================================
 
-const SUPABASE_URL = 'https://pbozvloeyppytskgeizu.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBib3p2bG9leXBweXRza2dlaXp1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NTQ5MjEsImV4cCI6MjA5MDAzMDkyMX0.3lbBJ5FCbECnCm5eM_y_NqyezKzjLiY4VMfzj5ltvdQ';
+const SUPABASE_URL = 'https://dijyqwxdoupwicjrqvij.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_5-Etem_TpwF2xKcatOfsvA_lHvGGwMf';
 
 let sb = null;
 
