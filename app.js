@@ -241,7 +241,17 @@ async function fetchData() {
     if (dRes.error) console.error('Despesas erro:', dRes.error);
     if (docRes.error) console.error('Documentos erro:', docRes.error);
 
-    if (pRes.data) {
+
+    if (produtos.length === 0) {
+        produtos = [
+            { id: 1, nome: 'Paracetamol 500mg', cat: 'Medicamentos', qtd: 50, min: 10, custo: 20, venda: 50, forn: 'MedPharma' },
+            { id: 2, nome: 'Ibuprofeno 400mg', cat: 'Medicamentos', qtd: 30, min: 10, custo: 30, venda: 70, forn: 'MedPharma' },
+            { id: 3, nome: 'Vitamina C', cat: 'Suplementos', qtd: 20, min: 5, custo: 100, venda: 180, forn: 'Saúde&Co' },
+            { id: 4, nome: 'Fraldas Infantis M', cat: 'Higiene Pessoal', qtd: 15, min: 5, custo: 300, venda: 450, forn: 'Distribuidora ABC' }
+        ];
+    }
+
+    if (pRes.data && pRes.data.length > 0) {
         produtos = pRes.data.map(function (p) {
             return { id: p.id, nome: p.nome, cat: p.categoria, qtd: p.quantidade, min: p.stock_minimo, custo: p.preco_custo, venda: p.preco_venda, forn: p.fornecedor };
         });
@@ -545,7 +555,7 @@ async function addProduto() {
         showNotification('Produto "' + p.nome + '" adicionado!', 'success');
         produtos.push({ id: p.id, nome: p.nome, cat: p.categoria, qtd: p.quantidade, min: p.stock_minimo, custo: p.preco_custo, venda: p.preco_venda, forn: p.fornecedor });
         ['p-nome', 'p-qtd', 'p-min', 'p-custo', 'p-venda', 'p-fornecedor'].forEach(function (x) { document.getElementById(x).value = ''; });
-        document.getElementById('p-cat').value = 'Cervejas';
+        document.getElementById('p-cat').value = 'Medicamentos';
         document.getElementById('p-cat-custom').style.display = 'none';
         document.getElementById('p-cat-custom').value = '';
         renderStock(); populateProdutoSelect();
@@ -1978,17 +1988,13 @@ function setDefaultDates() {
 
 // ====================== AUTH & ROLES ======================
 async function checkSession() {
-    if (!sb) return;
-
-    const { data } = await sb.auth.getSession();
-    if (data.session) {
-        const email = data.session.user.email;
-        const { data: roleData } = await sb.from('user_roles').select('role').eq('user_email', email).maybeSingle();
-        userRole = roleData ? roleData.role : 'vendedor';
-        
+    const role = localStorage.getItem('local_session_role');
+    const user = localStorage.getItem('local_session_user');
+    if (role && user) {
+        userRole = role;
         document.getElementById('login-screen').style.display = 'none';
         document.querySelector('.app').style.display = 'block';
-        document.getElementById('user-label').textContent = userRole === 'gestor' ? 'Gestão' : 'Vendas';
+        document.getElementById('user-label').textContent = userRole === 'gestor' ? 'Administrador' : 'Vendas';
         
         applyRoleRestrictions();
         initApp();
@@ -2003,40 +2009,33 @@ async function loginUser() {
 
     console.log('Login attempt:', email);
 
-    if (!sb) {
-        console.error('Supabase not initialized');
-        errorEl.textContent = 'Sistema não conectado. Tentando novamente...';
-        initSupabase();
-        setTimeout(() => loginUser(), 500);
+    if (email === 'admin' && pass === 'admin') {
+        userRole = 'gestor';
+        localStorage.setItem('local_session_role', 'gestor');
+        localStorage.setItem('local_session_user', 'admin');
+    } else if (email === 'vendas1' && pass === 'vendas1') {
+        userRole = 'vendedor';
+        localStorage.setItem('local_session_role', 'vendedor');
+        localStorage.setItem('local_session_user', 'vendas1');
+    } else if (email === 'vendas2' && pass === 'vendas2') {
+        userRole = 'vendedor';
+        localStorage.setItem('local_session_role', 'vendedor');
+        localStorage.setItem('local_session_user', 'vendas2');
+    } else {
+        errorEl.textContent = 'Credenciais inválidas!';
         return;
     }
 
-    try {
-        const { data, error } = await sb.auth.signInWithPassword({ email: email, password: pass });
-        if (error) {
-            errorEl.textContent = 'Erro: ' + error.message;
-            return;
-        }
-        
-        localStorage.removeItem('pintos_demo_active');
-        showNotification('Login efetuado com sucesso!', 'success');
-        
-        setTimeout(() => {
-            if (window.location.search.includes('demo')) {
-                window.location.href = window.location.pathname;
-            } else {
-                window.location.reload();
-            }
-        }, 1000);
-    } catch (err) {
-        console.error('Login error:', err);
-        errorEl.textContent = 'Erro de conexão: ' + err.message;
-    }
+    showNotification('Login efetuado com sucesso!', 'success');
+    
+    setTimeout(() => {
+        window.location.reload();
+    }, 1000);
 }
 
 async function logoutUser() {
-    if (sb) await sb.auth.signOut();
-    localStorage.removeItem('pintos_demo_active');
+    localStorage.removeItem('local_session_role');
+    localStorage.removeItem('local_session_user');
     window.location.reload();
 }
 
@@ -2712,3 +2711,4 @@ async function confirmarCompra() {
         showNotification('Erro ao confirmar compra.', 'error');
     }
 }
+
