@@ -1567,7 +1567,7 @@ function renderDocList() {
 }
 
 async function syncInvoiceToStock(doc) {
-    if (doc.tipo !== 'factura') return;
+    if (doc.tipo !== 'factura' || !sb) return;
     var details = doc.detalhes;
     var newMovs = [];
     showNotification('A sincronizar stock e vendas...', 'info');
@@ -1584,15 +1584,15 @@ async function syncInvoiceToStock(doc) {
                     preco_unitario: item.preco,
                     total: item.total,
                     nota: '[Factura #' + doc.id + ']',
-                    metodo_pagamento: 'CASH' // Assume CASH default para facturas simplificadas
+                    metodo_pagamento: 'CASH'
                 });
-                await sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', p.id);
+                if (sb) await sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', p.id);
             }
         }
-        if (newMovs.length > 0) {
+        if (newMovs.length > 0 && sb) {
             await sb.from(PREFIX + 'movimentos').insert(newMovs);
         }
-        await fetchData(); // Recarregar dados para garantir lucros/dashboard correctos
+        await fetchData();
     } catch (err) {
         console.error('Erro de sincronização:', err);
     }
@@ -1908,14 +1908,17 @@ async function vAddCliente() {
 
 async function addClienteMesaComVendedor(nome, nota) {
     try {
-        if (!sb) { showNotification('Erro: Base de dados offline.', 'error'); return; }
-        var payload = { mesa_numero: 1, nome_cliente: nome, nota_aparencia: nota || '' };
-        var { data: res, error } = await sb.from(PREFIX + 'mesas_clientes').insert([payload]).select();
-        if (error) { showNotification('Erro: ' + error.message, 'error'); return; }
+        var nextId = Date.now();
+        var novoCliente = { id: nextId, mesa_numero: 1, nome_cliente: nome, nota_aparencia: nota || '', status: 'ativo', mesas_pedidos: [], created_at: new Date().toISOString() };
+        if (sb) {
+            var { data: res, error } = await sb.from(PREFIX + 'mesas_clientes').insert([{ mesa_numero: 1, nome_cliente: nome, nota_aparencia: nota || '' }]).select();
+            if (error) { showNotification('Erro: ' + error.message, 'error'); return; }
+            if (res && res[0]) novoCliente = { ...res[0], mesas_pedidos: [] };
+        }
         showNotification('Utente adicionado!');
         document.getElementById('c-nome-v').value = '';
         document.getElementById('c-nota-v').value = '';
-        mesaClientes.unshift({ ...res[0], mesas_pedidos: [] });
+        mesaClientes.unshift(novoCliente);
         renderVendedorAtendimento();
     } catch (e) {
         showNotification('Erro inesperado: ' + e.message, 'error');
@@ -1957,19 +1960,22 @@ function renderVendedorAtendimento() {
 
 async function vAddPedido(clientId) {
     try {
-        if (!sb) { showNotification('Erro: Base de dados offline.', 'error'); return; }
         var pId = parseInt(document.getElementById('vp-prod-' + clientId).value);
         var qtd = parseInt(document.getElementById('vp-qtd-' + clientId).value) || 0;
         var prod = produtos.find(function (p) { return p.id === pId; });
         if (!prod || qtd <= 0) return;
         if (qtd > prod.qtd) { showNotification('Stock insuficiente. Disponível: ' + prod.qtd, 'error'); return; }
-        var payload = { cliente_id: clientId, produto_id: pId, produto_nome: prod.nome, quantidade: qtd, preco_unitario: prod.venda, total: qtd * prod.venda };
-        var { data: res, error } = await sb.from(PREFIX + 'mesas_pedidos').insert([payload]).select();
-        if (error) { showNotification('Erro: ' + error.message, 'error'); return; }
+        prod.qtd -= qtd;
+        var pedido = { id: Date.now(), cliente_id: clientId, produto_id: pId, produto_nome: prod.nome, quantidade: qtd, preco_unitario: prod.venda, total: qtd * prod.venda };
+        if (sb) {
+            var { data: res, error } = await sb.from(PREFIX + 'mesas_pedidos').insert([{ cliente_id: clientId, produto_id: pId, produto_nome: prod.nome, quantidade: qtd, preco_unitario: prod.venda, total: qtd * prod.venda }]).select();
+            if (error) { prod.qtd += qtd; showNotification('Erro: ' + error.message, 'error'); return; }
+            if (res && res[0]) pedido = res[0];
+        }
         var client = mesaClientes.find(function (c) { return c.id === clientId; });
         if (client) {
             if (!client.mesas_pedidos) client.mesas_pedidos = [];
-            client.mesas_pedidos.push(res[0]);
+            client.mesas_pedidos.push(pedido);
         }
         renderVendedorAtendimento();
         renderVendedorStock(document.getElementById('v-stock-search').value);
@@ -1983,15 +1989,19 @@ async function vRemovePedido(event, pedidoId, clientId) {
     try {
         if (event) event.stopPropagation();
         if (!(await showConfirm('Remover este pedido?'))) return;
-        if (!sb) { showNotification('Erro: Base de dados offline.', 'error'); return; }
         var client = mesaClientes.find(function (c) { return c.id === clientId; });
         if (!client) return;
         var pedido = (client.mesas_pedidos || []).find(function (p) { return p.id === pedidoId; });
         if (!pedido) return;
-        var { error } = await sb.from(PREFIX + 'mesas_pedidos').delete().eq('id', pedidoId);
-        if (error) { showNotification('Erro: ' + error.message, 'error'); return; }
+        if (sb) {
+            var { error } = await sb.from(PREFIX + 'mesas_pedidos').delete().eq('id', pedidoId);
+            if (error) { showNotification('Erro: ' + error.message, 'error'); return; }
+        }
         var prod = produtos.find(function (p) { return p.id === pedido.produto_id; });
-        if (prod) { prod.qtd += pedido.quantidade; await sb.from(PREFIX + 'produtos').update({ quantidade: prod.qtd }).eq('id', prod.id); }
+        if (prod) {
+            prod.qtd += pedido.quantidade;
+            if (sb) await sb.from(PREFIX + 'produtos').update({ quantidade: prod.qtd }).eq('id', prod.id);
+        }
         client.mesas_pedidos = client.mesas_pedidos.filter(function (p) { return p.id !== pedidoId; });
         showNotification('Pedido removido.', 'success');
         renderVendedorAtendimento();
@@ -2478,6 +2488,7 @@ async function confirmarMesaPagamento() {
     });
 
     // 1. Gerar Factura Documento
+    var invoice;
     const payloadDoc = {
         tipo: 'factura',
         cliente: currentPayClient.nome_cliente + ' (Balcão ' + currentPayClient.mesa_numero + ')',
@@ -2489,48 +2500,48 @@ async function confirmarMesaPagamento() {
         }
     };
 
-    const { data: docRes, error: docErr } = await sb.from(PREFIX + 'documentos').insert([payloadDoc]).select();
-    
-    // Debug fail: se falhar o select (RLS), o documento ainda assim foi inserido.
-    // Tentamos recuperar o ID mais recente se docRes for vazio mas sem erro.
-    let invoice = docRes && docRes.length > 0 ? docRes[0] : null;
-    if (!docErr && !invoice) {
-        const { data: latest } = await sb.from(PREFIX + 'documentos').select('*').eq('cliente', payloadDoc.cliente).order('created_at', { ascending: false }).limit(1);
-        if (latest) invoice = latest[0];
-    }
-
-    if (docErr || !invoice) { 
-        console.error('Erro Fatura:', docErr);
-        showNotification('Erro ao gerar factura. Tente novamente.', 'error'); 
-        return; 
-    }
-
-    // 2. Registar em Saldo Caixa (Fluxo Financeiro)
-    for (const p of payments) {
-        if (p.valor > 0) {
-            await sb.from(PREFIX + 'saldo_caixa').insert([{
-                tipo: 'investimento', // Venda conta como entrada de capital operacional
-                metodo: p.metodo,
-                valor: p.valor,
-                descricao: 'Venda Balcão ' + currentPayClient.mesa_numero + ' (' + currentPayClient.nome_cliente + ')'
-            }]);
+    if (sb) {
+        const { data: docRes, error: docErr } = await sb.from(PREFIX + 'documentos').insert([payloadDoc]).select();
+        let dbInvoice = docRes && docRes.length > 0 ? docRes[0] : null;
+        if (!docErr && !dbInvoice) {
+            const { data: latest } = await sb.from(PREFIX + 'documentos').select('*').eq('cliente', payloadDoc.cliente).order('created_at', { ascending: false }).limit(1);
+            if (latest) dbInvoice = latest[0];
         }
+        if (docErr || !dbInvoice) {
+            console.error('Erro Fatura:', docErr);
+            showNotification('Erro ao gerar factura. Tente novamente.', 'error'); 
+            return;
+        }
+        invoice = dbInvoice;
+
+        // 2. Registar em Saldo Caixa
+        for (const p of payments) {
+            if (p.valor > 0) {
+                await sb.from(PREFIX + 'saldo_caixa').insert([{
+                    tipo: 'investimento',
+                    metodo: p.metodo,
+                    valor: p.valor,
+                    descricao: 'Venda Balcão ' + currentPayClient.mesa_numero + ' (' + currentPayClient.nome_cliente + ')'
+                }]);
+            }
+        }
+
+        // 3. Fechar cliente e sincronizar stock
+        await sb.from(PREFIX + 'mesas_clientes').update({ status: 'pago' }).eq('id', currentPayClient.id);
+        await syncInvoiceToStock(dbInvoice);
+    } else {
+        // Modo offline: factura local apenas para impressão
+        invoice = { id: 'OFF-' + Date.now(), ...payloadDoc, data: new Date().toISOString().split('T')[0] };
+        currentPayClient.status = 'pago';
     }
 
-    // 3. Fechar cliente e sincronizar stock
-    await sb.from(PREFIX + 'mesas_clientes').update({ status: 'pago' }).eq('id', currentPayClient.id);
     currentPayClient.status = 'pago';
-    
-    await syncInvoiceToStock(docRes[0]);
-    
-    showNotification('Pagamento e Factura concluídos!', 'success');
+    showNotification('Pagamento concluído!', 'success');
     closePayment();
     if (userRole === 'vendedor') {
-        var vFilename = 'Factura_' + invoice.id + '.pdf';
         prepareDocPrintArea(invoice);
         setTimeout(function () {
-            var vArea = document.getElementById('print-area');
-            generatePDF(vArea, vFilename);
+            generatePDF(document.getElementById('print-area'), 'Factura_' + invoice.id + '.pdf');
         }, 500);
         fetchData().then(function () { renderVendedor(); });
     } else {
