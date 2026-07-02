@@ -1,77 +1,32 @@
 // ============================================================
-// PINTO'S BAR — app.js (Supabase + Chart.js) - BUILD 20260331-2357
+// SISTEMA FARMACÊUTICO — app.js (Supabase + Chart.js) - BUILD 20260331-2357
 // ============================================================
 
-const SUPABASE_URL = 'https://dijyqwxdoupwicjrqvij.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_5-Etem_TpwF2xKcatOfsvA_lHvGGwMf';
+import { createSupabaseClient } from './services/supabase.js';
+import { getElement, queryAll, escapeHTML } from './utils/domUtils.js';
+import { showNotification } from './utils/notifications.js';
+import { showConfirm, closeConfirmModal } from './utils/dialogs.js';
+import { renderStock as renderStockModule, getStatus } from './components/stock.js';
+import Chart from 'chart.js/auto';
 
-let sb = null;
-
-function initSupabase() {
-    if (window.supabase) {
-        try {
-            sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            console.log('Supabase initialized');
-        } catch (e) {
-            console.error('Failed to create Supabase client:', e);
-        }
-    } else {
-        console.error('Supabase SDK not loaded');
-    }
-}
-
-initSupabase();
+let sb = createSupabaseClient();
 
 const PREFIX = '';
 
-// ====================== NOTIFICAÇÕES ======================
-function showNotification(msg, type = 'error') {
-    var container = document.getElementById('toast-container');
-    if (!container) return;
-    var toast = document.createElement('div');
-    toast.className = 'toast toast-' + type;
-    toast.innerHTML = '<span>' + msg + '</span>';
-    container.appendChild(toast);
-    setTimeout(function () {
-        toast.classList.add('toast-out');
-        setTimeout(function () { toast.remove(); }, 300);
-    }, 4000);
+const destroyChart = function (chart) { if (chart && typeof chart.destroy === 'function') chart.destroy(); };
+const buildOption = function (value, label) {
+    return '<option value="' + escapeHTML(value) + '">' + escapeHTML(label) + '</option>';
+};
+let chartPrintMensal = null;
+
+function refreshAllViews() {
+    renderMovimentos(); renderStock(); renderRelatorios(); renderCaixa(); renderAlertas(); renderNecessidades(); renderDocsHistory();
 }
 
 function checkLowStock(p) {
     if (p && p.qtd <= p.min) {
         showNotification('⚠️ Stock Baixo: ' + p.nome + ' (Resta: ' + p.qtd + ')', 'error');
     }
-}
-
-// ====================== CUSTOM CONFIRM ======================
-function showConfirm(msg, title = 'Confirmar Operação') {
-    return new Promise((resolve) => {
-        const overlay = document.getElementById('confirm-overlay');
-        if (!overlay) {
-            resolve(confirm(msg)); // Fallback case
-            return;
-        }
-        document.getElementById('confirm-title').textContent = title;
-        document.getElementById('confirm-msg').textContent = msg;
-        overlay.style.display = 'flex';
-
-        // Rebind OK button to resolve true
-        const okBtn = document.getElementById('confirm-ok-btn');
-        const newOkBtn = okBtn.cloneNode(true);
-        okBtn.parentNode.replaceChild(newOkBtn, okBtn);
-        
-        newOkBtn.onclick = () => {
-            overlay.style.display = 'none';
-            resolve(true);
-        };
-
-        // Global function for Cancel (called from HTML)
-        window.closeConfirmModal = () => {
-            overlay.style.display = 'none';
-            resolve(false);
-        };
-    });
 }
 
 let produtos = [];
@@ -90,7 +45,6 @@ let currentSortOrder = 'asc';
 let chartVendas, chartLucro, chartRelVendas, chartRelLucro, chartTop5, chartDiario, chartROI;
 let userRole = 'gestor';
 let activeMesa = null;
-let activeClienteId = null;
 
 // ---------- DATE ----------
 const dateEl = document.getElementById('current-date');
@@ -98,23 +52,22 @@ if (dateEl) dateEl.textContent = new Date().toLocaleDateString('pt-MZ', { weekda
 
 // ====================== NAVIGATION ======================
 function showSection(id) {
-    document.querySelectorAll('.section').forEach(function (s) { s.classList.remove('active'); });
-    document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.remove('active'); });
+    queryAll('.section').forEach(function (s) { s.classList.remove('active'); });
+    queryAll('.nav-btn').forEach(function (b) { b.classList.remove('active'); });
 
-    var target = document.getElementById('sec-' + id);
+    const target = getElement('sec-' + id);
     if (target) target.classList.add('active');
 
     // Highlight the correct nav button
-    var btns = document.querySelectorAll('.nav-btn');
-    for (var i = 0; i < btns.length; i++) {
-        var oc = btns[i].getAttribute('onclick') || '';
+    const btns = queryAll('.nav-btn');
+    for (let i = 0; i < btns.length; i++) {
+        const oc = btns[i].getAttribute('onclick') || '';
         if (oc.indexOf(id) !== -1) { btns[i].classList.add('active'); break; }
     }
 
     if (id === 'relatorios') renderRelatorios();
     if (id === 'stock') { renderStock(); renderAlertas(); }
     if (id === 'movimentos') renderMovimentos();
-    if (id === 'relatorios') renderRelatorios();
     if (id === 'alertas') renderAlertas();
     if (id === 'caixa') renderCaixa();
     if (id === 'despesas') renderDespesas();
@@ -139,7 +92,7 @@ function printDailyMovements() {
     }
     
     var win = window.open('', '_blank');
-    var html = '<html><head><title>Pinto\'s Bar - Movimentos do Dia</title><style>' +
+    var html = '<html><head><title>Sistema Farmacêutico - Movimentos do Dia</title><style>' +
                'body { font-family: sans-serif; padding: 20px; font-size: 14px; }' +
                'table { width: 100%; border-collapse: collapse; margin-top: 15px; }' +
                'th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }' +
@@ -147,16 +100,16 @@ function printDailyMovements() {
                'h1 { font-size: 20px; text-align: center; margin-bottom: 5px; }' +
                'p { text-align: center; color: #666; font-size: 13px; }' +
                '</style></head><body>' +
-               '<h1>Pinto\'s Bar</h1>' +
-               '<p>Relátorio de Movimentos Diários - ' + hoje.split('-').reverse().join('/') + '</p>' +
+               '<h1>Sistema Farmacêutico</h1>' +
+               '<p>Relatório de Movimentos Diários - ' + hoje.split('-').reverse().join('/') + '</p>' +
                '<table><thead><tr><th>Hora</th><th>Produto</th><th>Tipo</th><th>Qtd</th><th>Total (MZN)</th></tr></thead><tbody>';
                
     movs.forEach(function (m) {
         var p = produtos.find(function (x) { return x.id === m.prodId; });
         html += '<tr>' +
-                '<td>' + (m.created_at ? new Date(m.created_at).toLocaleTimeString() : '-') + '</td>' +
-                '<td>' + (p ? p.nome : m.produto_nome || '-') + '</td>' +
-                '<td>' + (m.tipo === 'saida' ? 'Venda' : 'Quebra') + '</td>' +
+                '<td>' + escapeHTML(m.created_at ? new Date(m.created_at).toLocaleTimeString() : '-') + '</td>' +
+                '<td>' + escapeHTML(p ? p.nome : m.produto_nome || '-') + '</td>' +
+                '<td>' + escapeHTML(m.tipo === 'saida' ? 'Venda' : 'Quebra') + '</td>' +
                 '<td>' + m.qtd + '</td>' +
                 '<td>' + m.total.toLocaleString() + '</td>' +
                 '</tr>';
@@ -168,7 +121,7 @@ function printDailyMovements() {
             '<div style="margin-top:20px; text-align:right; border-top: 2px solid #333; padding-top: 10px;">' +
             '<strong>Total de Vendas do Dia: ' + totalVendas.toLocaleString() + ' MZN</strong>' +
             '</div>' +
-            '<div style="margin-top:40px; font-size:10px; text-align:center;">Processado por Sistema Pinto\'s Bar</div>' +
+            '<div style="margin-top:40px; font-size:10px; text-align:center;">Processado por Sistema Farmacêutico</div>' +
             '</body></html>';
     
     win.document.write(html);
@@ -323,14 +276,8 @@ async function fetchData() {
 }
 
 // ====================== HELPERS ======================
-function getStatus(p) {
-    if (p.qtd === 0) return '<span class="badge badge-out">Esgotado</span>';
-    if (p.qtd <= p.min) return '<span class="badge badge-low">Stock baixo</span>';
-    return '<span class="badge badge-ok">OK</span>';
-}
 
 // ====================== DASHBOARD ======================
-
 
 function handleSort(field) {
     if (currentSortField === field) {
@@ -339,129 +286,39 @@ function handleSort(field) {
         currentSortField = field;
         currentSortOrder = 'asc';
     }
-    renderStock();
+    renderStockModule({
+        produtos,
+        movimentos,
+        userRole,
+        currentSortField,
+        currentSortOrder,
+        showNotification,
+        sb,
+        PREFIX,
+        fetchData,
+        renderRelatorios,
+        renderMovimentos,
+        populateProdutoSelect,
+        getStatus
+    });
 }
 
 function renderStock() {
-    var q = (document.getElementById('search-prod').value || '').toLowerCase();
-    var filtered = produtos.filter(function (p) { 
-        return p.nome.toLowerCase().indexOf(q) !== -1 || (p.cat || '').toLowerCase().indexOf(q) !== -1; 
+    renderStockModule({
+        produtos,
+        movimentos,
+        userRole,
+        currentSortField,
+        currentSortOrder,
+        showNotification,
+        sb,
+        PREFIX,
+        fetchData,
+        renderRelatorios,
+        renderMovimentos,
+        populateProdutoSelect,
+        getStatus
     });
-    
-    // Aplicar ordenação
-    filtered.sort(function(a, b) {
-        let valA, valB;
-        if (currentSortField === 'nome') { valA = a.nome.toLowerCase(); valB = b.nome.toLowerCase(); }
-        else if (currentSortField === 'cat') { valA = (a.cat || '').toLowerCase(); valB = (b.cat || '').toLowerCase(); }
-        else if (currentSortField === 'forn') { valA = (a.forn || '').toLowerCase(); valB = (b.forn || '').toLowerCase(); }
-        else if (currentSortField === 'estado') {
-            valA = (a.qtd === 0 ? 0 : (a.qtd <= a.min ? 1 : 2));
-            valB = (b.qtd === 0 ? 0 : (b.qtd <= b.min ? 1 : 2));
-        }
-        else if (currentSortField === 'margem') {
-            valA = a.venda > 0 ? (a.venda - a.custo) / a.venda : 0;
-            valB = b.venda > 0 ? (b.venda - b.custo) / b.venda : 0;
-        }
-
-        if (valA < valB) return currentSortOrder === 'asc' ? -1 : 1;
-        if (valA > valB) return currentSortOrder === 'asc' ? 1 : -1;
-        return 0;
-    });
-
-    var totalCustoStock = filtered.reduce((a, p) => a + (p.qtd * p.custo), 0);
-    var totalVendaStock = filtered.reduce((a, p) => a + (p.qtd * p.venda), 0);
-    var lucroPreviso = totalVendaStock - totalCustoStock;
-
-    var metricsEl = document.getElementById('stock-metrics');
-    if (metricsEl) {
-        if (userRole === 'vendedor') {
-            metricsEl.innerHTML = `
-                <div class="metric-card"><div class="metric-label">Total SKUs</div><div class="metric-value">${filtered.length}</div></div>
-                <div class="metric-card"><div class="metric-label">Stock Baixo</div><div class="metric-value">${filtered.filter(p => p.qtd <= p.min).length}</div></div>
-            `;
-        } else {
-            metricsEl.innerHTML = `
-                <div class="metric-card"><div class="metric-label">Valor Stock (Custo)</div><div class="metric-value">${totalCustoStock.toLocaleString()} MZN</div></div>
-                <div class="metric-card"><div class="metric-label">Valor Stock (Venda)</div><div class="metric-value">${totalVendaStock.toLocaleString()} MZN</div></div>
-                <div class="metric-card"><div class="metric-label">Previsão Lucro</div><div class="metric-value" style="color:#3B6D11;">${lucroPreviso.toLocaleString()} MZN</div></div>
-                <div class="metric-card"><div class="metric-label">Previsão de Receita</div><div class="metric-value" style="color:#378ADD;">${totalVendaStock.toLocaleString()} MZN</div></div>
-            `;
-        }
-    }
-
-    function getSortIcon(field) {
-        if (currentSortField !== field) return '';
-        return currentSortOrder === 'asc' ? ' ↑' : ' ↓';
-    }
-
-    var isGestor = userRole === 'gestor';
-    var header = '<table><thead><tr>' + 
-                 '<th onclick="handleSort(\'nome\')" style="cursor:pointer; user-select:none;">Produto' + getSortIcon('nome') + '</th>' + 
-                 '<th onclick="handleSort(\'cat\')" style="cursor:pointer; user-select:none;">Categoria' + getSortIcon('cat') + '</th>' + 
-                 '<th>Qtd</th>' + 
-                 (isGestor ? '<th>Mín.</th><th>Custo (MT)</th>' : '') + 
-                 '<th>Venda (MT)</th>' + 
-                 (isGestor ? '<th onclick="handleSort(\'margem\')" style="cursor:pointer; user-select:none;">Margem' + getSortIcon('margem') + '</th>' : '') + 
-                 (isGestor ? '<th onclick="handleSort(\'forn\')" style="cursor:pointer; user-select:none;">Fornecedor' + getSortIcon('forn') + '</th>' : '') + 
-                 '<th onclick="handleSort(\'estado\')" style="cursor:pointer; user-select:none;">Estado' + getSortIcon('estado') + '</th>' + 
-                 (isGestor ? '<th>Acções</th>' : '') + '</tr></thead><tbody>';
-
-    document.getElementById('stock-table').innerHTML = filtered.length ?
-        header +
-        filtered.map(function (p) {
-            var row = '<tr><td>' + p.nome + '</td><td>' + p.cat + '</td>' +
-                '<td><input type="number" value="' + p.qtd + '" min="0" style="width:60px;padding:3px 6px;" onchange="updateQtd(' + p.id + ',this.value)" ' + (isGestor ? '' : 'disabled') + '></td>';
-            
-            if (isGestor) {
-                row += '<td><input type="number" value="' + p.min + '" min="0" style="width:60px;padding:3px 6px;" onchange="updateField(' + p.id + ',\'stock_minimo\',this.value)"></td>' +
-                       '<td><input type="number" value="' + p.custo + '" min="0" style="width:80px;padding:3px 6px;" onchange="updateField(' + p.id + ',\'preco_custo\',this.value)"></td>';
-            }
-            
-            row += '<td><input type="number" value="' + p.venda + '" min="0" style="width:80px;padding:3px 6px;" onchange="updateField(' + p.id + ',\'preco_venda\',this.value)" ' + (isGestor ? '' : 'disabled') + '></td>';
-            
-            if (isGestor) {
-                row += '<td style="color:#3B6D11;">' + (p.venda > 0 ? Math.round((p.venda - p.custo) / p.venda * 100) : 0) + '%</td>' +
-                       '<td><input type="text" value="' + (p.forn || '') + '" style="width:120px;padding:3px 6px;font-size:12px;" onchange="updateFornecedor(' + p.id + ',this.value)"></td>';
-            }
-            
-            row += '<td>' + getStatus(p) + '</td>';
-            
-            if (isGestor) {
-                row += '<td><button class="btn btn-danger" onclick="removeProduto(' + p.id + ')">Remover</button></td>';
-            }
-            
-            row += '</tr>';
-            return row;
-        }).join('') + '</tbody></table>' : '<div class="empty">Nenhum produto encontrado</div>';
-    renderQuarentena();
-}
-
-function renderQuarentena() {
-    var qList = document.getElementById('quarentena-list');
-    if (!qList) return;
-    
-    var qs = movimentos.filter(m => m.tipo === 'quebra' && m.nota === '[Quarentena]');
-    
-    if (qs.length === 0) {
-        qList.innerHTML = '<tr><td colspan="4" class="empty">Nenhum produto em quarentena.</td></tr>';
-        return;
-    }
-    
-    var html = '';
-    qs.forEach(function(m) {
-        var p = produtos.find(x => x.id === m.prodId);
-        var pNome = p ? p.nome : 'Produto Removido';
-        var mDate = new Date(m.dataHora || m.data).toLocaleString('pt-PT', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' });
-        
-        html += '<tr>' +
-            '<td>' + mDate + '</td>' +
-            '<td>' + pNome + '</td>' +
-            '<td>' + m.qtd + '</td>' +
-            '<td><button class="btn btn-primary" style="padding:4px 8px; font-size:11px;" onclick="devolverQuarentena(' + m.id + ')">Devolver ao Stock</button></td>' +
-            '</tr>';
-    });
-    
-    qList.innerHTML = html;
 }
 
 async function devolverQuarentena(id) {
@@ -581,14 +438,14 @@ async function updateFornecedor(id, val) {
 function populateProdutoSelect() {
     var list = document.getElementById('m-produto-list');
     if (list) {
-        list.innerHTML = produtos.map(function (p) { return '<option value="' + p.nome + '">'; }).join('');
+        list.innerHTML = produtos.map(function (p) { return buildOption(p.nome, p.nome); }).join('');
     }
     // Update the hidden select if it exists or other selects
     var selPlano = document.getElementById('plano-produto');
-    if (selPlano) selPlano.innerHTML = produtos.map(function (p) { return '<option value="' + p.id + '">' + p.nome + '</option>'; }).join('');
+    if (selPlano) selPlano.innerHTML = produtos.map(function (p) { return buildOption(p.id, p.nome); }).join('');
     
     var selDoc = document.getElementById('doc-produto');
-    if (selDoc) selDoc.innerHTML = produtos.map(function (p) { return '<option value="' + p.id + '">' + p.nome + '</option>'; }).join('');
+    if (selDoc) selDoc.innerHTML = produtos.map(function (p) { return buildOption(p.id, p.nome); }).join('');
     
     updateMovPrice();
 }
@@ -729,12 +586,12 @@ function renderMovimentos() {
             var label = isQuar ? 'Quarentena' : tipoLabel[m.tipo];
         
         return '<tr><td><input type="checkbox" class="mov-checkbox" data-id="' + m.id + '"></td>' +
-            '<td style="color:var(--color-text-secondary);font-size:12px;">' + (m.dataHora || m.data) + '</td>' +
-            '<td><span class="badge ' + cor + '"' + style + '>' + label + '</span></td>' +
-                '<td>' + (m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td>' + m.preco + ' MZN</td>' +
+            '<td style="color:var(--color-text-secondary);font-size:12px;">' + escapeHTML(m.dataHora || m.data) + '</td>' +
+            '<td><span class="badge ' + cor + '"' + style + '>' + escapeHTML(label) + '</span></td>' +
+                '<td>' + escapeHTML(m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td>' + m.preco + ' MZN</td>' +
                 '<td style="font-weight:500;">' + m.total.toLocaleString() + ' MZN</td>' +
-                '<td><span class="badge">' + (m.metodo || '—') + '</span></td>' +
-                '<td style="font-size:12px;color:var(--color-text-secondary);">' + (m.nota || '—') + '</td>' +
+                '<td><span class="badge">' + escapeHTML(m.metodo || '—') + '</span></td>' +
+                '<td style="font-size:12px;color:var(--color-text-secondary);">' + escapeHTML(m.nota || '—') + '</td>' +
                 '<td><button class="btn btn-danger" onclick="deleteMovimento(' + m.id + ')">Anular</button></td></tr>';
         }).join('') + '</tbody></table>' : '<div class="empty">Nenhum movimento registado</div>';
 }
@@ -760,7 +617,7 @@ async function deleteSelectedMovimentos() {
     }
     
     await fetchData();
-    renderMovimentos(); renderStock(); renderRelatorios(); renderCaixa(); renderAlertas(); renderNecessidades(); renderDocsHistory();
+    refreshAllViews();
     showNotification(selected.length + ' movimentos eliminados com sucesso!', 'success');
 }
 
@@ -768,7 +625,7 @@ async function deleteMovimento(id) {
     if (!(await showConfirm('Tem certeza que deseja anular este movimento? O stock será revertido.'))) return;
     await deleteMovimentoInternal(id);
     await fetchData();
-    renderMovimentos(); renderStock(); renderRelatorios(); renderCaixa(); renderAlertas(); renderNecessidades(); renderDocsHistory();
+    refreshAllViews();
     showNotification('Movimento anulado com sucesso!', 'success');
 }
 
@@ -862,11 +719,11 @@ function renderDespesas() {
     document.getElementById('despesas-list').innerHTML = despesas.length ?
         '<div class="table-responsive"><table><thead><tr><th>Data</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th>M. Pagamento</th><th>Acções</th></tr></thead><tbody>' +
         despesas.map(function (d) {
-            return '<tr><td style="font-size:12px;color:var(--color-text-secondary);">' + d.data + '</td>' +
-                '<td><span class="badge badge-low">' + d.categoria + '</span></td>' +
-                '<td>' + d.descricao + '</td>' +
+            return '<tr><td style="font-size:12px;color:var(--color-text-secondary);">' + escapeHTML(d.data) + '</td>' +
+                '<td><span class="badge badge-low">' + escapeHTML(d.categoria) + '</span></td>' +
+                '<td>' + escapeHTML(d.descricao) + '</td>' +
                 '<td style="font-weight:500;color:#A32D2D;">' + d.valor.toLocaleString() + ' MZN</td>' +
-                '<td><span class="badge">' + d.metodo + '</span></td>' +
+                '<td><span class="badge">' + escapeHTML(d.metodo) + '</span></td>' +
                 '<td><div style="display:flex;gap:4px;"><button class="btn" style="font-size:11px;padding:3px 8px;" onclick="editDespesa(' + d.id + ')">Editar</button>' +
                 '<button class="btn btn-danger" onclick="deleteDespesa(' + d.id + ')">Apagar</button></div></td></tr>';
         }).join('') + '</tbody></table></div>' : '<div class="empty">Nenhuma despesa registada</div>';
@@ -973,7 +830,7 @@ function renderNecessidades() {
         var custoPrev = comprar * p.custo;
         var lucroPrev = comprar * (p.venda - p.custo);
         totalCompras += custoPrev; lucroExp += lucroPrev;
-        return '<tr><td>' + p.nome + '</td>' +
+        return '<tr><td>' + escapeHTML(p.nome) + '</td>' +
             '<td style="color:#A32D2D;font-weight:500;">' + p.qtd + '</td>' +
             '<td>' + p.min + '</td><td style="font-weight:bold;">' + comprar + '</td>' +
             '<td>' + p.custo + ' MZN</td><td>' + custoPrev.toLocaleString() + ' MZN</td>' +
@@ -1012,7 +869,7 @@ function renderAlertas() {
         quebrasEl.innerHTML = quebras.length ?
             '<table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Custo estimado</th><th>Notas</th></tr></thead><tbody>' +
             quebras.map(function (m) {
-                return '<tr><td style="font-size:12px;color:var(--color-text-secondary);">' + m.data + '</td><td>' + (m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td style="color:#A32D2D;">' + m.total.toLocaleString() + ' MZN</td><td style="font-size:12px;color:var(--color-text-secondary);">' + (m.nota || '—') + '</td></tr>';
+                return '<tr><td style="font-size:12px;color:var(--color-text-secondary);">' + escapeHTML(m.data) + '</td><td>' + escapeHTML(m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td style="color:#A32D2D;">' + m.total.toLocaleString() + ' MZN</td><td style="font-size:12px;color:var(--color-text-secondary);">' + escapeHTML(m.nota || '—') + '</td></tr>';
             }).join('') + '</tbody></table>' : '<div class="empty">Nenhuma quebra registada</div>';
     }
 }
@@ -1304,7 +1161,7 @@ function renderRelatorios() {
         if (tableEl) {
             tableEl.innerHTML = lowProds.length ?
                 '<table><thead><tr><th>Produto</th><th>Categoria</th><th>Stock actual</th><th>Mínimo</th><th>Estado</th></tr></thead><tbody>' +
-                lowProds.map(function (p) { return '<tr><td>' + p.nome + '</td><td>' + p.cat + '</td><td>' + p.qtd + '</td><td>' + p.min + '</td><td>' + getStatus(p) + '</td></tr>'; }).join('') +
+                lowProds.map(function (p) { return '<tr><td>' + escapeHTML(p.nome) + '</td><td>' + escapeHTML(p.cat || '') + '</td><td>' + p.qtd + '</td><td>' + p.min + '</td><td>' + getStatus(p) + '</td></tr>'; }).join('') +
                 '</tbody></table>' : '<div class="empty">Todos os produtos com stock adequado</div>';
         }
     }
@@ -1351,7 +1208,7 @@ function renderRelMensal() {
     document.getElementById('rm-vendas').innerHTML = vendas.length ?
         '<table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Preço</th><th>Total</th><th>Pagamento</th></tr></thead><tbody>' +
         vendas.map(function (m) {
-            return '<tr><td style="font-size:12px;">' + m.data + '</td><td>' + (m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td>' + m.preco + '</td><td style="font-weight:500;">' + m.total.toLocaleString() + ' MZN</td><td><span class="badge">' + (m.metodo || '—') + '</span></td></tr>';
+            return '<tr><td style="font-size:12px;">' + escapeHTML(m.data) + '</td><td>' + escapeHTML(m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td>' + m.preco + '</td><td style="font-weight:500;">' + m.total.toLocaleString() + ' MZN</td><td><span class="badge">' + escapeHTML(m.metodo || '—') + '</span></td></tr>';
         }).join('') +
         '<tr style="font-weight:bold;background:var(--color-background-secondary);"><td colspan="4">TOTAL VENDAS</td><td>' + totalVendas.toLocaleString() + ' MZN</td><td></td></tr>' +
         '</tbody></table>' : '<div class="empty">Nenhuma venda neste mês</div>';
@@ -1360,7 +1217,7 @@ function renderRelMensal() {
     document.getElementById('rm-compras').innerHTML = compras.length ?
         '<table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Preço</th><th>Total</th><th>Pagamento</th></tr></thead><tbody>' +
         compras.map(function (m) {
-            return '<tr><td style="font-size:12px;">' + m.data + '</td><td>' + (m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td>' + m.preco + '</td><td style="font-weight:500;">' + m.total.toLocaleString() + ' MZN</td><td><span class="badge">' + (m.metodo || '—') + '</span></td></tr>';
+            return '<tr><td style="font-size:12px;">' + escapeHTML(m.data) + '</td><td>' + escapeHTML(m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td>' + m.preco + '</td><td style="font-weight:500;">' + m.total.toLocaleString() + ' MZN</td><td><span class="badge">' + escapeHTML(m.metodo || '—') + '</span></td></tr>';
         }).join('') +
         '<tr style="font-weight:bold;background:var(--color-background-secondary);"><td colspan="4">TOTAL COMPRAS</td><td>' + totalCompras.toLocaleString() + ' MZN</td><td></td></tr>' +
         '</tbody></table>' : '<div class="empty">Nenhuma compra neste mês</div>';
@@ -1370,7 +1227,7 @@ function renderRelMensal() {
     document.getElementById('rm-quebras').innerHTML = quebras.length ?
         '<table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Custo (FIFO)</th><th>Notas</th></tr></thead><tbody>' +
         quebras.map(function (m) {
-            return '<tr><td style="font-size:12px;">' + m.data + '</td><td>' + (m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td style="color:#A32D2D;">' + (m.fifo_cost || 0).toLocaleString() + ' MZN</td><td style="font-size:12px;">' + (m.nota || '—') + '</td></tr>';
+            return '<tr><td style="font-size:12px;">' + escapeHTML(m.data) + '</td><td>' + escapeHTML(m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td style="color:#A32D2D;">' + (m.fifo_cost || 0).toLocaleString() + ' MZN</td><td style="font-size:12px;">' + escapeHTML(m.nota || '—') + '</td></tr>';
         }).join('') +
         '<tr style="font-weight:bold;background:var(--color-background-secondary);"><td colspan="3">CUSTO TOTAL QUEBRAS</td><td>' + realQuebrasCost.toLocaleString() + ' MZN</td><td></td></tr>' +
         '</tbody></table>' : '<div class="empty">Nenhuma quebra neste mês</div>';
@@ -1379,7 +1236,7 @@ function renderRelMensal() {
     document.getElementById('rm-despesas').innerHTML = despMes.length ?
         '<table><thead><tr><th>Data</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th>Pagamento</th></tr></thead><tbody>' +
         despMes.map(function (d) {
-            return '<tr><td style="font-size:12px;">' + d.data + '</td><td><span class="badge badge-low">' + d.categoria + '</span></td><td>' + d.descricao + '</td><td style="font-weight:500;color:#A32D2D;">' + d.valor.toLocaleString() + ' MZN</td><td><span class="badge">' + d.metodo + '</span></td></tr>';
+            return '<tr><td style="font-size:12px;">' + escapeHTML(d.data) + '</td><td><span class="badge badge-low">' + escapeHTML(d.categoria) + '</span></td><td>' + escapeHTML(d.descricao) + '</td><td style="font-weight:500;color:#A32D2D;">' + d.valor.toLocaleString() + ' MZN</td><td><span class="badge">' + escapeHTML(d.metodo) + '</span></td></tr>';
         }).join('') +
         '<tr style="font-weight:bold;background:var(--color-background-secondary);"><td colspan="3">TOTAL DESPESAS</td><td>' + totalDespesas.toLocaleString() + ' MZN</td><td></td></tr>' +
         '</tbody></table>' : '<div class="empty">Nenhuma despesa neste mês</div>';
@@ -1441,7 +1298,7 @@ async function printFaturacao() {
             .metric-card { border: 1px solid #eee; padding: 10px; border-radius: 4px; flex: 1; }
         </style></head><body>
         <div class="header">
-            <h2>Pinto\u2019s Bar</h2>
+            <h2>Sistema Farmacêutico</h2>
             <div class="subtitle">RELATÓRIO DE FATURAÇÃO E DASHBOARD</div>
             <div class="date">${today} | Período: ${periodoActivo}</div>
         </div>
@@ -1458,7 +1315,7 @@ async function printFaturacao() {
             }
             return `<div class="card">${html}</div>`;
         }).join('')}
-        <div class="footer">Processado por Computador (Sistema de Gestão Pinto\u2019s Bar)</div>
+        <div class="footer">Processado por Computador (Sistema Farmacêutico)</div>
         </body></html>`;
 
     var win = window.open('', '_blank');
@@ -1486,7 +1343,7 @@ function printHistoricoMovimentos() {
             @media print { body { padding: 0; } }
         </style></head><body>
         <div class="header">
-            <h2>Pinto\u2019s Bar</h2>
+            <h2>Sistema Farmacêutico</h2>
             <div class="subtitle">HISTÓRICO DE MOVIMENTOS</div>
             <div class="date">${today}</div>
         </div>
@@ -1498,15 +1355,6 @@ function printHistoricoMovimentos() {
     win.document.write(printContent);
     win.document.close();
     win.onload = function() { win.print(); };
-}
-
-function downloadRelMensalPDF() {
-    prepareMensalPrintArea();
-    var mesSel = document.getElementById('rm-mes').value;
-    var filename = 'Relatorio_Mensal_' + mesSel + '.pdf';
-    var printArea = document.getElementById('print-area');
-    // For mensal reports with charts, landscape is better to prevent clipping
-    generatePDF(printArea, filename, 'landscape');
 }
 
 function prepareMensalPrintArea() {
@@ -1567,7 +1415,7 @@ function prepareMensalPrintArea() {
     printArea.innerHTML = `
         <div id="pdf-content" style="font-family:sans-serif; color:#000; padding:20px; max-width:1100px; margin:0 auto; background:#fff;">
             <div style="text-align:center; margin-bottom:20px;">
-                <h2 style="margin:0; font-size:24px;">Pinto\u2019s Bar</h2>
+                <h2 style="margin:0; font-size:24px;">Sistema Farmacêutico</h2>
                 <div style="font-size:16px; font-weight:bold; margin-top:5px;">RELATÓRIO MENSAL DE PERFORMANCE</div>
                 <div style="font-size:13px; color:#555; margin-top:3px;">Mês: ${mesSel.split('-').reverse().join('/')}</div>
             </div>
@@ -1626,14 +1474,14 @@ function prepareMensalPrintArea() {
                 <div>_________________________<br>Assinatura do Proprietário</div>
             </div>
             <div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">
-                Processado por Computador (Sistema de Gestão Pinto\u2019s Bar)
+                Processado por Computador (Sistema Farmacêutico)
             </div>
         </div>
     `;
 
     var ctx = document.getElementById('printChartMensal');
-    if (window.pChartMensal) window.pChartMensal.destroy();
-    window.pChartMensal = new Chart(ctx, {
+    destroyChart(chartPrintMensal);
+    chartPrintMensal = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: chartLabels,
@@ -1656,7 +1504,7 @@ function prepareMensalPrintArea() {
 // ====================== DOCUMENTOS ======================
 function populateDocProdutoSelect() {
     var sel = document.getElementById('doc-produto');
-    if (sel) sel.innerHTML = produtos.map(function (p) { return '<option value="' + p.id + '">' + p.nome + ' (' + p.venda + ' MZN)</option>'; }).join('');
+    if (sel) sel.innerHTML = produtos.map(function (p) { return '<option value="' + escapeHTML(p.id) + '">' + escapeHTML(p.nome) + ' (' + p.venda + ' MZN)</option>'; }).join('');
     renderDocsHistory();
 }
 
@@ -1695,7 +1543,7 @@ function renderDocList() {
     var tbody = document.getElementById('doc-items');
     if (!tbody) return;
     tbody.innerHTML = docItems.map(function (item, i) {
-        return '<tr><td>' + item.nome + '</td><td>' + item.qtd + '</td><td>' + item.preco + '</td><td>' + item.total.toLocaleString() + '</td>' +
+        return '<tr><td>' + escapeHTML(item.nome) + '</td><td>' + item.qtd + '</td><td>' + item.preco + '</td><td>' + item.total.toLocaleString() + '</td>' +
             '<td><button class="btn btn-danger" onclick="removeDocItem(' + i + ')">X</button></td></tr>';
     }).join('');
     var subtotal = docItems.reduce(function (acc, it) { return acc + it.total; }, 0);
@@ -1704,33 +1552,6 @@ function renderDocList() {
     document.getElementById('doc-subtotal').textContent = subtotal.toLocaleString();
     document.getElementById('doc-desconto-calc').textContent = desconto.toLocaleString();
     document.getElementById('doc-total').textContent = Math.max(t, 0).toLocaleString();
-}
-
-async function saveAndPrintDoc() {
-    if (docItems.length === 0) { showNotification('Adicione produtos primeiro.'); return; }
-    var tipo = document.getElementById('doc-tipo').value;
-    var cliente = document.getElementById('doc-cliente').value.trim() || 'Consumidor Final';
-    var subtotal = docItems.reduce(function (a, i) { return a + i.total; }, 0);
-    var desconto = calcDesconto(subtotal);
-    var total = Math.max(subtotal - desconto, 0);
-    var payload = { tipo: tipo, cliente: cliente, total: total, detalhes: { items: docItems, desconto: desconto } };
-    if (!sb) { showNotification('Sem ligação à BD'); return; }
-    var dRes = await sb.from(PREFIX + 'documentos').insert([payload]).select();
-    if (!dRes.error && dRes.data) {
-        var doc = dRes.data[0];
-        documentos.unshift({ id: doc.id, tipo: doc.tipo, cliente: doc.cliente, data: doc.data.split('T')[0], total: doc.total, detalhes: doc.detalhes });
-        
-        // Sincronizar Stock e Vendas se for Factura
-        if (doc.tipo === 'factura') {
-            await syncInvoiceToStock(doc);
-        }
-
-        printDoc(doc);
-        docItems = [];
-        document.getElementById('doc-cliente').value = '';
-        document.getElementById('doc-desconto').value = '0';
-        renderDocList(); renderDocsHistory();
-    } else { showNotification('Erro ao gravar documento: ' + (dRes.error ? dRes.error.message : '')); }
 }
 
 async function syncInvoiceToStock(doc) {
@@ -1812,10 +1633,10 @@ function prepareDocPrintArea(doc) {
     printArea.innerHTML =
         '<div style="font-family:sans-serif; color:#000; padding:20px; max-width:800px; margin:0 auto; background:#fff;">' +
         '<div style="text-align:center; margin-bottom:20px;">' +
-        '<h2 style="margin:0; font-size:24px;">Pinto\u2019s Bar</h2>' +
+        '<h2 style="margin:0; font-size:24px;">Sistema Farmacêutico</h2>' +
         '<div style="font-size:16px; font-weight:bold; margin-top:5px;">' + docName + ' N.º ' + doc.id + '</div>' +
         '<div style="font-size:13px; color:#555; margin-top:3px;">Data: ' + doc.data + '</div></div>' +
-        '<div style="margin-bottom:20px; font-size:14px;"><b>Cliente:</b> ' + doc.cliente + '</div>' +
+        '<div style="margin-bottom:20px; font-size:14px;"><b>Cliente:</b> ' + escapeHTML(doc.cliente) + '</div>' +
         '<table style="width:100%; border-collapse:collapse; font-size:13px; margin-bottom:20px;">' +
         '<thead style="background:#f0f0f0;">' +
         '<tr><th style="border:1px solid #ccc; padding:8px; text-align:center;">#</th><th style="border:1px solid #ccc; padding:8px; text-align:left;">Descrição</th>' +
@@ -1829,7 +1650,7 @@ function prepareDocPrintArea(doc) {
         '<div style="margin-top:40px; font-size:12px; color:#777; display:flex; justify-content:space-between;">' +
         '<div>_________________________<br>Entregue por</div>' +
         '<div>_________________________<br>Recebido por</div></div>' +
-        '<div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador (Sistema de Gestão Pinto\u2019s Bar)</div></div>';
+        '<div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador (Sistema Farmacêutico)</div></div>';
 }
 
 function generatePDF(element, filename, orientation) {
@@ -1855,7 +1676,7 @@ function generatePDF(element, filename, orientation) {
             console.error('PDF error:', err);
             element.style.cssText = origStyle;
         });
-    }, 60000);
+    }, 300);
 }
 
 function printDoc(doc) {
@@ -1884,7 +1705,7 @@ function printDoc(doc) {
             .footer { text-align: center; font-size: 11px; color: #999; margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 10px; }
         </style></head><body>
         <div class="header">
-            <h2>Pinto\u2019s Bar</h2>
+            <h2>Sistema Farmacêutico</h2>
             <div class="subtitle">${docName} N.º ${doc.id}</div>
             <div class="date">Data: ${doc.data}</div>
         </div>
@@ -1900,7 +1721,7 @@ function printDoc(doc) {
             <div>_________________________<br>Entregue por</div>
             <div>_________________________<br>Recebido por</div>
         </div>
-        <div class="footer">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador (Sistema de Gestão Pinto\u2019s Bar)</div>
+        <div class="footer">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador (Sistema Farmacêutico)</div>
         </body></html>`;
 
     var win = window.open('', '_blank');
@@ -1917,9 +1738,9 @@ function renderDocsHistory() {
         documentos.map(function (d) {
             var isEliminado = d.detalhes && d.detalhes.status === 'eliminado';
             var rowClass = isEliminado ? 'class="cancelled-doc"' : '';
-            return '<tr ' + rowClass + '><td>#' + d.id + '</td><td style="font-size:12px;color:var(--color-text-secondary);">' + d.data + '</td>' +
-                '<td><span class="badge ' + (d.tipo === 'factura' ? 'badge-ok' : 'badge-low') + '">' + d.tipo.toUpperCase() + '</span></td>' +
-                '<td>' + d.cliente + '</td>' +
+            return '<tr ' + rowClass + '><td>#' + d.id + '</td><td style="font-size:12px;color:var(--color-text-secondary);">' + escapeHTML(d.data) + '</td>' +
+                '<td><span class="badge ' + (d.tipo === 'factura' ? 'badge-ok' : 'badge-low') + '">' + escapeHTML(d.tipo.toUpperCase()) + '</span></td>' +
+                '<td>' + escapeHTML(d.cliente) + '</td>' +
                 '<td style="font-weight:bold;">' + d.total.toLocaleString() + ' MZN</td>' +
                 '<td>' + (isEliminado ? '<span class="cancelled-label">Eliminado</span>' : 'Ativo') + '</td>' +
                 '<td><div style="display:flex;gap:5px;">' +
@@ -1951,15 +1772,10 @@ async function deleteDocumento(id) {
         if (sb) await sb.from(PREFIX + 'documentos').update({ detalhes: newD }).eq('id', id);
         showNotification('Documento anulado e stock restaurado!', 'success');
         await fetchData();
-        renderDocsHistory(); renderStock(); renderRelatorios(); renderMovimentos();
+        refreshAllViews();
     } catch (err) {
         showNotification('Erro ao eliminar.');
     }
-}
-
-function printDocFromHistory(id) {
-    var doc = documentos.find(function (d) { return d.id === id; });
-    if (doc) printDoc(doc);
 }
 
 function downloadPDFFromHistory(id) {
@@ -2074,8 +1890,10 @@ async function applyRoleRestrictions() {
     // Restrições na aba Movimentos
     const btnEntrada = document.getElementById('tipo-entrada');
     const inputPreco = document.getElementById('m-preco');
-    const groupData = document.getElementById('m-data').closest('.form-group');
-    const groupNota = document.getElementById('m-nota').closest('.form-group');
+    const mDataEl = document.getElementById('m-data');
+    const mNotaEl = document.getElementById('m-nota');
+    const groupData = mDataEl ? mDataEl.closest('.form-group') : null;
+    const groupNota = mNotaEl ? mNotaEl.closest('.form-group') : null;
     const groupCusto = document.getElementById('group-custo');
 
     if (userRole === 'vendedor') {
@@ -2118,6 +1936,63 @@ async function initApp() {
         console.error('INIT APP ERROR:', e);
     }
 }
+
+// Expor funções usadas por handlers inline no HTML
+Object.assign(window, {
+    addClienteMesa,
+    addDespesa,
+    addDocItem,
+    addMovimento,
+    addPaymentRow,
+    addPedidoMesa,
+    addPlanoItem,
+    addProduto,
+    addSaldoMovimento,
+    clearPlano,
+    closeConfirmModal,
+    closePayment,
+    confirmarCompra,
+    confirmarMesaPagamento,
+    deleteDocumento,
+    deleteDespesa,
+    deleteMovimento,
+    deleteSelectedMovimentos,
+    devolverQuarentena,
+    downloadPDFFromHistory,
+    editDespesa,
+    loginUser,
+    logoutUser,
+    onProductSearch,
+    openPayment,
+    prePopulatePlano,
+    printDailyMovements,
+    printFaturacao,
+    printHistoricoMovimentos,
+    printMensal,
+    printPlanoCompras,
+    prepareDocPrintArea,
+    renderDocList,
+    renderMesas,
+    renderMovimentos,
+    renderRelMensal,
+    renderRelatorios,
+    renderStock,
+    saveAndDownloadPDF,
+    setPeriodo,
+    setSaldoInicial,
+    setTipo,
+    showSection,
+    toggleCustomCat,
+    toggleCustomProdCat,
+    toggleSelectAllMovs,
+    updateMovTotal,
+    updatePaymentSummary,
+    updatePlanoQtd,
+    voltarAtendimento,
+    removeDocItem,
+    removePedidoMesa,
+    removePlanoItem
+});
 
 // Check session on load
 checkSession();
@@ -2171,10 +2046,10 @@ function renderSaldo() {
         '<div class="table-responsive"><table><thead><tr><th>Data</th><th>Tipo</th><th>Método</th><th>Descrição</th><th>Valor</th></tr></thead><tbody>' +
         saldoMovimentos.map(m => `
             <tr>
-                <td>${new Date(m.data).toLocaleDateString()}</td>
-                <td><span class="badge ${m.tipo === 'investimento' ? 'badge-ok' : 'badge-low'}">${m.tipo.toUpperCase()}</span></td>
-                <td>${m.metodo}</td>
-                <td>${m.descricao || '—'}</td>
+                <td>${escapeHTML(new Date(m.data).toLocaleDateString())}</td>
+                <td><span class="badge ${m.tipo === 'investimento' ? 'badge-ok' : 'badge-low'}">${escapeHTML(m.tipo.toUpperCase())}</span></td>
+                <td>${escapeHTML(m.metodo)}</td>
+                <td>${escapeHTML(m.descricao || '—')}</td>
                 <td style="font-weight:bold; color:${m.tipo === 'gasto' ? '#A32D2D' : '#3B6D11'};">${m.tipo === 'gasto' ? '-' : '+'}${m.valor.toLocaleString()} MZN</td>
             </tr>
         `).join('') + '</tbody></table></div>' : '<div class="empty">Nenhum movimento manual de saldo.</div>';
@@ -2233,9 +2108,9 @@ function renderMesas() {
         }
 
         card.innerHTML = `
-            <h3 style="margin-bottom:10px;">Mesa ${i}</h3>
+            <h3 style="margin-bottom:10px;">Atendimento ${i}</h3>
             <div class="mesa-badge" style="background:${client ? '#FCEBEB' : '#EAF3DE'}; color:${client ? '#A32D2D' : '#3B6D11'};">${client ? 'Ocupada' : 'Livre'}</div>
-            ${client ? `<div style="font-size:12px; margin-top:10px; font-weight:bold;">${client.nome_cliente}</div>` : ''}
+            ${client ? `<div style="font-size:12px; margin-top:10px; font-weight:bold;">${escapeHTML(client.nome_cliente)}</div>` : ''}
             ${totalVal > 0 ? `<div style="font-size:14px; margin-top:5px; color:#185FA5;">Total: ${totalVal.toLocaleString()} MT</div>` : ''}
         `;
         grid.appendChild(card);
@@ -2250,7 +2125,7 @@ function openMesa(n) {
     
     grid.style.display = 'none';
     panel.style.display = 'block';
-    title.textContent = 'Mesa ' + n;
+    title.textContent = 'Atendimento ' + n;
     
     renderMesaContent();
 }
@@ -2260,7 +2135,7 @@ function renderMesaContent() {
     const clients = mesaClientes.filter(c => c.mesa_numero === activeMesa && c.status === 'ativo');
     
     if (clients.length === 0) {
-        clientListEl.innerHTML = '<div class="empty">Nenhum cliente activo nesta mesa.</div>';
+        clientListEl.innerHTML = '<div class="empty">Nenhum utente activo neste atendimento.</div>';
         return;
     }
 
@@ -2268,15 +2143,15 @@ function renderMesaContent() {
         <div class="card" style="border:1px solid #ddd; margin-bottom:10px;">
             <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
                 <div>
-                    <strong style="font-size:16px;">${c.nome_cliente}</strong>
-                    ${c.nota_aparencia ? `<div style="font-size:12px; color:#666;">Obs: ${c.nota_aparencia}</div>` : ''}
+                    <strong style="font-size:16px;">${escapeHTML(c.nome_cliente)}</strong>
+                    ${c.nota_aparencia ? `<div style="font-size:12px; color:#666;">Obs: ${escapeHTML(c.nota_aparencia)}</div>` : ''}
                 </div>
                 <button class="btn btn-primary" onclick="openPayment(${c.id})">Finalizar e Pagar</button>
             </div>
             
             <div style="background:#f9f9f9; padding:10px; border-radius:5px;">
                 <div style="display:flex; gap:10px; margin-bottom:10px;">
-                    <select id="p-prod-${c.id}" style="flex:1;">${produtos.map(p => `<option value="${p.id}">${p.nome} (${p.venda} MT)</option>`).join('')}</select>
+                    <select id="p-prod-${c.id}" style="flex:1;">${produtos.map(p => `<option value="${p.id}">${escapeHTML(p.nome)} (${p.venda} MT)</option>`).join('')}</select>
                     <input id="p-qtd-${c.id}" type="number" value="1" style="width:60px;">
                     <button class="btn" onclick="addPedidoMesa(${c.id})">+ Pedido</button>
                 </div>
@@ -2285,7 +2160,7 @@ function renderMesaContent() {
                     <tbody>
                         ${(c.mesas_pedidos || []).map(p => `
                             <tr>
-                                <td>${p.produto_nome}</td>
+                                <td>${escapeHTML(p.produto_nome)}</td>
                                 <td>${p.quantidade}</td>
                                 <td>${p.preco_unitario}</td>
                                 <td>${p.total} MT</td>
@@ -2371,6 +2246,10 @@ async function addPedidoMesa(clientId) {
 function voltarMesas() {
     activeMesa = null;
     renderMesas();
+}
+
+function voltarAtendimento() {
+    voltarMesas();
 }
 
 // Lógica de Pagamento Múltiplo
@@ -2471,7 +2350,7 @@ async function confirmarMesaPagamento() {
     // 1. Gerar Factura Documento
     const payloadDoc = {
         tipo: 'factura',
-        cliente: currentPayClient.nome_cliente + ' (Mesa ' + currentPayClient.mesa_numero + ')',
+        cliente: currentPayClient.nome_cliente + ' (Atendimento ' + currentPayClient.mesa_numero + ')',
         total: currentPayTotal,
         metodo_pagamento: payments.map(p => p.metodo).join(' / '),
         detalhes: { 
@@ -2503,7 +2382,7 @@ async function confirmarMesaPagamento() {
                 tipo: 'investimento', // Venda conta como entrada de capital operacional
                 metodo: p.metodo,
                 valor: p.valor,
-                descricao: 'Venda Mesa ' + currentPayClient.mesa_numero + ' (' + currentPayClient.nome_cliente + ')'
+                descricao: 'Venda Atendimento ' + currentPayClient.mesa_numero + ' (' + currentPayClient.nome_cliente + ')'
             }]);
         }
     }
@@ -2528,11 +2407,11 @@ function renderPlanoCompras() {
     var tbody = document.getElementById('plano-items');
     if (!tbody) return;
     tbody.innerHTML = planoItems.map(function (item, i) {
-        return '<tr><td>' + item.nome + '</td>' +
+        return '<tr><td>' + escapeHTML(item.nome) + '</td>' +
             '<td><input type="number" value="' + item.qtd + '" min="1" style="width:60px;padding:3px 6px;" onchange="updatePlanoQtd(' + i + ',this.value)"></td>' +
             '<td>' + item.custo.toLocaleString() + '</td>' +
             '<td style="font-weight:500;">' + (item.qtd * item.custo).toLocaleString() + '</td>' +
-            '<td>' + (item.forn || '-') + '</td>' +
+            '<td>' + escapeHTML(item.forn || '-') + '</td>' +
             '<td><button class="btn btn-danger" onclick="removePlanoItem(' + i + ')">X</button></td></tr>';
     }).join('');
     var totalPlano = planoItems.reduce(function (a, it) { return a + (it.qtd * it.custo); }, 0);
@@ -2542,7 +2421,7 @@ function renderPlanoCompras() {
 
 function populatePlanoProdutoSelect() {
     var sel = document.getElementById('plano-produto');
-    if (sel) sel.innerHTML = produtos.map(function (p) { return '<option value="' + p.id + '">' + p.nome + ' (' + p.custo + ' MZN)</option>'; }).join('');
+    if (sel) sel.innerHTML = produtos.map(function (p) { return '<option value="' + escapeHTML(p.id) + '">' + escapeHTML(p.nome) + ' (' + p.custo + ' MZN)</option>'; }).join('');
 }
 
 function addPlanoItem() {
@@ -2618,7 +2497,7 @@ function printPlanoCompras() {
             @media print { body { padding: 0; } }
         </style></head><body>
         <div class="header">
-            <h2>Pinto\u2019s Bar</h2>
+            <h2>Sistema Farmacêutico</h2>
             <div class="subtitle">PLANO DE COMPRAS</div>
             <div class="date">${today}</div>
         </div>
@@ -2628,7 +2507,7 @@ function printPlanoCompras() {
         <div class="total">TOTAL ESTIMADO: ${totalPlano.toLocaleString()} MZN</div>
         <div class="signatures"><div>_________________________<br>Assinatura do Comprador</div>
             <div>_________________________<br>Aprovado por</div></div>
-        <div class="footer">Processado por Computador (Sistema de Gestão Pinto\u2019s Bar)</div>
+        <div class="footer">Processado por Computador (Sistema Farmacêutico)</div>
         </body></html>`;
 
     var win = window.open('', '_blank');
@@ -2637,43 +2516,6 @@ function printPlanoCompras() {
     win.onload = function() { win.print(); };
 }
 
-function downloadPlanoPDF() {
-    if (planoItems.length === 0) { showNotification('Adicione produtos ao plano primeiro.'); return; }
-    var totalPlano = planoItems.reduce(function (a, it) { return a + (it.qtd * it.custo); }, 0);
-    var today = new Date().toLocaleDateString('pt-MZ', { year: 'numeric', month: 'long', day: 'numeric' });
-    var rows = planoItems.map(function (item, i) {
-        return '<tr style="border-bottom:1px solid #eee;">' +
-            '<td style="padding:6px 8px;">' + (i + 1) + '</td>' +
-            '<td style="padding:6px 8px;">' + item.nome + '</td>' +
-            '<td style="padding:6px 8px;text-align:center;">' + item.qtd + '</td>' +
-            '<td style="padding:6px 8px;text-align:right;">' + item.custo.toLocaleString() + '</td>' +
-            '<td style="padding:6px 8px;text-align:right;font-weight:bold;">' + (item.qtd * item.custo).toLocaleString() + '</td>' +
-            '<td style="padding:6px 8px;text-align:center;">☐</td></tr>';
-    });
-
-    var printArea = document.getElementById('print-area');
-    printArea.innerHTML =
-        '<div style="font-family:sans-serif; color:#000; padding:20px; max-width:800px; margin:0 auto; background:#fff;">' +
-        '<div style="text-align:center; margin-bottom:20px;">' +
-        '<h2 style="margin:0; font-size:22px;">Pinto\u2019s Bar</h2>' +
-        '<div style="font-size:16px; font-weight:bold; margin-top:5px;">PLANO DE COMPRAS</div>' +
-        '<div style="font-size:13px; color:#555; margin-top:3px;">' + today + '</div></div>' +
-        '<table style="width:100%; border-collapse:collapse; font-size:13px; margin-bottom:20px;">' +
-        '<thead style="background:#f0f0f0;">' +
-        '<tr><th style="padding:8px;text-align:left;">#</th><th style="padding:8px;text-align:left;">Produto</th>' +
-        '<th style="padding:8px;text-align:center;">Qtd</th><th style="padding:8px;text-align:right;">Custo Unit.</th>' +
-        '<th style="padding:8px;text-align:right;">Custo Total</th>' +
-        '<th style="padding:8px;text-align:center;">✓</th></tr></thead>' +
-        '<tbody>' + rows.join('') + '</tbody></table>' +
-        '<div style="text-align:right; font-size:16px; font-weight:bold; border-top:2px solid #000; padding-top:10px;">' +
-        'TOTAL ESTIMADO: ' + totalPlano.toLocaleString() + ' MZN</div>' +
-        '<div style="margin-top:40px; font-size:12px; color:#777;">' +
-        '<div style="display:flex; justify-content:space-between;"><div>_________________________<br>Assinatura do Comprador</div>' +
-        '<div>_________________________<br>Aprovado por</div></div></div>' +
-        '<div style="text-align:center; font-size:11px; margin-top:30px; color:#999;">Processado por Computador (Sistema de Gestão Pinto\u2019s Bar)</div></div>';
-
-    generatePDF(printArea, 'Plano_Compras_' + new Date().toISOString().split('T')[0] + '.pdf');
-}
 async function confirmarCompra() {
     if (!(await showConfirm('Deseja confirmar o recebimento e actualizar o stock? ' + planoItems.length + ' produtos serão adicionados.'))) return;
 

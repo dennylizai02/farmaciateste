@@ -1,0 +1,29 @@
+{
+  "name": "farmacia",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dennylizai02/Farmacia.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/dennylizai02/Farmacia/issues"
+  },
+  "homepage": "https://github.com/dennylizai02/Farmacia#readme",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.109.0",
+    "chart.js": "^4.5.1",
+    "vite": "^8.1.2"
+  }
+}
