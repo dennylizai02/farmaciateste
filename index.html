@@ -483,35 +483,60 @@
           </div>
 
           <div id="active-clients"></div>
-
-          <!-- Modal de Pagamento -->
-          <div id="payment-modal" class="card" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:10001; width:90%; max-width:500px; box-shadow:0 0 50px rgba(0,0,0,0.5);">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                  <h3>Pagamento Utente: <span id="pay-client-name"></span></h3>
-                  <button class="btn" onclick="closePayment()">Fechar</button>
-              </div>
-              <div style="font-size:24px; font-weight:bold; margin-bottom:1.5rem; text-align:center;">Total: <span id="pay-total-amount">0</span> MT</div>
-              
-              <div id="payment-methods-list">
-                  <!-- Linhas de pagamento aqui -->
-              </div>
-              
-              <button class="btn" style="width:100%; margin-top:10px; border:1px dashed #ccc;" onclick="addPaymentRow()">+ Adicionar Outro Método</button>
-              
-              <div style="margin-top:2rem; border-top:1px solid #eee; padding-top:1rem;">
-                  <div style="display:flex; justify-content:space-between; font-weight:bold; margin-top:0.5rem; color:#A32D2D;" id="pay-change-row">
-                      <span>Troco:</span>
-                      <span id="pay-change-amount">0</span> MT
-                  </div>
-                  <button id="btn-confirm-pay" class="btn btn-primary" style="width:100%; margin-top:1.5rem;" onclick="confirmarMesaPagamento()">Confirmar e Emitir Fatura</button>
-              </div>
-          </div>
-          <div id="payment-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:10000;"></div>
       </div>
     </div>
     </div>
 
+    <!-- Modal de Pagamento (Global) -->
+    <div id="payment-modal" class="card" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:10001; width:90%; max-width:500px; box-shadow:0 0 50px rgba(0,0,0,0.5);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+            <h3>Pagamento Utente: <span id="pay-client-name"></span></h3>
+            <button class="btn" onclick="closePayment()">Fechar</button>
+        </div>
+        <div style="font-size:24px; font-weight:bold; margin-bottom:1.5rem; text-align:center;">Total: <span id="pay-total-amount">0</span> MT</div>
+        
+        <div id="payment-methods-list">
+            <!-- Linhas de pagamento aqui -->
+        </div>
+        
+        <button class="btn" style="width:100%; margin-top:10px; border:1px dashed #ccc;" onclick="addPaymentRow()">+ Adicionar Outro Método</button>
+        
+        <div style="margin-top:2rem; border-top:1px solid #eee; padding-top:1rem;">
+            <div style="display:flex; justify-content:space-between; font-weight:bold; margin-top:0.5rem; color:#A32D2D;" id="pay-change-row">
+                <span>Troco:</span>
+                <span id="pay-change-amount">0</span> MT
+            </div>
+            <button id="btn-confirm-pay" class="btn btn-primary" style="width:100%; margin-top:1.5rem;" onclick="confirmarMesaPagamento()">Confirmar e Emitir Fatura</button>
+        </div>
+    </div>
+    <div id="payment-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:10000;"></div>
 
+    <!-- VENDEDOR -->
+    <div class="section" id="sec-vendedor">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <h2 style="margin:0;">💊 Balcão de Atendimento</h2>
+        <div>
+          <span id="v-user-label" style="font-size:12px; margin-right:10px;"></span>
+          <button class="btn" style="padding:4px 8px; font-size:11px;" onclick="logoutUser()">Sair</button>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:1rem;">
+        <div class="card-title">Consultar Stock</div>
+        <input type="text" id="v-stock-search" placeholder="Pesquisar medicamento..." style="width:100%; margin-bottom:10px;" oninput="filterVendedorStock()">
+        <div id="v-stock-table" style="max-height:250px; overflow-y:auto;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Atendimento</div>
+        <div class="form-row" style="background:var(--color-background-secondary); padding:1rem; border-radius:8px; margin-bottom:1.5rem;">
+          <div class="form-group"><label>Adicionar Utente</label><input id="c-nome-v" placeholder="Nome do Utente"></div>
+          <div class="form-group"><label>Observações</label><input id="c-nota-v" placeholder="Necessita receita?"></div>
+          <div class="form-group" style="justify-content:flex-end;"><button class="btn btn-primary" onclick="vAddCliente()" style="margin-top:20px;">+ Iniciar Atendimento</button></div>
+        </div>
+        <div id="v-active-clients"></div>
+      </div>
+    </div>
 
     <div id="print-area"></div>
   </div>
