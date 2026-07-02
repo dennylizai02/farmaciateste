@@ -76,6 +76,8 @@ function showSection(id) {
     if (id === 'planocompras') renderPlanoCompras();
     if (id === 'relmensal') renderRelMensal();
     if (id === 'saldo') renderSaldo();
+    if (id === 'categorias') renderCategorias();
+    if (id === 'clientes') renderClientes();
     if (id === 'mesas') renderMesas();
 }
 
@@ -1951,6 +1953,45 @@ async function initApp() {
 }
 
 // Expor funções usadas por handlers inline no HTML
+function renderCategorias() {
+    const lista = {};
+    produtos.forEach(function (p) {
+        var cat = p.cat || 'Sem Categoria';
+        if (!lista[cat]) lista[cat] = { count: 0, produtos: [] };
+        lista[cat].count++;
+        lista[cat].produtos.push(p);
+    });
+    var html = '<table class="table"><thead><tr><th>Categoria</th><th>Produtos</th></tr></thead><tbody>';
+    for (var cat in lista) {
+        html += '<tr><td><strong>' + escapeHTML(cat) + '</strong></td><td>' + lista[cat].count + '</td></tr>';
+    }
+    html += '</tbody></table>';
+    var el = document.getElementById('cat-list');
+    if (el) el.innerHTML = html;
+}
+
+function renderClientes() {
+    var html = '<table class="table"><thead><tr><th>Utente</th><th>Contacto</th><th>Data</th><th>Estado</th><th>Total (MT)</th></tr></thead><tbody>';
+    for (var i = 0; i < mesaClientes.length; i++) {
+        var c = mesaClientes[i];
+        var total = 0;
+        if (c.mesas_pedidos) {
+            for (var j = 0; j < c.mesas_pedidos.length; j++) {
+                total += parseFloat(c.mesas_pedidos[j].total) || 0;
+            }
+        }
+        html += '<tr><td>' + escapeHTML(c.nome || c.cliente_nome || '—') + '</td>'
+            + '<td>' + escapeHTML(c.contacto || '—') + '</td>'
+            + '<td>' + (c.created_at ? new Date(c.created_at).toLocaleDateString('pt-PT') : '—') + '</td>'
+            + '<td>' + escapeHTML(c.status || '—') + '</td>'
+            + '<td>' + total.toFixed(2) + '</td></tr>';
+    }
+    html += '</tbody></table>';
+    if (mesaClientes.length === 0) html = '<p class="text-muted">Nenhum utente registado.</p>';
+    var el = document.getElementById('client-list');
+    if (el) el.innerHTML = html;
+}
+
 Object.assign(window, {
     addClienteMesa,
     addDespesa,
@@ -1987,6 +2028,8 @@ Object.assign(window, {
     renderDocList,
     renderMesas,
     renderMovimentos,
+    renderCategorias,
+    renderClientes,
     renderRelMensal,
     renderRelatorios,
     renderStock,
