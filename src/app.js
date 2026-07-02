@@ -1894,7 +1894,7 @@ function filterVendedorStock() {
     renderVendedorStock(document.getElementById('v-stock-search').value);
 }
 
-function vAddCliente() {
+async function vAddCliente() {
     var nome = document.getElementById('c-nome-v').value.trim();
     if (!nome) { showNotification('Insira o nome do utente'); return; }
     activeMesa = 1;
@@ -1903,20 +1903,23 @@ function vAddCliente() {
         showNotification('Utente já está em atendimento.');
         return;
     }
-    addClienteMesaComVendedor(nome, document.getElementById('c-nota-v').value.trim());
+    await addClienteMesaComVendedor(nome, document.getElementById('c-nota-v').value.trim());
 }
 
 async function addClienteMesaComVendedor(nome, nota) {
-    var payload = { mesa_numero: 1, nome_cliente: nome, nota_aparencia: nota || '' };
-    var { data: res, error } = await sb.from(PREFIX + 'mesas_clientes').insert([payload]).select();
-    if (!error) {
+    try {
+        if (!sb) { showNotification('Erro: Base de dados offline.', 'error'); return; }
+        var payload = { mesa_numero: 1, nome_cliente: nome, nota_aparencia: nota || '' };
+        var { data: res, error } = await sb.from(PREFIX + 'mesas_clientes').insert([payload]).select();
+        if (error) { showNotification('Erro: ' + error.message, 'error'); return; }
         showNotification('Utente adicionado!');
         document.getElementById('c-nome-v').value = '';
         document.getElementById('c-nota-v').value = '';
         mesaClientes.unshift({ ...res[0], mesas_pedidos: [] });
         renderVendedorAtendimento();
-    } else {
-        showNotification('Erro: ' + error.message, 'error');
+    } catch (e) {
+        showNotification('Erro inesperado: ' + e.message, 'error');
+        console.error(e);
     }
 }
 
@@ -1953,14 +1956,16 @@ function renderVendedorAtendimento() {
 }
 
 async function vAddPedido(clientId) {
-    var pId = parseInt(document.getElementById('vp-prod-' + clientId).value);
-    var qtd = parseInt(document.getElementById('vp-qtd-' + clientId).value) || 0;
-    var prod = produtos.find(function (p) { return p.id === pId; });
-    if (!prod || qtd <= 0) return;
-    if (qtd > prod.qtd) { showNotification('Stock insuficiente. Disponível: ' + prod.qtd, 'error'); return; }
-    var payload = { cliente_id: clientId, produto_id: pId, produto_nome: prod.nome, quantidade: qtd, preco_unitario: prod.venda, total: qtd * prod.venda };
-    var { data: res, error } = await sb.from(PREFIX + 'mesas_pedidos').insert([payload]).select();
-    if (!error) {
+    try {
+        if (!sb) { showNotification('Erro: Base de dados offline.', 'error'); return; }
+        var pId = parseInt(document.getElementById('vp-prod-' + clientId).value);
+        var qtd = parseInt(document.getElementById('vp-qtd-' + clientId).value) || 0;
+        var prod = produtos.find(function (p) { return p.id === pId; });
+        if (!prod || qtd <= 0) return;
+        if (qtd > prod.qtd) { showNotification('Stock insuficiente. Disponível: ' + prod.qtd, 'error'); return; }
+        var payload = { cliente_id: clientId, produto_id: pId, produto_nome: prod.nome, quantidade: qtd, preco_unitario: prod.venda, total: qtd * prod.venda };
+        var { data: res, error } = await sb.from(PREFIX + 'mesas_pedidos').insert([payload]).select();
+        if (error) { showNotification('Erro: ' + error.message, 'error'); return; }
         var client = mesaClientes.find(function (c) { return c.id === clientId; });
         if (client) {
             if (!client.mesas_pedidos) client.mesas_pedidos = [];
@@ -1968,28 +1973,32 @@ async function vAddPedido(clientId) {
         }
         renderVendedorAtendimento();
         renderVendedorStock(document.getElementById('v-stock-search').value);
-    } else {
-        showNotification('Erro: ' + error.message, 'error');
+    } catch (e) {
+        showNotification('Erro inesperado: ' + e.message, 'error');
+        console.error(e);
     }
 }
 
 async function vRemovePedido(event, pedidoId, clientId) {
-    if (event) event.stopPropagation();
-    if (!(await showConfirm('Remover este pedido?'))) return;
-    var client = mesaClientes.find(function (c) { return c.id === clientId; });
-    if (!client) return;
-    var pedido = (client.mesas_pedidos || []).find(function (p) { return p.id === pedidoId; });
-    if (!pedido) return;
-    var { error } = await sb.from(PREFIX + 'mesas_pedidos').delete().eq('id', pedidoId);
-    if (!error) {
+    try {
+        if (event) event.stopPropagation();
+        if (!(await showConfirm('Remover este pedido?'))) return;
+        if (!sb) { showNotification('Erro: Base de dados offline.', 'error'); return; }
+        var client = mesaClientes.find(function (c) { return c.id === clientId; });
+        if (!client) return;
+        var pedido = (client.mesas_pedidos || []).find(function (p) { return p.id === pedidoId; });
+        if (!pedido) return;
+        var { error } = await sb.from(PREFIX + 'mesas_pedidos').delete().eq('id', pedidoId);
+        if (error) { showNotification('Erro: ' + error.message, 'error'); return; }
         var prod = produtos.find(function (p) { return p.id === pedido.produto_id; });
         if (prod) { prod.qtd += pedido.quantidade; await sb.from(PREFIX + 'produtos').update({ quantidade: prod.qtd }).eq('id', prod.id); }
         client.mesas_pedidos = client.mesas_pedidos.filter(function (p) { return p.id !== pedidoId; });
         showNotification('Pedido removido.', 'success');
         renderVendedorAtendimento();
         renderVendedorStock(document.getElementById('v-stock-search').value);
-    } else {
-        showNotification('Erro: ' + error.message, 'error');
+    } catch (e) {
+        showNotification('Erro inesperado: ' + e.message, 'error');
+        console.error(e);
     }
 }
 
