@@ -92,6 +92,7 @@ function printDailyMovements() {
     }
     
     var win = window.open('', '_blank');
+    if (win) win.opener = null;
     var html = '<html><head><title>Sistema Farmacêutico - Movimentos do Dia</title><style>' +
                'body { font-family: sans-serif; padding: 20px; font-size: 14px; }' +
                'table { width: 100%; border-collapse: collapse; margin-top: 15px; }' +
@@ -149,12 +150,14 @@ function setPeriodo(p, btn) {
 
 // ====================== DATA ======================
 async function fetchAllRows(table, selectExpr, orderColumn, ascending) {
-    var pageSize = 1000;
-    var from = 0;
-    var rows = [];
+    const pageSize = 1000;
+    let rows = [];
+    let page = 0;
+    const maxPages = 100;
 
-    while (true) {
-        var res = await sb
+    while (page < maxPages) {
+        const from = page * pageSize;
+        const res = await sb
             .from(PREFIX + table)
             .select(selectExpr)
             .order(orderColumn, { ascending: ascending })
@@ -163,8 +166,11 @@ async function fetchAllRows(table, selectExpr, orderColumn, ascending) {
         if (res.error) return { data: rows, error: res.error };
         if (res.data && res.data.length > 0) rows = rows.concat(res.data);
         if (!res.data || res.data.length < pageSize) return { data: rows, error: null };
-        from += pageSize;
+        page++;
     }
+
+    console.warn('fetchAllRows: reached maxPages limit for ' + table);
+    return { data: rows, error: null };
 }
 
 async function fetchData() {
@@ -197,10 +203,14 @@ async function fetchData() {
 
     if (produtos.length === 0) {
         produtos = [
-            { id: 1, nome: 'Paracetamol 500mg', cat: 'Medicamentos', qtd: 50, min: 10, custo: 20, venda: 50, forn: 'MedPharma' },
-            { id: 2, nome: 'Ibuprofeno 400mg', cat: 'Medicamentos', qtd: 30, min: 10, custo: 30, venda: 70, forn: 'MedPharma' },
-            { id: 3, nome: 'Vitamina C', cat: 'Suplementos', qtd: 20, min: 5, custo: 100, venda: 180, forn: 'Saúde&Co' },
-            { id: 4, nome: 'Fraldas Infantis M', cat: 'Higiene Pessoal', qtd: 15, min: 5, custo: 300, venda: 450, forn: 'Distribuidora ABC' }
+            { id: 1, nome: 'Paracetamol 500mg', cat: 'Analgésicos', qtd: 50, min: 10, custo: 20, venda: 50, forn: 'MedPharma Lda' },
+            { id: 2, nome: 'Ibuprofeno 400mg', cat: 'Analgésicos', qtd: 30, min: 10, custo: 30, venda: 70, forn: 'MedPharma Lda' },
+            { id: 3, nome: 'Amoxicilina 500mg', cat: 'Antibióticos', qtd: 25, min: 10, custo: 45, venda: 90, forn: 'Farmalab' },
+            { id: 4, nome: 'Vitamina C 1000mg', cat: 'Vitaminas e Suplementos', qtd: 20, min: 5, custo: 100, venda: 180, forn: 'Saúde&Co' },
+            { id: 5, nome: 'Soro Oral 500ml', cat: 'Primeiros Socorros', qtd: 40, min: 10, custo: 15, venda: 35, forn: 'Farmalab' },
+            { id: 6, nome: 'Álcool 70% 500ml', cat: 'Higiene e Cuidados', qtd: 35, min: 15, custo: 25, venda: 55, forn: 'Higilab' },
+            { id: 7, nome: 'Gaze Esterilizada', cat: 'Material Médico', qtd: 60, min: 20, custo: 8, venda: 20, forn: 'MedPharma Lda' },
+            { id: 8, nome: 'Máscara Cirúrgica', cat: 'Material Médico', qtd: 100, min: 30, custo: 3, venda: 8, forn: 'Higilab' }
         ];
     }
 
@@ -299,7 +309,8 @@ function handleSort(field) {
         renderRelatorios,
         renderMovimentos,
         populateProdutoSelect,
-        getStatus
+        getStatus,
+        escapeHTML
     });
 }
 
@@ -317,7 +328,8 @@ function renderStock() {
         renderRelatorios,
         renderMovimentos,
         populateProdutoSelect,
-        getStatus
+        getStatus,
+        escapeHTML
     });
 }
 
@@ -412,7 +424,7 @@ async function addProduto() {
         showNotification('Produto "' + p.nome + '" adicionado!', 'success');
         produtos.push({ id: p.id, nome: p.nome, cat: p.categoria, qtd: p.quantidade, min: p.stock_minimo, custo: p.preco_custo, venda: p.preco_venda, forn: p.fornecedor });
         ['p-nome', 'p-qtd', 'p-min', 'p-custo', 'p-venda', 'p-fornecedor'].forEach(function (x) { document.getElementById(x).value = ''; });
-        document.getElementById('p-cat').value = 'Medicamentos';
+        document.getElementById('p-cat').value = 'Analgésicos';
         document.getElementById('p-cat-custom').style.display = 'none';
         document.getElementById('p-cat-custom').value = '';
         renderStock(); populateProdutoSelect();
@@ -765,7 +777,10 @@ function editDespesa(id) {
 }
 
 async function deleteDespesaSilent(id) {
-    if (sb) await sb.from(PREFIX + 'despesas').delete().eq('id', id);
+    if (sb) {
+        const res = await sb.from(PREFIX + 'despesas').delete().eq('id', id);
+        if (res.error) { showNotification('Erro ao apagar: ' + res.error.message); return; }
+    }
     despesas = despesas.filter(function (x) { return x.id !== id; });
     renderDespesas();
 }
@@ -876,80 +891,77 @@ function renderAlertas() {
 
 // ====================== RELATÓRIOS ======================
 function renderRelatorios() {
-    var meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    var labels, vendasData, lucroData, unidData, quebrasData;
-    var vendTotal = movimentos.filter(function (m) { return m.tipo === 'saida'; }).reduce(function (a, m) { return a + m.total; }, 0);
+    const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    let labels, vendasData, lucroData, unidData, quebrasData;
 
-    var countVal = document.getElementById('periodo-count') ? parseInt(document.getElementById('periodo-count').value) : 0;
+    const countVal = document.getElementById('periodo-count') ? parseInt(document.getElementById('periodo-count').value) : 0;
 
     if (periodoActivo === 'diário') {
         labels = []; vendasData = []; lucroData = []; unidData = []; quebrasData = [];
-        var loops = countVal > 0 ? countVal : 7;
-        for (var i = loops - 1; i >= 0; i--) {
-            var d = new Date(); d.setDate(d.getDate() - i);
-            var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        const loops = countVal > 0 ? countVal : 7;
+        for (let i = loops - 1; i >= 0; i--) {
+            const d = new Date(); d.setDate(d.getDate() - i);
+            const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
             labels.push(d.getDate() + '/' + (d.getMonth() + 1));
-            var mSales = movimentos.filter(m => m.tipo === 'saida' && m.data === key);
-            var rec = mSales.reduce((a, m) => a + m.total, 0);
-            var custoVendas = mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
-            var unid = mSales.reduce((a, m) => a + m.qtd, 0);
-            var mQuebras = movimentos.filter(m => m.tipo === 'quebra' && m.nota !== '[Quarentena]' && m.data === key);
-            var loss = mQuebras.reduce((a, m) => a + (m.fifo_cost || 0), 0);
-            var despDia = despesas.filter(d => d.data === key).reduce((a, d) => a + d.valor, 0);
-            var luc = rec - custoVendas; // Apenas vendas para o relatório Diário
+            const mSales = movimentos.filter(m => m.tipo === 'saida' && m.data === key);
+            const rec = mSales.reduce((a, m) => a + m.total, 0);
+            const custoVendas = mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+            const unid = mSales.reduce((a, m) => a + m.qtd, 0);
+            const mQuebras = movimentos.filter(m => m.tipo === 'quebra' && m.nota !== '[Quarentena]' && m.data === key);
+            const loss = mQuebras.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+            const luc = rec - custoVendas;
             vendasData.push(rec); lucroData.push(luc); unidData.push(unid); quebrasData.push(loss);
         }
     } else if (periodoActivo === 'semanal') {
         labels = []; vendasData = []; lucroData = []; unidData = []; quebrasData = [];
-        var now = new Date();
-        var loops = countVal > 0 ? countVal : 4;
-        for (var i = loops - 1; i >= 0; i--) {
-            var start = new Date(); start.setDate(now.getDate() - (i + 1) * 7);
-            var end = new Date(); end.setDate(now.getDate() - i * 7);
-            var fStart = start.getDate() + '/' + (start.getMonth() + 1);
-            var fEnd = end.getDate() + '/' + (end.getMonth() + 1);
+        const now = new Date();
+        const loops = countVal > 0 ? countVal : 4;
+        for (let i = loops - 1; i >= 0; i--) {
+            const start = new Date(); start.setDate(now.getDate() - (i + 1) * 7);
+            const end = new Date(); end.setDate(now.getDate() - i * 7);
+            const fStart = start.getDate() + '/' + (start.getMonth() + 1);
+            const fEnd = end.getDate() + '/' + (end.getMonth() + 1);
             labels.push(fStart + ' a ' + fEnd);
             
-            var mSales = movimentos.filter(m => {
-                var d = new Date(m.data);
+            const mSales = movimentos.filter(m => {
+                const d = new Date(m.data);
                 return m.tipo === 'saida' && d >= start && d < end;
             });
-            var mLoss = movimentos.filter(m => {
-                var d = new Date(m.data);
+            const mLoss = movimentos.filter(m => {
+                const d = new Date(m.data);
                 return m.tipo === 'quebra' && m.nota !== '[Quarentena]' && d >= start && d < end;
             });
-            var rec = mSales.reduce((a, m) => a + m.total, 0);
-            var custoVendas = mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
-            var unid = mSales.reduce((a, m) => a + m.qtd, 0);
-            var loss = mLoss.reduce((a, m) => a + (m.fifo_cost || 0), 0);
-            var despSem = despesas.filter(d => { var dd = new Date(d.data); return dd >= start && dd < end; }).reduce((a, d) => a + d.valor, 0);
-            var luc = rec - custoVendas; // Apenas vendas para o relatório Semanal
+            const rec = mSales.reduce((a, m) => a + m.total, 0);
+            const custoVendas = mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+            const unid = mSales.reduce((a, m) => a + m.qtd, 0);
+            const loss = mLoss.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+            const luc = rec - custoVendas;
             vendasData.push(rec); lucroData.push(luc); unidData.push(unid); quebrasData.push(loss);
         }
     } else if (periodoActivo === 'mensal') {
-        var agora = new Date();
+        const agora = new Date();
         labels = []; vendasData = []; lucroData = []; unidData = []; quebrasData = [];
-        var loops = countVal > 0 ? countVal : 6;
-        for (var i = loops - 1; i >= 0; i--) {
-            var d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
-            var mKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+        const loops = countVal > 0 ? countVal : 6;
+        for (let i = loops - 1; i >= 0; i--) {
+            const d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
+            const mKey = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
             labels.push(meses[d.getMonth()]);
-            var mSales = movimentos.filter(m => m.tipo === 'saida' && (m.data || '').startsWith(mKey));
-            var mLoss = movimentos.filter(m => m.tipo === 'quebra' && m.nota !== '[Quarentena]' && (m.data || '').startsWith(mKey));
-            var rec = mSales.reduce((a, m) => a + m.total, 0);
-            var custoVendas = mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
-            var unid = mSales.reduce((a, m) => a + m.qtd, 0);
-            var loss = mLoss.reduce((a, m) => a + (m.fifo_cost || 0), 0);
-            var despMes = despesas.filter(d => d.data.startsWith(mKey)).reduce((a, d) => a + d.valor, 0);
-            var luc = rec - custoVendas - loss - despMes;
+            const mSales = movimentos.filter(m => m.tipo === 'saida' && (m.data || '').startsWith(mKey));
+            const mLoss = movimentos.filter(m => m.tipo === 'quebra' && m.nota !== '[Quarentena]' && (m.data || '').startsWith(mKey));
+            const rec = mSales.reduce((a, m) => a + m.total, 0);
+            const custoVendas = mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+            const unid = mSales.reduce((a, m) => a + m.qtd, 0);
+            const loss = mLoss.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+            const despMes = despesas.filter(d => d.data.startsWith(mKey)).reduce((a, d) => a + d.valor, 0);
+            const luc = rec - custoVendas - loss - despMes;
             vendasData.push(rec); lucroData.push(luc); unidData.push(unid); quebrasData.push(loss);
         }
     } else if (periodoActivo === 'trimestral') {
         labels = ['T1', 'T2', 'T3', 'T4'];
         vendasData = [0, 0, 0, 0]; lucroData = [0, 0, 0, 0]; unidData = [0, 0, 0, 0]; quebrasData = [0, 0, 0, 0];
-        var anoActual = new Date().getFullYear();
+        const anoActual = new Date().getFullYear();
         movimentos.filter(m => m.data.startsWith(String(anoActual))).forEach(m => {
-            var trim = Math.floor(new Date(m.data).getMonth() / 3);
+            const trim = Math.floor(new Date(m.data).getMonth() / 3);
             if (m.tipo === 'saida') {
                 vendasData[trim] += m.total;
                 lucroData[trim] += (m.total - (m.fifo_cost || 0));
@@ -960,15 +972,15 @@ function renderRelatorios() {
             }
         });
         despesas.filter(d => d.data.startsWith(String(anoActual))).forEach(d => {
-            var trim = Math.floor(new Date(d.data).getMonth() / 3);
+            const trim = Math.floor(new Date(d.data).getMonth() / 3);
             lucroData[trim] -= d.valor;
         });
     } else {
         labels = [new Date().getFullYear() - 2, new Date().getFullYear() - 1, new Date().getFullYear()];
         vendasData = [0, 0, 0]; lucroData = [0, 0, 0]; unidData = [0, 0, 0]; quebrasData = [0, 0, 0];
         movimentos.forEach(m => {
-            var ano = new Date(m.data).getFullYear();
-            var idx = labels.indexOf(ano);
+            const ano = new Date(m.data).getFullYear();
+            const idx = labels.indexOf(ano);
             if (idx !== -1) {
                 if (m.tipo === 'saida') {
                     vendasData[idx] += m.total;
@@ -981,23 +993,20 @@ function renderRelatorios() {
             }
         });
         despesas.forEach(d => {
-            var ano = new Date(d.data).getFullYear();
-            var idx = labels.indexOf(ano);
+            const ano = new Date(d.data).getFullYear();
+            const idx = labels.indexOf(ano);
             if (idx !== -1) {
                 lucroData[idx] -= d.valor;
             }
         });
     }
 
-    var activeIndex = vendasData.length - 1;
-    if (periodoActivo === 'trimestral') {
-        activeIndex = Math.floor(new Date().getMonth() / 3);
-    }
+    const activeIndex = periodoActivo === 'trimestral' ? Math.floor(new Date().getMonth() / 3) : vendasData.length - 1;
     
-    var totalV = vendasData[activeIndex] || 0;
-    var totalL = lucroData[activeIndex] || 0;
-    var totalMov = unidData[activeIndex] || 0;
-    var totalQ = quebrasData[activeIndex] || 0;
+    const totalV = vendasData[activeIndex] || 0;
+    const totalL = lucroData[activeIndex] || 0;
+    const totalMov = unidData[activeIndex] || 0;
+    const totalQ = quebrasData[activeIndex] || 0;
 
     document.getElementById('rel-metrics').innerHTML =
         '<div class="metric-card"><div class="metric-label">Receita (período)</div><div class="metric-value">' + Math.round(totalV).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
@@ -1266,6 +1275,7 @@ async function printMensal() {
         </style></head><body>${content}</body></html>`;
 
     var win = window.open('', '_blank');
+    if (win) win.opener = null;
     win.document.write(printContent);
     win.document.close();
     win.onload = function() { win.print(); };
@@ -1319,6 +1329,7 @@ async function printFaturacao() {
         </body></html>`;
 
     var win = window.open('', '_blank');
+    if (win) win.opener = null;
     win.document.write(printContent);
     win.document.close();
     win.onload = function() { win.print(); };
@@ -1352,6 +1363,7 @@ function printHistoricoMovimentos() {
         </body></html>`;
 
     var win = window.open('', '_blank');
+    if (win) win.opener = null;
     win.document.write(printContent);
     win.document.close();
     win.onload = function() { win.print(); };
@@ -1725,6 +1737,7 @@ function printDoc(doc) {
         </body></html>`;
 
     var win = window.open('', '_blank');
+    if (win) win.opener = null;
     win.document.write(printContent);
     win.document.close();
     win.onload = function() { win.print(); };
@@ -2108,10 +2121,10 @@ function renderMesas() {
         }
 
         card.innerHTML = `
-            <h3 style="margin-bottom:10px;">Atendimento ${i}</h3>
-            <div class="mesa-badge" style="background:${client ? '#FCEBEB' : '#EAF3DE'}; color:${client ? '#A32D2D' : '#3B6D11'};">${client ? 'Ocupada' : 'Livre'}</div>
+            <h3 style="margin-bottom:10px;">🏥 Balcão ${i}</h3>
+            <div class="mesa-badge" style="background:${client ? '#FFEBEE' : '#E8F5E9'}; color:${client ? '#C62828' : '#2E7D32'};">${client ? 'Em Atendimento' : 'Livre'}</div>
             ${client ? `<div style="font-size:12px; margin-top:10px; font-weight:bold;">${escapeHTML(client.nome_cliente)}</div>` : ''}
-            ${totalVal > 0 ? `<div style="font-size:14px; margin-top:5px; color:#185FA5;">Total: ${totalVal.toLocaleString()} MT</div>` : ''}
+            ${totalVal > 0 ? `<div style="font-size:14px; margin-top:5px; color:#1565C0;">Total: ${totalVal.toLocaleString()} MT</div>` : ''}
         `;
         grid.appendChild(card);
     }
@@ -2125,7 +2138,7 @@ function openMesa(n) {
     
     grid.style.display = 'none';
     panel.style.display = 'block';
-    title.textContent = 'Atendimento ' + n;
+    title.textContent = '💊 Balcão de Atendimento ' + n;
     
     renderMesaContent();
 }
@@ -2135,7 +2148,7 @@ function renderMesaContent() {
     const clients = mesaClientes.filter(c => c.mesa_numero === activeMesa && c.status === 'ativo');
     
     if (clients.length === 0) {
-        clientListEl.innerHTML = '<div class="empty">Nenhum utente activo neste atendimento.</div>';
+        clientListEl.innerHTML = '<div class="empty">Nenhum utente activo neste balcão.</div>';
         return;
     }
 
@@ -2178,7 +2191,7 @@ function renderMesaContent() {
 async function addClienteMesa() {
     const nome = document.getElementById('c-nome').value.trim();
     const nota = document.getElementById('c-nota').value.trim();
-    if (!nome) { showNotification('Dê um nome ou característica ao cliente'); return; }
+    if (!nome) { showNotification('Insira o nome do utente'); return; }
 
     const payload = { mesa_numero: activeMesa, nome_cliente: nome, nota_aparencia: nota };
     const { data: res, error } = await sb.from(PREFIX + 'mesas_clientes').insert([payload]).select();
@@ -2350,7 +2363,7 @@ async function confirmarMesaPagamento() {
     // 1. Gerar Factura Documento
     const payloadDoc = {
         tipo: 'factura',
-        cliente: currentPayClient.nome_cliente + ' (Atendimento ' + currentPayClient.mesa_numero + ')',
+        cliente: currentPayClient.nome_cliente + ' (Balcão ' + currentPayClient.mesa_numero + ')',
         total: currentPayTotal,
         metodo_pagamento: payments.map(p => p.metodo).join(' / '),
         detalhes: { 
@@ -2382,7 +2395,7 @@ async function confirmarMesaPagamento() {
                 tipo: 'investimento', // Venda conta como entrada de capital operacional
                 metodo: p.metodo,
                 valor: p.valor,
-                descricao: 'Venda Atendimento ' + currentPayClient.mesa_numero + ' (' + currentPayClient.nome_cliente + ')'
+                descricao: 'Venda Balcão ' + currentPayClient.mesa_numero + ' (' + currentPayClient.nome_cliente + ')'
             }]);
         }
     }
@@ -2511,6 +2524,7 @@ function printPlanoCompras() {
         </body></html>`;
 
     var win = window.open('', '_blank');
+    if (win) win.opener = null;
     win.document.write(printContent);
     win.document.close();
     win.onload = function() { win.print(); };

@@ -49,37 +49,34 @@
 
     <!-- STOCK -->
     <div class="section" id="sec-stock">
-    <div class="card" id="stock-add-card">
-        <div class="card-title">Adicionar produto</div>
+      <div class="card" id="stock-add-card">
+        <div class="card-title">Adicionar Medicamento</div>
         <div class="form-row">
-          <div class="form-group"><label>Nome do produto</label><input id="p-nome"
-              placeholder="Ex: Paracetamol 500mg"></div>
-          <div class="form-group"><label>Categoria</label>
+          <div class="form-group"><label>Nome Comercial</label><input id="p-nome" placeholder="Ex: Paracetamol 500mg"></div>
+          <div class="form-group"><label>Categoria Terapêutica</label>
             <select id="p-cat" onchange="toggleCustomProdCat()">
-              <option>Medicamentos</option>
-              <option>Perfumaria</option>
-              <option>Higiene Pessoal</option>
-              <option>Suplementos</option>
+              <option>Analgésicos</option>
+              <option>Antibióticos</option>
+              <option>Vitaminas e Suplementos</option>
+              <option>Higiene e Cuidados</option>
+              <option>Primeiros Socorros</option>
               <option>Material Médico</option>
+              <option>Pediatria</option>
+              <option>Dermocosméticos</option>
+              <option>Saúde Oral</option>
               <option>Outros</option>
               <option value="Outra...">Outra... (Especificar nova)</option>
             </select>
             <input id="p-cat-custom" style="display:none; margin-top:4px;" placeholder="Nome da nova categoria">
           </div>
-          <div class="form-group"><label>Qtd. actual</label><input id="p-qtd" type="number" min="0" placeholder="0">
-          </div>
-          <div class="form-group"><label>Stock mínimo</label><input id="p-min" type="number" min="0" placeholder="10">
-          </div>
+          <div class="form-group"><label>Qtd. em Stock</label><input id="p-qtd" type="number" min="0" placeholder="0"></div>
+          <div class="form-group"><label>Stock Mínimo</label><input id="p-min" type="number" min="0" placeholder="10"></div>
         </div>
         <div class="form-row">
-          <div class="form-group"><label>Preço custo (MZN)</label><input id="p-custo" type="number" min="0"
-              placeholder="0"></div>
-          <div class="form-group"><label>Preço venda (MZN)</label><input id="p-venda" type="number" min="0"
-              placeholder="0"></div>
-          <div class="form-group"><label>Fornecedor</label><input id="p-fornecedor" placeholder="Nome do fornecedor">
-          </div>
-          <div class="form-group" style="justify-content:flex-end;"><button class="btn btn-primary"
-              onclick="addProduto()" style="margin-top:20px;width:100%;">+ Adicionar produto</button></div>
+          <div class="form-group"><label>Preço de Compra (MZN)</label><input id="p-custo" type="number" min="0" placeholder="0"></div>
+          <div class="form-group"><label>Preço de Venda (MZN)</label><input id="p-venda" type="number" min="0" placeholder="0"></div>
+          <div class="form-group"><label>Fornecedor / Fabricante</label><input id="p-fornecedor" placeholder="Ex: MedPharma Lda"></div>
+          <div class="form-group" style="justify-content:flex-end;"><button class="btn btn-primary" onclick="addProduto()" style="margin-top:20px;width:100%;">+ Adicionar Medicamento</button></div>
         </div>
       </div>
       <div class="card">
@@ -265,9 +262,9 @@
               <option value="Água">Água</option>
               <option value="Manutenção">Manutenção</option>
               <option value="Pagamento de Dívidas">Pagamento de Dívidas</option>
-              <option value="Necessidades de Casa">Necessidades de Casa</option>
-              <option value="Pão">Pão</option>
-              <option value="Taxas (M-Pesa/Bancárias)">Taxas</option>
+              <option value="Material de Escritório">Material de Escritório</option>
+              <option value="Taxas (M-Pesa/Bancárias)">Taxas (M-Pesa/Bancárias)</option>
+              <option value="Licenças e Alvarás">Licenças e Alvarás</option>
               <option value="Outra...">Outra... (Especificar nova)</option>
             </select>
             <input id="d-categoria-custom" style="display:none; margin-top:4px;" placeholder="Qual?">
@@ -477,8 +474,8 @@
       <!-- Painel de Mesa -->
       <div id="mesa-panel" class="card" style="display:none;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-              <h2 id="atendimento-title">Atendimento Farmacêutico</h2>
-              <button class="btn" onclick="voltarAtendimento()">Limpar Atendimento</button>
+              <h2 id="atendimento-title">💊 Balcão de Atendimento</h2>
+              <button class="btn" onclick="voltarAtendimento()">⬅ Voltar</button>
           </div>
           
           <div class="form-row" style="background:var(--color-background-secondary); padding:1rem; border-radius:8px; margin-bottom:1.5rem;">
