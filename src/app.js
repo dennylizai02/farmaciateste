@@ -52,6 +52,13 @@ if (dateEl) dateEl.textContent = new Date().toLocaleDateString('pt-MZ', { weekda
 
 // ====================== NAVIGATION ======================
 function showSection(id) {
+    // Fechar sidebar em mobile
+    var sidebar = document.getElementById('sidebar');
+    var overlay = document.getElementById('sidebarOverlay');
+    if (sidebar && sidebar.classList.contains('open')) {
+        sidebar.classList.remove('open');
+        if (overlay) overlay.classList.remove('show');
+    }
     queryAll('.section').forEach(function (s) { s.classList.remove('active'); });
     queryAll('.nav-btn').forEach(function (b) { b.classList.remove('active'); });
 
@@ -128,6 +135,15 @@ function printDailyMovements() {
     win.document.write(html);
     win.document.close();
     win.print();
+}
+
+function toggleSidebar() {
+    var sidebar = document.getElementById('sidebar');
+    var overlay = document.getElementById('sidebarOverlay');
+    if (sidebar) {
+        sidebar.classList.toggle('open');
+        if (overlay) overlay.classList.toggle('show');
+    }
 }
 
 function setPeriodo(p, btn) {
@@ -2014,16 +2030,16 @@ async function vRemovePedido(event, pedidoId, clientId) {
 
 async function applyRoleRestrictions() {
     const isGestor = userRole === 'gestor';
-    const nav = document.querySelector('.nav');
+    const sidebar = document.querySelector('.sidebar');
     
     if (!isGestor) {
         document.querySelectorAll('.section').forEach(function (s) { s.classList.remove('active'); });
         var sec = document.getElementById('sec-vendedor');
         if (sec) sec.classList.add('active');
-        if (nav) nav.style.display = 'none';
+        if (sidebar) sidebar.style.display = 'none';
         renderVendedor();
     } else {
-        if (nav) nav.style.display = 'flex';
+        if (sidebar) sidebar.style.display = 'flex';
         showSection('relatorios');
     }
 
@@ -2118,6 +2134,7 @@ Object.assign(window, {
     setSaldoInicial,
     setTipo,
     showSection,
+    toggleSidebar,
     toggleCustomCat,
     toggleCustomProdCat,
     toggleSelectAllMovs,

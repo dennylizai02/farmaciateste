@@ -23,27 +23,51 @@
   </div>
 
   <div class="app" style="display:none;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-      <div>
-        <div style="font-size:18px; font-weight:500; color:var(--color-text-primary);">💊 Farmácia Central</div>
-        <div style="font-size:12px; color:var(--color-text-tertiary); margin-top:2px;" id="current-date"></div>
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">☰</button>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">💊 Farmácia Central</div>
+        <div class="sidebar-date" id="current-date"></div>
       </div>
-      <div id="user-info" style="text-align:right;">
-        <span id="user-label" style="font-size:12px; color:var(--color-text-secondary);">—</span>
-        <button class="btn" style="padding:4px 8px; font-size:11px; margin-left:10px;" onclick="logoutUser()">Sair</button>
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" onclick="showSection('relatorios')">
+          <span class="nav-icon">🏥</span>
+          <span class="nav-label">Dashboard</span>
+        </button>
+        <button class="nav-btn" onclick="showSection('stock')">
+          <span class="nav-icon">💊</span>
+          <span class="nav-label">Produtos</span>
+        </button>
+        <button class="nav-btn" onclick="showSection('despesas')">
+          <span class="nav-icon">🚚</span>
+          <span class="nav-label">Fornecedores</span>
+        </button>
+        <button class="nav-btn" onclick="showSection('planocompras')">
+          <span class="nav-icon">📦</span>
+          <span class="nav-label">Compras</span>
+        </button>
+        <button class="nav-btn" id="nav-relmensal" onclick="showSection('relmensal')">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label">Relatórios</span>
+        </button>
+        <button class="nav-btn" onclick="showSection('necessidades')">
+          <span class="nav-icon">⚠</span>
+          <span class="nav-label">Alertas</span>
+        </button>
+        <button class="nav-btn" id="nav-saldo" onclick="showSection('saldo')">
+          <span class="nav-icon">⚙</span>
+          <span class="nav-label">Configurações</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <div id="user-info">
+          <span id="user-label" class="sidebar-user-label">—</span>
+          <button class="sidebar-logout" onclick="logoutUser()">Sair</button>
+        </div>
       </div>
-    </div>
-
-    <nav class="nav">
-      <button class="nav-btn active" onclick="showSection('relatorios')">🏥 Dashboard</button>
-      <button class="nav-btn" onclick="showSection('stock')">💊 Produtos</button>
-
-      <button class="nav-btn" onclick="showSection('despesas')">🚚 Fornecedores</button>
-      <button class="nav-btn" onclick="showSection('planocompras')">📦 Compras</button>
-      <button class="nav-btn" id="nav-relmensal" onclick="showSection('relmensal')">📊 Relatórios</button>
-      <button class="nav-btn" onclick="showSection('necessidades')">⚠ Alertas</button>
-      <button class="nav-btn" id="nav-saldo" onclick="showSection('saldo')">⚙ Configurações</button>
-    </nav>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <main class="main-content">
 
     <!-- STOCK -->
     <div class="section" id="sec-stock">
@@ -539,6 +563,7 @@
     </div>
 
     <div id="print-area"></div>
+  </main>
   </div>
   <div id="toast-container"></div>
 
