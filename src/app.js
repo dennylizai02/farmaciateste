@@ -1838,7 +1838,7 @@ async function checkSession() {
     if (role && user) {
         userRole = role;
         document.getElementById('login-screen').style.display = 'none';
-        document.querySelector('.app').style.display = 'block';
+        document.querySelector('.app').style.display = 'flex';
         document.getElementById('user-label').textContent = userRole === 'gestor' ? 'Administrador' : 'Vendas';
         
         applyRoleRestrictions();
@@ -2031,15 +2031,18 @@ async function vRemovePedido(event, pedidoId, clientId) {
 async function applyRoleRestrictions() {
     const isGestor = userRole === 'gestor';
     const sidebar = document.querySelector('.sidebar');
+    const app = document.querySelector('.app');
     
     if (!isGestor) {
         document.querySelectorAll('.section').forEach(function (s) { s.classList.remove('active'); });
         var sec = document.getElementById('sec-vendedor');
         if (sec) sec.classList.add('active');
         if (sidebar) sidebar.style.display = 'none';
+        if (app) app.classList.add('seller-mode');
         renderVendedor();
     } else {
         if (sidebar) sidebar.style.display = 'flex';
+        if (app) app.classList.remove('seller-mode');
         showSection('relatorios');
     }
 
