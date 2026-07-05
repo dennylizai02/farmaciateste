@@ -1833,17 +1833,26 @@ function setDefaultDates() {
 
 // ====================== AUTH & ROLES ======================
 async function checkSession() {
+    console.log('[checkSession] INICIO');
     const role = localStorage.getItem('local_session_role');
     const user = localStorage.getItem('local_session_user');
+    console.log('[checkSession] role=' + role + ' user=' + user);
     if (role && user) {
         userRole = role;
+        console.log('[checkSession] userRole=' + userRole);
         document.getElementById('login-screen').style.display = 'none';
+        console.log('[checkSession] login-screen oculto');
         document.querySelector('.app').style.display = 'flex';
+        console.log('[checkSession] app visivel');
         document.getElementById('user-label').textContent = userRole === 'gestor' ? 'Administrador' : 'Vendas';
+        console.log('[checkSession] user-label definido');
         
         applyRoleRestrictions();
+        console.log('[checkSession] applyRoleRestrictions chamado');
         initApp();
+        console.log('[checkSession] initApp chamado');
     }
+    console.log('[checkSession] FIM');
 }
 
 async function loginUser() {
@@ -1885,9 +1894,13 @@ async function logoutUser() {
 }
 
 function renderVendedor() {
+    console.log('[renderVendedor] INICIO');
     document.getElementById('v-user-label').textContent = localStorage.getItem('local_session_user') || 'Vendedor';
+    console.log('[renderVendedor] label OK');
     renderVendedorStock();
+    console.log('[renderVendedor] stock OK');
     renderVendedorAtendimento();
+    console.log('[renderVendedor] atendimento OK');
 }
 
 function renderVendedorStock(query) {
@@ -2029,18 +2042,25 @@ async function vRemovePedido(event, pedidoId, clientId) {
 }
 
 async function applyRoleRestrictions() {
+    console.log('[applyRoleRestrictions] INICIO role=' + userRole);
     const isGestor = userRole === 'gestor';
     const sidebar = document.querySelector('.sidebar');
     const app = document.querySelector('.app');
+    console.log('[applyRoleRestrictions] sidebar=' + (!!sidebar) + ' app=' + (!!app));
     
     if (!isGestor) {
+        console.log('[applyRoleRestrictions] modo VENDEDOR');
         document.querySelectorAll('.section').forEach(function (s) { s.classList.remove('active'); });
         var sec = document.getElementById('sec-vendedor');
+        console.log('[applyRoleRestrictions] sec-vendedor=' + (!!sec));
         if (sec) sec.classList.add('active');
         if (sidebar) sidebar.style.display = 'none';
         if (app) app.classList.add('seller-mode');
+        console.log('[applyRoleRestrictions] chamando renderVendedor...');
         renderVendedor();
+        console.log('[applyRoleRestrictions] renderVendedor OK');
     } else {
+        console.log('[applyRoleRestrictions] modo GESTOR');
         if (sidebar) sidebar.style.display = 'flex';
         if (app) app.classList.remove('seller-mode');
         showSection('relatorios');
@@ -2072,9 +2092,12 @@ async function applyRoleRestrictions() {
 }
 
 async function initApp() {
+    console.log('[initApp] INICIO role=' + userRole);
     try {
         setDefaultDates();
+        console.log('[initApp] setDefaultDates OK');
         await fetchData();
+        console.log('[initApp] fetchData OK');
         if (userRole === 'vendedor') {
             renderVendedor();
         } else {
