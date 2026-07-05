@@ -520,6 +520,69 @@ body {
   margin-bottom: 1rem;
 }
 
+.v-vendas-card {
+  margin-bottom: 1.5rem;
+}
+
+.v-vendas-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.v-print-btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  background: var(--color-background-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.v-print-btn:hover {
+  background: #e0e0e0;
+}
+
+.v-vendas-table {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.v-vendas-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.v-vendas-table th {
+  text-align: left;
+  padding: 8px 6px;
+  border-bottom: 2px solid var(--color-border);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--color-text-secondary);
+}
+
+.v-vendas-table td {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.v-recibo-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.v-recibo-btn:hover {
+  background: var(--color-background-secondary);
+}
+
 .v-stock-card input {
   width: 100%;
   margin-bottom: 10px;

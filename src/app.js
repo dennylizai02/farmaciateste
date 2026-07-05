@@ -1899,6 +1899,7 @@ function renderVendedor() {
     console.log('[renderVendedor] label OK');
     renderVendedorStock();
     populateVProdList();
+    renderVendasDoDia();
     console.log('[renderVendedor] stock OK');
     console.log('[renderVendedor] FIM, sec-vendedor=' + (document.getElementById('sec-vendedor') ? 'EXISTE' : 'AUSENTE'));
 }
@@ -1972,6 +1973,89 @@ function vSelectMetodo(el) {
     el.querySelector('input[type="radio"]').checked = true;
 }
 
+function renderVendasDoDia() {
+    var hoje = new Date();
+    var hojeStr = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0') + '-' + String(hoje.getDate()).padStart(2, '0');
+    var vendas = movimentos.filter(function (m) { return m.tipo === 'saida' && m.data === hojeStr; });
+    var el = document.getElementById('v-vendas-table');
+    if (!el) return;
+    if (vendas.length === 0) {
+        el.innerHTML = '<div class="empty">Nenhuma venda hoje.</div>';
+        return;
+    }
+    var totalDia = vendas.reduce(function (a, m) { return a + m.total; }, 0);
+    el.innerHTML = '<table><thead><tr><th>Hora</th><th>Produto</th><th>Qtd</th><th>Total</th><th>Pagamento</th><th></th></tr></thead><tbody>' +
+        vendas.map(function (m) {
+            return '<tr><td style="font-size:11px;color:var(--color-text-secondary);">' + escapeHTML(m.dataHora || m.data || '') + '</td>' +
+                '<td>' + escapeHTML(m.nome_v || '—') + '</td>' +
+                '<td>' + m.qtd + '</td>' +
+                '<td style="font-weight:500;">' + m.total.toLocaleString() + ' MT</td>' +
+                '<td><span class="badge">' + escapeHTML(m.metodo || '—') + '</span></td>' +
+                '<td><button class="v-recibo-btn" onclick="vGerarRecibo(' + m.id + ')" title="Reimprimir recibo">🖨️</button></td></tr>';
+        }).join('') +
+        '<tr style="font-weight:bold;background:var(--color-background-secondary);"><td colspan="3">Total do Dia</td><td>' + totalDia.toLocaleString() + ' MT</td><td colspan="2"></td></tr>' +
+        '</tbody></table>';
+}
+
+function vPrintVendasDoDia() {
+    var hoje = new Date();
+    var hojeStr = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0') + '-' + String(hoje.getDate()).padStart(2, '0');
+    var vendas = movimentos.filter(function (m) { return m.tipo === 'saida' && m.data === hojeStr; });
+    if (vendas.length === 0) { showNotification('Nenhuma venda hoje para imprimir.'); return; }
+    var totalDia = vendas.reduce(function (a, m) { return a + m.total; }, 0);
+    var win = window.open('', '_blank');
+    if (win) win.opener = null;
+    var html = '<html><head><title>Vendas do Dia</title><style>' +
+        'body { font-family: sans-serif; padding: 20px; font-size: 14px; }' +
+        'table { width: 100%; border-collapse: collapse; margin-top: 15px; }' +
+        'th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }' +
+        'th { background: #f8f9fa; }' +
+        'h1 { font-size: 20px; text-align: center; margin-bottom: 5px; }' +
+        'p { text-align: center; color: #666; font-size: 13px; }' +
+        '</style></head><body>' +
+        '<h1>Sistema Farmacêutico</h1>' +
+        '<p>Relatório de Vendas - ' + hojeStr.split('-').reverse().join('/') + '</p>' +
+        '<table><thead><tr><th>Hora</th><th>Produto</th><th>Qtd</th><th>Total (MZN)</th><th>Pagamento</th></tr></thead><tbody>';
+    vendas.forEach(function (m) {
+        html += '<tr><td>' + escapeHTML(m.dataHora || m.data || '') + '</td>' +
+            '<td>' + escapeHTML(m.nome_v || '—') + '</td>' +
+            '<td>' + m.qtd + '</td>' +
+            '<td>' + m.total.toLocaleString() + '</td>' +
+            '<td>' + escapeHTML(m.metodo || '—') + '</td></tr>';
+    });
+    html += '</tbody></table>' +
+        '<div style="margin-top:20px; text-align:right; border-top: 2px solid #333; padding-top: 10px;">' +
+        '<strong>Total de Vendas: ' + totalDia.toLocaleString() + ' MZN</strong></div>' +
+        '<div style="margin-top:40px; font-size:10px; text-align:center;">Processado por Sistema Farmacêutico</div>' +
+        '</body></html>';
+    win.document.write(html);
+    win.document.close();
+    win.print();
+}
+
+function vGerarRecibo(movId) {
+    var m = movimentos.find(function (x) { return x.id === movId; });
+    if (!m) { showNotification('Movimento não encontrado.'); return; }
+    var printArea = document.getElementById('print-area');
+    var hoje = new Date().toLocaleDateString('pt-MZ');
+    var hora = m.dataHora || '';
+    var metodoLabel = m.metodo || '—';
+    printArea.innerHTML =
+        '<div style="font-family:sans-serif; color:#000; padding:20px; max-width:400px; margin:0 auto; background:#fff;">' +
+        '<div style="text-align:center; margin-bottom:20px; border-bottom:2px dashed #333; padding-bottom:15px;">' +
+        '<h2 style="margin:0; font-size:20px;">Farmácia Central</h2>' +
+        '<div style="font-size:13px; color:#555; margin-top:5px;">Recibo de Venda</div>' +
+        '<div style="font-size:12px; color:#777; margin-top:3px;">' + hoje + ' ' + hora + '</div></div>' +
+        '<table style="width:100%; border-collapse:collapse; font-size:13px; margin-bottom:15px;">' +
+        '<tr><td style="padding:4px 0;"><b>Produto:</b></td><td style="padding:4px 0; text-align:right;">' + escapeHTML(m.nome_v || '—') + '</td></tr>' +
+        '<tr><td style="padding:4px 0;"><b>Quantidade:</b></td><td style="padding:4px 0; text-align:right;">' + m.qtd + '</td></tr>' +
+        '<tr><td style="padding:4px 0;"><b>Preço Unit.:</b></td><td style="padding:4px 0; text-align:right;">' + (m.preco || 0).toLocaleString() + ' MT</td></tr>' +
+        '<tr style="border-top:2px solid #333;"><td style="padding:6px 0; font-size:16px;"><b>TOTAL:</b></td><td style="padding:6px 0; text-align:right; font-size:16px; font-weight:bold;">' + m.total.toLocaleString() + ' MT</td></tr>' +
+        '<tr><td style="padding:4px 0;"><b>Pagamento:</b></td><td style="padding:4px 0; text-align:right;">' + metodoLabel + '</td></tr></table>' +
+        '<div style="text-align:center; font-size:11px; color:#999; border-top:1px dashed #ccc; padding-top:15px; margin-top:10px;">Obrigado pela preferência!<br>Processado por Sistema Farmacêutico</div></div>';
+    generatePDF(printArea, 'Recibo_' + movId + '.pdf');
+}
+
 async function venderProduto() {
     var searchEl = document.getElementById('v-prod-search');
     var idEl = document.getElementById('v-prod-id');
@@ -2042,6 +2126,8 @@ async function venderProduto() {
             infoEl.style.display = 'none';
             rebuildFifo();
             renderVendedorStock(document.getElementById('v-stock-search').value);
+            renderVendasDoDia();
+            setTimeout(function () { vGerarRecibo(mm.id); }, 500);
         } else {
             p.qtd += qtd;
             showNotification('Erro ao registar venda: ' + (mRes.error ? mRes.error.message : 'resposta vazia'));
@@ -2190,6 +2276,8 @@ Object.assign(window, {
     vUpdateTotal,
     vSelectMetodo,
     venderProduto,
+    vGerarRecibo,
+    vPrintVendasDoDia,
     voltarAtendimento,
     removeDocItem,
     removePedidoMesa,

@@ -597,6 +597,14 @@
         </div>
       </div>
 
+      <div class="card v-vendas-card">
+        <div class="card-title v-vendas-title">
+          <span>Vendas do Dia</span>
+          <button class="btn v-print-btn" onclick="vPrintVendasDoDia()">🖨️ Imprimir</button>
+        </div>
+        <div id="v-vendas-table" class="v-vendas-table"></div>
+      </div>
+
       <div class="card v-stock-card">
         <div class="card-title">Consultar Stock</div>
         <input type="text" id="v-stock-search" placeholder="Pesquisar medicamento..." oninput="filterVendedorStock()">
