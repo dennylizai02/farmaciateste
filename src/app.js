@@ -752,7 +752,7 @@ function renderDespesas() {
                 '<td>' + escapeHTML(d.descricao) + '</td>' +
                 '<td style="font-weight:500;color:#A32D2D;">' + d.valor.toLocaleString() + ' MZN</td>' +
                 '<td><span class="badge">' + escapeHTML(d.metodo) + '</span></td>' +
-                '<td><div style="display:flex;gap:4px;"><button class="btn" style="font-size:11px;padding:3px 8px;" onclick="editDespesa(' + d.id + ')">Editar</button>' +
+                '<td><div style="display:flex;gap:4px;flex-wrap:wrap;"><button class="btn" style="font-size:11px;padding:3px 8px;" onclick="editDespesa(' + d.id + ')">Editar</button>' +
                 '<button class="btn btn-danger" onclick="deleteDespesa(' + d.id + ')">Apagar</button></div></td></tr>';
         }).join('') + '</tbody></table></div>' : '<div class="empty">Nenhuma despesa registada</div>';
 }
@@ -1448,7 +1448,7 @@ function prepareMensalPrintArea() {
                 <div style="font-size:13px; color:#555; margin-top:3px;">Mês: ${mesSel.split('-').reverse().join('/')}</div>
             </div>
             
-            <div style="display:flex; justify-content:space-between; margin-bottom:20px; border-bottom:2px solid #000; padding-bottom:10px; font-size:14px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px; border-bottom:2px solid #000; padding-bottom:10px; font-size:14px; flex-wrap:wrap; gap:10px;">
                 <div><b>Receita Total:</b> ${receita.toLocaleString()} MZN</div>
                 <div><b>Despesas Totais:</b> ${totalDespesas.toLocaleString()} MZN</div>
                 <div><b>Lucro Líquido:</b> <span style="color:${lucroLiquido >= 0 ? '#3B6D11' : '#A32D2D'}">${lucroLiquido.toLocaleString()} MZN</span></div>
@@ -1497,7 +1497,7 @@ function prepareMensalPrintArea() {
                 </table>
             </div>
 
-            <div style="margin-top:40px; font-size:12px; color:#777; display:flex; justify-content:space-between;">
+            <div style="margin-top:40px; font-size:12px; color:#777; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
                 <div>_________________________<br>Assinatura do Gestor</div>
                 <div>_________________________<br>Assinatura do Proprietário</div>
             </div>
@@ -1675,7 +1675,7 @@ function prepareDocPrintArea(doc) {
         '<div>Subtotal: ' + (doc.total + (details.desconto || 0)).toLocaleString() + ' MZN</div>' +
         (details.desconto > 0 ? '<div>Desconto: -' + details.desconto.toLocaleString() + ' MZN</div>' : '') +
         '<div style="font-size:18px; font-weight:bold; margin-top:10px; border-top:2px solid #000; padding-top:10px;">TOTAL: ' + doc.total.toLocaleString() + ' MZN</div></div>' +
-        '<div style="margin-top:40px; font-size:12px; color:#777; display:flex; justify-content:space-between;">' +
+        '<div style="margin-top:40px; font-size:12px; color:#777; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">' +
         '<div>_________________________<br>Entregue por</div>' +
         '<div>_________________________<br>Recebido por</div></div>' +
         '<div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador (Sistema Farmacêutico)</div></div>';
@@ -1772,7 +1772,7 @@ function renderDocsHistory() {
                 '<td>' + escapeHTML(d.cliente) + '</td>' +
                 '<td style="font-weight:bold;">' + d.total.toLocaleString() + ' MZN</td>' +
                 '<td>' + (isEliminado ? '<span class="cancelled-label">Eliminado</span>' : 'Ativo') + '</td>' +
-                '<td><div style="display:flex;gap:5px;">' +
+                '<td><div style="display:flex;gap:5px;flex-wrap:wrap;">' +
                 '<button class="btn" style="font-size:11px;padding:3px 8px;background:#378ADD;color:#fff;border:none;" onclick="downloadPDFFromHistory(' + d.id + ')">PDF</button>' +
                 (!isEliminado ? '<button class="btn btn-danger" style="font-size:11px;padding:3px 8px;" onclick="deleteDocumento(' + d.id + ')">Eliminar</button>' : '') +
                 '</div></td></tr>';
@@ -1964,16 +1964,16 @@ function renderVendedorAtendimento() {
     }
     el.innerHTML = clients.map(function (c) {
         return '<div class="card" style="border:1px solid #ddd; margin-bottom:10px;">'
-            + '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">'
+            + '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; flex-wrap:wrap;">'
             + '<div><strong style="font-size:16px;">' + escapeHTML(c.nome_cliente) + '</strong>'
             + (c.nota_aparencia ? '<div style="font-size:12px; color:#666;">Obs: ' + escapeHTML(c.nota_aparencia) + '</div>' : '')
             + '</div>'
             + '<button class="btn btn-primary" onclick="openPayment(' + c.id + ')">Finalizar e Pagar</button>'
             + '</div>'
             + '<div style="background:#f9f9f9; padding:10px; border-radius:5px;">'
-            + '<div style="display:flex; gap:10px; margin-bottom:10px;">'
+            + '<div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">'
             + '<select id="vp-prod-' + c.id + '" style="flex:1;">' + produtos.map(function (p) { return '<option value="' + p.id + '">' + escapeHTML(p.nome) + ' (' + (p.venda || 0).toFixed(2) + ' MT)</option>'; }).join('') + '</select>'
-            + '<input id="vp-qtd-' + c.id + '" type="number" value="1" style="width:60px;">'
+            + '<input id="vp-qtd-' + c.id + '" type="number" value="1" style="width:60px;max-width:100%;flex:1 0 50px;">'
             + '<button class="btn" onclick="vAddPedido(' + c.id + ')">+ Pedido</button>'
             + '</div>'
             + '<table style="width:100%; font-size:12px;"><thead><tr style="text-align:left;"><th>Item</th><th>Qtd</th><th>Preço</th><th>Total</th><th></th></tr></thead><tbody>'
@@ -2324,7 +2324,7 @@ function renderMesaContent() {
 
     clientListEl.innerHTML = clients.map(c => `
         <div class="card" style="border:1px solid #ddd; margin-bottom:10px;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; flex-wrap:wrap;">
                 <div>
                     <strong style="font-size:16px;">${escapeHTML(c.nome_cliente)}</strong>
                     ${c.nota_aparencia ? `<div style="font-size:12px; color:#666;">Obs: ${escapeHTML(c.nota_aparencia)}</div>` : ''}
@@ -2333,9 +2333,9 @@ function renderMesaContent() {
             </div>
             
             <div style="background:#f9f9f9; padding:10px; border-radius:5px;">
-                <div style="display:flex; gap:10px; margin-bottom:10px;">
+                <div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
                     <select id="p-prod-${c.id}" style="flex:1;">${produtos.map(p => `<option value="${p.id}">${escapeHTML(p.nome)} (${p.venda} MT)</option>`).join('')}</select>
-                    <input id="p-qtd-${c.id}" type="number" value="1" style="width:60px;">
+                    <input id="p-qtd-${c.id}" type="number" value="1" style="width:60px;max-width:100%;flex:1 0 50px;">
                     <button class="btn" onclick="addPedidoMesa(${c.id})">+ Pedido</button>
                 </div>
                 <table style="width:100%; font-size:12px;">
@@ -2470,6 +2470,7 @@ function addPaymentRow(method = 'CASH', value = 0) {
     div.style.display = 'flex';
     div.style.gap = '10px';
     div.style.marginBottom = '10px';
+    div.style.flexWrap = 'wrap';
     
     div.innerHTML = `
         <select class="pay-method" style="flex:2;" onchange="updatePaymentSummary()">
@@ -2602,7 +2603,7 @@ function renderPlanoCompras() {
     if (!tbody) return;
     tbody.innerHTML = planoItems.map(function (item, i) {
         return '<tr><td>' + escapeHTML(item.nome) + '</td>' +
-            '<td><input type="number" value="' + item.qtd + '" min="1" style="width:60px;padding:3px 6px;" onchange="updatePlanoQtd(' + i + ',this.value)"></td>' +
+            '<td><input type="number" value="' + item.qtd + '" min="1" style="width:60px;max-width:80px;padding:3px 6px;" onchange="updatePlanoQtd(' + i + ',this.value)"></td>' +
             '<td>' + item.custo.toLocaleString() + '</td>' +
             '<td style="font-weight:500;">' + (item.qtd * item.custo).toLocaleString() + '</td>' +
             '<td>' + escapeHTML(item.forn || '-') + '</td>' +
