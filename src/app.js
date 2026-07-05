@@ -1931,19 +1931,48 @@ function populateVProdList() {
 function onVProdSearch() {
     var val = document.getElementById('v-prod-search').value;
     var p = produtos.find(function (x) { return x.nome === val; });
+    var infoEl = document.getElementById('v-prod-info');
     if (p) {
         document.getElementById('v-prod-id').value = p.id;
         document.getElementById('v-preco').value = p.venda || 0;
+        vUpdateTotal();
+        infoEl.innerHTML = '<span class="v-info-stock ' + (p.qtd <= p.min ? 'v-info-low' : '') + '">Stock: ' + p.qtd + '</span>' +
+            '<span class="v-info-price">Preço venda: ' + (p.venda || 0).toFixed(2) + ' MT</span>';
+        infoEl.style.display = 'flex';
     } else {
         document.getElementById('v-prod-id').value = '';
         document.getElementById('v-preco').value = '';
+        document.getElementById('v-total').textContent = '0,00 MT';
+        infoEl.innerHTML = '';
+        infoEl.style.display = 'none';
     }
+}
+
+function vQtdChange(delta) {
+    var el = document.getElementById('v-qtd');
+    var val = parseInt(el.value) || 1;
+    val = Math.max(1, val + delta);
+    el.value = val;
+    vUpdateTotal();
+}
+
+function vUpdateTotal() {
+    var qtd = parseInt(document.getElementById('v-qtd').value) || 0;
+    var preco = parseFloat(document.getElementById('v-preco').value) || 0;
+    document.getElementById('v-total').textContent = (qtd * preco).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' MT';
+}
+
+function vSelectMetodo(el) {
+    document.querySelectorAll('.v-metodo-btn').forEach(function (b) { b.classList.remove('active'); });
+    el.classList.add('active');
+    el.querySelector('input[type="radio"]').checked = true;
 }
 
 async function venderProduto() {
     var prodId = parseInt(document.getElementById('v-prod-id').value);
     var qtd = parseInt(document.getElementById('v-qtd').value) || 0;
-    var metodo = document.getElementById('v-metodo').value;
+    var metodoEl = document.querySelector('input[name="v-metodo"]:checked');
+    var metodo = metodoEl ? metodoEl.value : 'CASH';
 
     if (!prodId) { showNotification('Selecione um medicamento'); return; }
     if (!qtd) { showNotification('Insira a quantidade'); return; }
@@ -1976,7 +2005,10 @@ async function venderProduto() {
         document.getElementById('v-prod-search').value = '';
         document.getElementById('v-prod-id').value = '';
         document.getElementById('v-preco').value = '';
+        document.getElementById('v-total').textContent = '0,00 MT';
         document.getElementById('v-qtd').value = 1;
+        document.getElementById('v-prod-info').innerHTML = '';
+        document.getElementById('v-prod-info').style.display = 'none';
         rebuildFifo();
         renderVendedorStock(document.getElementById('v-stock-search').value);
     } else {
@@ -2117,6 +2149,9 @@ Object.assign(window, {
     updatePlanoQtd,
     filterVendedorStock,
     onVProdSearch,
+    vQtdChange,
+    vUpdateTotal,
+    vSelectMetodo,
     venderProduto,
     voltarAtendimento,
     removeDocItem,

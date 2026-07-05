@@ -544,42 +544,63 @@
         </div>
       </div>
 
+      <div class="card v-venda-card">
+        <div class="card-title v-venda-title">Nova Venda</div>
+        <div class="v-venda-body">
+          <div class="v-venda-produto">
+            <label class="v-label">Medicamento</label>
+            <input id="v-prod-search" list="v-prod-list" oninput="onVProdSearch()" placeholder="Digite o nome do medicamento..." class="v-prod-input" autocomplete="off">
+            <datalist id="v-prod-list"></datalist>
+            <input type="hidden" id="v-prod-id">
+            <div id="v-prod-info" class="v-prod-info"></div>
+          </div>
+          <div class="v-venda-detalhes">
+            <div class="v-venda-field">
+              <label class="v-label">Quantidade</label>
+              <div class="v-qtd-wrapper">
+                <button type="button" class="v-qtd-btn" onclick="vQtdChange(-1)">−</button>
+                <input id="v-qtd" type="number" min="1" value="1" oninput="vUpdateTotal()">
+                <button type="button" class="v-qtd-btn" onclick="vQtdChange(1)">+</button>
+              </div>
+            </div>
+            <div class="v-venda-field">
+              <label class="v-label">Preço Unit. (MT)</label>
+              <input id="v-preco" type="number" readonly class="v-preco-input" value="0">
+            </div>
+            <div class="v-venda-field v-total-field">
+              <label class="v-label">Total</label>
+              <div id="v-total" class="v-total-val">0,00 MT</div>
+            </div>
+            <div class="v-venda-field v-full-width">
+              <label class="v-label">Pagamento</label>
+              <div class="v-metodos">
+                <label class="v-metodo-btn active" data-metodo="CASH" onclick="vSelectMetodo(this)">
+                  <input type="radio" name="v-metodo" value="CASH" checked hidden>
+                  <span>💵 Dinheiro</span>
+                </label>
+                <label class="v-metodo-btn" data-metodo="MPESA" onclick="vSelectMetodo(this)">
+                  <input type="radio" name="v-metodo" value="MPESA" hidden>
+                  <span>📱 M-Pesa</span>
+                </label>
+                <label class="v-metodo-btn" data-metodo="EMOLA" onclick="vSelectMetodo(this)">
+                  <input type="radio" name="v-metodo" value="EMOLA" hidden>
+                  <span>📱 e-Mola</span>
+                </label>
+                <label class="v-metodo-btn" data-metodo="POS" onclick="vSelectMetodo(this)">
+                  <input type="radio" name="v-metodo" value="POS" hidden>
+                  <span>💳 Cartão</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <button class="btn v-vender-btn" onclick="venderProduto()">💊 Registar Venda</button>
+        </div>
+      </div>
+
       <div class="card v-stock-card">
         <div class="card-title">Consultar Stock</div>
         <input type="text" id="v-stock-search" placeholder="Pesquisar medicamento..." oninput="filterVendedorStock()">
         <div id="v-stock-table" class="v-stock-table"></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">Realizar Venda</div>
-        <div class="form-row v-venda-form">
-          <div class="form-group" style="flex:2;">
-            <label>Medicamento</label>
-            <input id="v-prod-search" list="v-prod-list" oninput="onVProdSearch()" placeholder="Pesquisar medicamento...">
-            <datalist id="v-prod-list"></datalist>
-            <input type="hidden" id="v-prod-id">
-          </div>
-          <div class="form-group">
-            <label>Quantidade</label>
-            <input id="v-qtd" type="number" min="1" value="1">
-          </div>
-          <div class="form-group">
-            <label>Preço (MT)</label>
-            <input id="v-preco" type="number" min="0" readonly style="background:#f5f5f5;">
-          </div>
-          <div class="form-group">
-            <label>Pagamento</label>
-            <select id="v-metodo">
-              <option value="CASH">Dinheiro (CASH)</option>
-              <option value="MPESA">M-Pesa</option>
-              <option value="EMOLA">e-Mola</option>
-              <option value="POS">Cartão (POS)</option>
-            </select>
-          </div>
-          <div class="form-group" style="justify-content:flex-end;">
-            <button class="btn btn-primary" onclick="venderProduto()" style="margin-top:20px;">💊 Vender</button>
-          </div>
-        </div>
       </div>
     </div>
 

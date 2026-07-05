@@ -530,15 +530,206 @@ body {
   overflow-y: auto;
 }
 
-.v-atendimento-form {
-  background: var(--color-background-secondary);
-  padding: 1rem;
-  border-radius: 8px;
+.v-venda-card {
   margin-bottom: 1.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-.v-add-btn-group {
-  justify-content: flex-end;
+.v-venda-title {
+  font-size: 1.2rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, var(--color-green) 0%, #2E7D32 100%);
+  color: #fff;
+  margin: 0;
+}
+
+.v-venda-body {
+  padding: 1.5rem;
+}
+
+.v-label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.4rem;
+}
+
+.v-prod-input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 1.1rem;
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.v-prod-input:focus {
+  border-color: var(--color-green);
+}
+
+.v-prod-info {
+  display: none;
+  gap: 16px;
+  margin-top: 10px;
+  padding: 10px 14px;
+  background: var(--color-background-secondary);
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.v-info-stock {
+  color: var(--color-green);
+  font-weight: 600;
+}
+
+.v-info-low {
+  color: #E24B4A;
+}
+
+.v-info-price {
+  color: var(--color-text-secondary);
+}
+
+.v-venda-detalhes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.v-venda-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.v-full-width {
+  grid-column: 1 / -1;
+}
+
+.v-qtd-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  overflow: hidden;
+  width: fit-content;
+}
+
+.v-qtd-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: var(--color-background-secondary);
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-primary);
+  transition: background 0.15s;
+}
+
+.v-qtd-btn:hover {
+  background: #e0e0e0;
+}
+
+.v-qtd-wrapper input {
+  width: 60px;
+  height: 44px;
+  text-align: center;
+  border: none;
+  border-left: 2px solid var(--color-border);
+  border-right: 2px solid var(--color-border);
+  font-size: 1.1rem;
+  font-weight: 600;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.v-qtd-wrapper input::-webkit-outer-spin-button,
+.v-qtd-wrapper input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.v-preco-input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 1.1rem;
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-background-secondary);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.v-total-field {
+  justify-content: center;
+}
+
+.v-total-val {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-green);
+  padding: 6px 0;
+}
+
+.v-metodos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.v-metodo-btn {
+  flex: 1;
+  min-width: 100px;
+  padding: 10px 12px;
+  text-align: center;
+  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  background: #fff;
+}
+
+.v-metodo-btn:hover {
+  border-color: var(--color-green);
+  background: #f0faf0;
+}
+
+.v-metodo-btn.active {
+  border-color: var(--color-green);
+  background: #e8f5e9;
+  color: var(--color-green);
+  font-weight: 600;
+}
+
+.v-vender-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 1.2rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--color-green) 0%, #2E7D32 100%);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.v-vender-btn:hover {
+  opacity: 0.9;
 }
 
 .mesa-panel-header {
