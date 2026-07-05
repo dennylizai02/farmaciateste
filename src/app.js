@@ -2056,9 +2056,7 @@ async function applyRoleRestrictions() {
         console.log('[applyRoleRestrictions] sec-vendedor=' + (!!sec));
         if (sec) {
             sec.classList.add('active');
-            sec.style.backgroundColor = 'red';
-            sec.style.border = '10px solid green';
-            console.log('[applyRoleRestrictions] sec-vendedor background vermelho');
+            console.log('[applyRoleRestrictions] sec-vendedor ativado');
         }
         if (sidebar) sidebar.style.display = 'none';
         if (app) app.classList.add('seller-mode');
