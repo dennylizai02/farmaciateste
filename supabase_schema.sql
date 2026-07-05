@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS movimentos (
   total NUMERIC(12,2) DEFAULT 0,
   nota TEXT DEFAULT '',
   metodo_pagamento TEXT DEFAULT 'CASH',
+  vendedor TEXT DEFAULT '',
   data TIMESTAMPTZ DEFAULT NOW(),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -91,6 +92,14 @@ CREATE INDEX IF NOT EXISTS idx_documentos_data ON documentos(data);
 CREATE INDEX IF NOT EXISTS idx_mesas_clientes_status ON mesas_clientes(status);
 CREATE INDEX IF NOT EXISTS idx_mesas_pedidos_cliente ON mesas_pedidos(cliente_id);
 
+-- 8. Perfis de utilizadores (vinculado ao auth.users do Supabase Auth)
+CREATE TABLE IF NOT EXISTS profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  role TEXT NOT NULL DEFAULT 'vendedor',
+  display_name TEXT DEFAULT '',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- Remover FK problemática (produtos podem estar apenas em memória)
 ALTER TABLE IF EXISTS mesas_pedidos DROP CONSTRAINT IF EXISTS mesas_pedidos_produto_id_fkey;
 
@@ -104,3 +113,4 @@ ALTER TABLE documentos DISABLE ROW LEVEL SECURITY;
 ALTER TABLE saldo_caixa DISABLE ROW LEVEL SECURITY;
 ALTER TABLE mesas_clientes DISABLE ROW LEVEL SECURITY;
 ALTER TABLE mesas_pedidos DISABLE ROW LEVEL SECURITY;
+ALTER TABLE profiles DISABLE ROW LEVEL SECURITY;

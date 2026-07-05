@@ -45,6 +45,7 @@ let currentSortField = 'nome';
 let currentSortOrder = 'asc';
 let chartVendas, chartLucro, chartRelVendas, chartRelLucro, chartTop5, chartDiario, chartROI;
 let userRole = 'gestor';
+let currentUserEmail = '';
 let activeMesa = null;
 
 // ---------- DATE ----------
@@ -112,14 +113,15 @@ function printDailyMovements() {
                '<h1>' + pharmacy.nome + '</h1>' +
                '<p>' + pharmacy.endereco + ' | NUIT: ' + pharmacy.nuit + '</p>' +
                '<p>Relatório de Movimentos Diários - ' + hoje.split('-').reverse().join('/') + '</p>' +
-               '<table><thead><tr><th>Hora</th><th>Produto</th><th>Tipo</th><th>Qtd</th><th>Total (MZN)</th></tr></thead><tbody>';
-               
+               '<table><thead><tr><th>Hora</th><th>Produto</th><th>Tipo</th><th>Vendedor</th><th>Qtd</th><th>Total (MZN)</th></tr></thead><tbody>';
+                
     movs.forEach(function (m) {
         var p = produtos.find(function (x) { return x.id === m.prodId; });
         html += '<tr>' +
                 '<td>' + escapeHTML(m.created_at ? new Date(m.created_at).toLocaleTimeString() : '-') + '</td>' +
                 '<td>' + escapeHTML(p ? p.nome : m.produto_nome || '-') + '</td>' +
                 '<td>' + escapeHTML(m.tipo === 'saida' ? 'Venda' : 'Quebra') + '</td>' +
+                '<td>' + escapeHTML(m.vendedor ? getVendedorDisplayName(m.vendedor) : '—') + '</td>' +
                 '<td>' + m.qtd + '</td>' +
                 '<td>' + m.total.toLocaleString() + '</td>' +
                 '</tr>';
@@ -270,6 +272,7 @@ async function fetchData() {
                 nota: m.nota,
                 metodo: m.metodo_pagamento,
                 nome_v: m.produtos ? m.produtos.nome : '—',
+                vendedor: m.vendedor || '',
                 custo_aplicado: cApp
             };
         });
@@ -608,12 +611,13 @@ function renderMovimentos() {
     }
 
     document.getElementById('mov-table').innerHTML = movsToShow.length ?
-        '<table><thead><tr><th><input type="checkbox" onclick="toggleSelectAllMovs(this)"></th><th>Data/Hora</th><th>Tipo</th><th>Produto</th><th>Qtd</th><th>Preço unit.</th><th>Total</th><th>Pagamento</th><th>Notas</th><th>Acções</th></tr></thead><tbody>' +
+        '<table><thead><tr><th><input type="checkbox" onclick="toggleSelectAllMovs(this)"></th><th>Data/Hora</th><th>Tipo</th><th>Produto</th><th>Qtd</th><th>Preço unit.</th><th>Total</th><th>Pagamento</th><th>Vendedor</th><th>Notas</th><th>Acções</th></tr></thead><tbody>' +
         movsToShow.map(function (m) {
             var isQuar = (m.tipo === 'quebra' && m.nota === '[Quarentena]');
             var cor = m.tipo === 'entrada' ? 'badge-ok' : m.tipo === 'saida' ? 'badge' : (isQuar ? 'badge' : 'badge-low');
             var style = m.tipo === 'saida' ? ' style="background:#E6F1FB;color:#185FA5;"' : (isQuar ? ' style="background:#F3F4F6;color:#4B5563;"' : '');
             var label = isQuar ? 'Quarentena' : tipoLabel[m.tipo];
+            var vendedorLabel = m.vendedor ? getVendedorDisplayName(m.vendedor) : '—';
         
         return '<tr><td><input type="checkbox" class="mov-checkbox" data-id="' + m.id + '"></td>' +
             '<td style="color:var(--color-text-secondary);font-size:12px;">' + escapeHTML(m.dataHora || m.data) + '</td>' +
@@ -621,6 +625,7 @@ function renderMovimentos() {
                 '<td>' + escapeHTML(m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td>' + m.preco + ' MZN</td>' +
                 '<td style="font-weight:500;">' + m.total.toLocaleString() + ' MZN</td>' +
                 '<td><span class="badge">' + escapeHTML(m.metodo || '—') + '</span></td>' +
+                '<td style="font-size:12px;">' + escapeHTML(vendedorLabel) + '</td>' +
                 '<td style="font-size:12px;color:var(--color-text-secondary);">' + escapeHTML(m.nota || '—') + '</td>' +
                 '<td><button class="btn btn-danger" onclick="deleteMovimento(' + m.id + ')">Anular</button></td></tr>';
         }).join('') + '</tbody></table>' : '<div class="empty">Nenhum movimento registado</div>';
@@ -1839,27 +1844,66 @@ function setDefaultDates() {
 }
 
 // ====================== AUTH & ROLES ======================
-async function checkSession() {
-    console.log('[checkSession] INICIO');
-    const role = localStorage.getItem('local_session_role');
-    const user = localStorage.getItem('local_session_user');
-    console.log('[checkSession] role=' + role + ' user=' + user);
-    if (role && user) {
-        userRole = role;
-        console.log('[checkSession] userRole=' + userRole);
-        document.getElementById('login-screen').style.display = 'none';
-        console.log('[checkSession] login-screen oculto');
-        document.querySelector('.app').style.display = 'flex';
-        console.log('[checkSession] app visivel');
-        document.getElementById('user-label').textContent = userRole === 'gestor' ? 'Administrador' : 'Vendas';
-        console.log('[checkSession] user-label definido');
-        
-        applyRoleRestrictions();
-        console.log('[checkSession] applyRoleRestrictions chamado');
-        initApp();
-        console.log('[checkSession] initApp chamado');
+
+async function fetchProfile(userId) {
+    try {
+        const { data, error } = await sb.from('profiles').select('*').eq('id', userId).single();
+        if (error) return null;
+        return data;
+    } catch {
+        return null;
     }
-    console.log('[checkSession] FIM');
+}
+
+function getVendedorDisplayName(user) {
+    if (user === 'vendas1@farmacia.picoco') return 'Vendedor 1';
+    if (user === 'vendas2@farmacia.picoco') return 'Vendedor 2';
+    return user || 'Vendedor';
+}
+
+function applyAuthSession(user, profile) {
+    currentUserEmail = user.email;
+    if (profile) {
+        userRole = profile.role;
+    } else {
+        userRole = user.user_metadata?.role || 'vendedor';
+    }
+    document.getElementById('login-screen').style.display = 'none';
+    document.querySelector('.app').style.display = 'flex';
+    document.getElementById('user-label').textContent = userRole === 'gestor' ? 'Administrador' : getVendedorDisplayName(currentUserEmail);
+    applyRoleRestrictions();
+    initApp();
+}
+
+async function checkSession() {
+    if (!sb) {
+        var role = localStorage.getItem('local_session_role');
+        var user = localStorage.getItem('local_session_user');
+        if (role && user) {
+            userRole = role;
+            currentUserEmail = user;
+            document.getElementById('login-screen').style.display = 'none';
+            document.querySelector('.app').style.display = 'flex';
+            document.getElementById('user-label').textContent = userRole === 'gestor' ? 'Administrador' : getVendedorDisplayName(currentUserEmail);
+            applyRoleRestrictions();
+            initApp();
+        }
+        return;
+    }
+
+    var sessionRes = await sb.auth.getSession();
+    var session = sessionRes.data.session;
+
+    if (session) {
+        var profile = await fetchProfile(session.user.id);
+        applyAuthSession(session.user, profile);
+    }
+
+    sb.auth.onAuthStateChange(function (event, session) {
+        if (event === 'SIGNED_OUT') {
+            window.location.reload();
+        }
+    });
 }
 
 async function loginUser() {
@@ -1868,33 +1912,39 @@ async function loginUser() {
     const errorEl = document.getElementById('login-error');
     errorEl.textContent = 'A entrar...';
 
-    console.log('Login attempt:', email);
-
-    if (email === 'admin' && pass === 'admin') {
-        userRole = 'gestor';
-        localStorage.setItem('local_session_role', 'gestor');
-        localStorage.setItem('local_session_user', 'admin');
-    } else if (email === 'vendas1' && pass === 'v1235') {
-        userRole = 'vendedor';
-        localStorage.setItem('local_session_role', 'vendedor');
-        localStorage.setItem('local_session_user', 'vendas1');
-    } else if (email === 'vendas2' && pass === 'vendas2') {
-        userRole = 'vendedor';
-        localStorage.setItem('local_session_role', 'vendedor');
-        localStorage.setItem('local_session_user', 'vendas2');
-    } else {
-        errorEl.textContent = 'Credenciais inválidas!';
+    if (!sb) {
+        errorEl.textContent = 'Erro de ligação à base de dados.';
         return;
     }
 
-    showNotification('Login efetuado com sucesso!', 'success');
-    
-    setTimeout(() => {
-        window.location.reload();
-    }, 1000);
+    try {
+        var authRes = await sb.auth.signInWithPassword({ email: email, password: pass });
+
+        if (authRes.error) {
+            errorEl.textContent = 'Email ou palavra-passe inválidos!';
+            return;
+        }
+
+        var user = authRes.data.user;
+        var profile = await fetchProfile(user.id);
+
+        if (profile) {
+            userRole = profile.role;
+        } else {
+            userRole = user.user_metadata?.role || 'vendedor';
+        }
+
+        showNotification('Login efetuado com sucesso!', 'success');
+        setTimeout(function () { window.location.reload(); }, 1000);
+    } catch (e) {
+        errorEl.textContent = 'Erro ao autenticar: ' + e.message;
+    }
 }
 
 async function logoutUser() {
+    if (sb) {
+        await sb.auth.signOut();
+    }
     localStorage.removeItem('local_session_role');
     localStorage.removeItem('local_session_user');
     window.location.reload();
@@ -1902,7 +1952,7 @@ async function logoutUser() {
 
 function renderVendedor() {
     console.log('[renderVendedor] INICIO');
-    document.getElementById('v-user-label').textContent = localStorage.getItem('local_session_user') || 'Vendedor';
+    document.getElementById('v-user-label').textContent = getVendedorDisplayName(currentUserEmail);
     console.log('[renderVendedor] label OK');
     renderVendedorStock();
     populateVProdList();
@@ -1983,7 +2033,9 @@ function vSelectMetodo(el) {
 function renderVendasDoDia() {
     var hoje = new Date();
     var hojeStr = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0') + '-' + String(hoje.getDate()).padStart(2, '0');
-    var vendas = movimentos.filter(function (m) { return m.tipo === 'saida' && m.data === hojeStr; });
+    var vendas = movimentos.filter(function (m) {
+        return m.tipo === 'saida' && m.data === hojeStr && m.vendedor === currentUserEmail;
+    });
     var el = document.getElementById('v-vendas-table');
     if (!el) return;
     if (vendas.length === 0) {
@@ -2007,7 +2059,7 @@ function renderVendasDoDia() {
 function vPrintVendasDoDia() {
     var hoje = new Date();
     var hojeStr = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0') + '-' + String(hoje.getDate()).padStart(2, '0');
-    var vendas = movimentos.filter(function (m) { return m.tipo === 'saida' && m.data === hojeStr; });
+    var vendas = movimentos.filter(function (m) { return m.tipo === 'saida' && m.data === hojeStr && m.vendedor === currentUserEmail; });
     if (vendas.length === 0) { showNotification('Nenhuma venda hoje para imprimir.'); return; }
     var totalDia = vendas.reduce(function (a, m) { return a + m.total; }, 0);
     var win = window.open('', '_blank');
@@ -2117,13 +2169,13 @@ async function venderProduto() {
             await sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', prodId);
         }
 
-        var novoMov = { tipo: 'saida', produto_id: prodId, quantidade: qtd, preco_unitario: p.venda, total: qtd * p.venda, nota: '[Venda Balcão]', metodo_pagamento: metodo };
+        var novoMov = { tipo: 'saida', produto_id: prodId, quantidade: qtd, preco_unitario: p.venda, total: qtd * p.venda, nota: '[Venda Balcão]', metodo_pagamento: metodo, vendedor: currentUserEmail };
         var mRes = await sb.from(PREFIX + 'movimentos').insert([novoMov]).select();
 
         if (!mRes.error && mRes.data && mRes.data.length > 0) {
             var mm = mRes.data[0];
             showNotification('Venda registada com sucesso!', 'success');
-            movimentos.unshift({ id: mm.id, tipo: 'saida', prodId: mm.produto_id, qtd: mm.quantidade, preco: mm.preco_unitario, total: mm.total, data: mm.data.split('T')[0], nota: '', metodo: mm.metodo_pagamento, nome_v: p.nome, custo_aplicado: null });
+            movimentos.unshift({ id: mm.id, tipo: 'saida', prodId: mm.produto_id, qtd: mm.quantidade, preco: mm.preco_unitario, total: mm.total, data: mm.data.split('T')[0], nota: '', metodo: mm.metodo_pagamento, nome_v: p.nome, vendedor: mm.vendedor, custo_aplicado: null });
             searchEl.value = '';
             idEl.value = '';
             document.getElementById('v-preco').value = '';
