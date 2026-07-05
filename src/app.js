@@ -2054,7 +2054,12 @@ async function applyRoleRestrictions() {
         document.querySelectorAll('.section').forEach(function (s) { s.classList.remove('active'); });
         var sec = document.getElementById('sec-vendedor');
         console.log('[applyRoleRestrictions] sec-vendedor=' + (!!sec));
-        if (sec) sec.classList.add('active');
+        if (sec) {
+            sec.classList.add('active');
+            sec.style.backgroundColor = 'red';
+            sec.style.border = '10px solid green';
+            console.log('[applyRoleRestrictions] sec-vendedor background vermelho');
+        }
         if (sidebar) sidebar.style.display = 'none';
         if (app) app.classList.add('seller-mode');
         console.log('[applyRoleRestrictions] chamando renderVendedor...');
