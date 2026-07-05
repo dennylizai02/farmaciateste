@@ -7,6 +7,7 @@ import { getElement, queryAll, escapeHTML } from './utils/domUtils.js';
 import { showNotification } from './utils/notifications.js';
 import { showConfirm, closeConfirmModal } from './utils/dialogs.js';
 import { renderStock as renderStockModule, getStatus } from './components/stock.js';
+import { pharmacy } from './config/pharmacy.js';
 import Chart from 'chart.js/auto';
 
 let sb = createSupabaseClient();
@@ -100,7 +101,7 @@ function printDailyMovements() {
     
     var win = window.open('', '_blank');
     if (win) win.opener = null;
-    var html = '<html><head><title>Sistema Farmacêutico - Movimentos do Dia</title><style>' +
+    var html = '<html><head><title>' + pharmacy.nome + ' - Movimentos do Dia</title><style>' +
                'body { font-family: sans-serif; padding: 20px; font-size: 14px; }' +
                'table { width: 100%; border-collapse: collapse; margin-top: 15px; }' +
                'th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }' +
@@ -108,7 +109,8 @@ function printDailyMovements() {
                'h1 { font-size: 20px; text-align: center; margin-bottom: 5px; }' +
                'p { text-align: center; color: #666; font-size: 13px; }' +
                '</style></head><body>' +
-               '<h1>Sistema Farmacêutico</h1>' +
+               '<h1>' + pharmacy.nome + '</h1>' +
+               '<p>' + pharmacy.endereco + ' | NUIT: ' + pharmacy.nuit + '</p>' +
                '<p>Relatório de Movimentos Diários - ' + hoje.split('-').reverse().join('/') + '</p>' +
                '<table><thead><tr><th>Hora</th><th>Produto</th><th>Tipo</th><th>Qtd</th><th>Total (MZN)</th></tr></thead><tbody>';
                
@@ -129,9 +131,9 @@ function printDailyMovements() {
             '<div style="margin-top:20px; text-align:right; border-top: 2px solid #333; padding-top: 10px;">' +
             '<strong>Total de Vendas do Dia: ' + totalVendas.toLocaleString() + ' MZN</strong>' +
             '</div>' +
-            '<div style="margin-top:40px; font-size:10px; text-align:center;">Processado por Sistema Farmacêutico</div>' +
+            '<div style="margin-top:40px; font-size:10px; text-align:center;">Processado por ' + pharmacy.nome + '</div>' +
             '</body></html>';
-    
+
     win.document.write(html);
     win.document.close();
     win.print();
@@ -1324,7 +1326,8 @@ async function printFaturacao() {
             .metric-card { border: 1px solid #eee; padding: 10px; border-radius: 4px; flex: 1; }
         </style></head><body>
         <div class="header">
-            <h2>Sistema Farmacêutico</h2>
+            <h2>${pharmacy.nome}</h2>
+            <div style="font-size:12px; color:#555;">${pharmacy.endereco} | NUIT: ${pharmacy.nuit}</div>
             <div class="subtitle">RELATÓRIO DE FATURAÇÃO E DASHBOARD</div>
             <div class="date">${today} | Período: ${periodoActivo}</div>
         </div>
@@ -1341,7 +1344,7 @@ async function printFaturacao() {
             }
             return `<div class="card">${html}</div>`;
         }).join('')}
-        <div class="footer">Processado por Computador (Sistema Farmacêutico)</div>
+        <div class="footer">Processado por Computador (${pharmacy.nome})</div>
         </body></html>`;
 
     var win = window.open('', '_blank');
@@ -1370,12 +1373,13 @@ function printHistoricoMovimentos() {
             @media print { body { padding: 0; } }
         </style></head><body>
         <div class="header">
-            <h2>Sistema Farmacêutico</h2>
+            <h2>${pharmacy.nome}</h2>
+            <div style="font-size:12px; color:#555;">${pharmacy.endereco} | NUIT: ${pharmacy.nuit}</div>
             <div class="subtitle">HISTÓRICO DE MOVIMENTOS</div>
             <div class="date">${today}</div>
         </div>
         <div>${movTable.innerHTML}</div>
-        <div class="footer">Processado por Computador (Sistema de Gestão)</div>
+        <div class="footer">Processado por Computador (${pharmacy.nome})</div>
         </body></html>`;
 
     var win = window.open('', '_blank');
@@ -1443,7 +1447,8 @@ function prepareMensalPrintArea() {
     printArea.innerHTML = `
         <div id="pdf-content" style="font-family:sans-serif; color:#000; padding:20px; max-width:1100px; margin:0 auto; background:#fff;">
             <div style="text-align:center; margin-bottom:20px;">
-                <h2 style="margin:0; font-size:24px;">Sistema Farmacêutico</h2>
+                <h2 style="margin:0; font-size:24px;">${pharmacy.nome}</h2>
+                <div style="font-size:12px; color:#555;">${pharmacy.endereco} | NUIT: ${pharmacy.nuit}</div>
                 <div style="font-size:16px; font-weight:bold; margin-top:5px;">RELATÓRIO MENSAL DE PERFORMANCE</div>
                 <div style="font-size:13px; color:#555; margin-top:3px;">Mês: ${mesSel.split('-').reverse().join('/')}</div>
             </div>
@@ -1502,7 +1507,7 @@ function prepareMensalPrintArea() {
                 <div>_________________________<br>Assinatura do Proprietário</div>
             </div>
             <div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">
-                Processado por Computador (Sistema Farmacêutico)
+                Processado por Computador (${pharmacy.nome})
             </div>
         </div>
     `;
@@ -1661,7 +1666,8 @@ function prepareDocPrintArea(doc) {
     printArea.innerHTML =
         '<div style="font-family:sans-serif; color:#000; padding:20px; max-width:800px; margin:0 auto; background:#fff;">' +
         '<div style="text-align:center; margin-bottom:20px;">' +
-        '<h2 style="margin:0; font-size:24px;">Sistema Farmacêutico</h2>' +
+        '<h2 style="margin:0; font-size:24px;">' + pharmacy.nome + '</h2>' +
+        '<div style="font-size:12px; color:#555;">' + pharmacy.endereco + ' | NUIT: ' + pharmacy.nuit + '</div>' +
         '<div style="font-size:16px; font-weight:bold; margin-top:5px;">' + docName + ' N.º ' + doc.id + '</div>' +
         '<div style="font-size:13px; color:#555; margin-top:3px;">Data: ' + doc.data + '</div></div>' +
         '<div style="margin-bottom:20px; font-size:14px;"><b>Cliente:</b> ' + escapeHTML(doc.cliente) + '</div>' +
@@ -1678,7 +1684,7 @@ function prepareDocPrintArea(doc) {
         '<div style="margin-top:40px; font-size:12px; color:#777; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">' +
         '<div>_________________________<br>Entregue por</div>' +
         '<div>_________________________<br>Recebido por</div></div>' +
-        '<div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador (Sistema Farmacêutico)</div></div>';
+        '<div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador (' + pharmacy.nome + ')</div></div>';
 }
 
 function generatePDF(element, filename, orientation) {
@@ -1733,7 +1739,8 @@ function printDoc(doc) {
             .footer { text-align: center; font-size: 11px; color: #999; margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 10px; }
         </style></head><body>
         <div class="header">
-            <h2>Sistema Farmacêutico</h2>
+            <h2>${pharmacy.nome}</h2>
+            <div style="font-size:12px; color:#555;">${pharmacy.endereco} | NUIT: ${pharmacy.nuit}</div>
             <div class="subtitle">${docName} N.º ${doc.id}</div>
             <div class="date">Data: ${doc.data}</div>
         </div>
@@ -1749,7 +1756,7 @@ function printDoc(doc) {
             <div>_________________________<br>Entregue por</div>
             <div>_________________________<br>Recebido por</div>
         </div>
-        <div class="footer">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador (Sistema Farmacêutico)</div>
+        <div class="footer">Agradecemos a sua preferência. Volte sempre.<br> Processado por Computador (${pharmacy.nome})</div>
         </body></html>`;
 
     var win = window.open('', '_blank');
@@ -2005,7 +2012,7 @@ function vPrintVendasDoDia() {
     var totalDia = vendas.reduce(function (a, m) { return a + m.total; }, 0);
     var win = window.open('', '_blank');
     if (win) win.opener = null;
-    var html = '<html><head><title>Vendas do Dia</title><style>' +
+    var html = '<html><head><title>' + pharmacy.nome + ' - Vendas do Dia</title><style>' +
         'body { font-family: sans-serif; padding: 20px; font-size: 14px; }' +
         'table { width: 100%; border-collapse: collapse; margin-top: 15px; }' +
         'th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }' +
@@ -2013,7 +2020,8 @@ function vPrintVendasDoDia() {
         'h1 { font-size: 20px; text-align: center; margin-bottom: 5px; }' +
         'p { text-align: center; color: #666; font-size: 13px; }' +
         '</style></head><body>' +
-        '<h1>Sistema Farmacêutico</h1>' +
+        '<h1>' + pharmacy.nome + '</h1>' +
+        '<p>' + pharmacy.endereco + ' | NUIT: ' + pharmacy.nuit + '</p>' +
         '<p>Relatório de Vendas - ' + hojeStr.split('-').reverse().join('/') + '</p>' +
         '<table><thead><tr><th>Hora</th><th>Produto</th><th>Qtd</th><th>Total (MZN)</th><th>Pagamento</th></tr></thead><tbody>';
     vendas.forEach(function (m) {
@@ -2026,7 +2034,7 @@ function vPrintVendasDoDia() {
     html += '</tbody></table>' +
         '<div style="margin-top:20px; text-align:right; border-top: 2px solid #333; padding-top: 10px;">' +
         '<strong>Total de Vendas: ' + totalDia.toLocaleString() + ' MZN</strong></div>' +
-        '<div style="margin-top:40px; font-size:10px; text-align:center;">Processado por Sistema Farmacêutico</div>' +
+        '<div style="margin-top:40px; font-size:10px; text-align:center;">Processado por ' + pharmacy.nome + '</div>' +
         '</body></html>';
     win.document.write(html);
     win.document.close();
@@ -2043,7 +2051,8 @@ function vGerarRecibo(movId) {
     printArea.innerHTML =
         '<div style="font-family:sans-serif; color:#000; padding:20px; max-width:400px; margin:0 auto; background:#fff;">' +
         '<div style="text-align:center; border-bottom:2px dashed #333; padding-bottom:15px; margin-bottom:15px;">' +
-        '<h1 style="margin:0; font-size:20px;">Farmácia Central</h1>' +
+        '<h1 style="margin:0; font-size:20px;">' + pharmacy.nome + '</h1>' +
+        '<div style="font-size:11px; color:#777;">' + pharmacy.endereco + ' | NUIT: ' + pharmacy.nuit + '</div>' +
         '<h2 style="font-size:24px; font-weight:bold; margin:15px 0 5px;">' + escapeHTML(m.nome_v || '—') + '</h2>' +
         '<div style="font-size:13px; color:#777;">' + (hoje + ' ' + hora).trim() + '</div></div>' +
         '<table style="width:100%; border-collapse:collapse; font-size:14px;">' +
@@ -2051,7 +2060,7 @@ function vGerarRecibo(movId) {
         '<tr><td style="padding:5px 0;"><b>Preço Unit.:</b></td><td style="padding:5px 0; text-align:right;">' + (m.preco || 0).toLocaleString() + ' MT</td></tr>' +
         '<tr style="border-top:2px solid #333;"><td style="padding:8px 0; font-size:16px;"><b>TOTAL:</b></td><td style="padding:8px 0; text-align:right; font-size:16px; font-weight:bold;">' + m.total.toLocaleString() + ' MT</td></tr>' +
         '<tr><td style="padding:5px 0;"><b>Pagamento:</b></td><td style="padding:5px 0; text-align:right;">' + metodoLabel + '</td></tr></table>' +
-        '<div style="text-align:center; font-size:11px; color:#999; border-top:1px dashed #ccc; padding-top:15px; margin-top:15px;">Obrigado pela preferência!<br>Processado por Sistema Farmacêutico</div></div>';
+        '<div style="text-align:center; font-size:11px; color:#999; border-top:1px dashed #ccc; padding-top:15px; margin-top:15px;">Obrigado pela preferência!<br>Processado por ' + pharmacy.nome + '</div></div>';
     generatePDF(printArea, 'Recibo_' + movId + '.pdf');
 }
 
@@ -2799,7 +2808,8 @@ function printPlanoCompras() {
             @media print { body { padding: 0; } }
         </style></head><body>
         <div class="header">
-            <h2>Sistema Farmacêutico</h2>
+            <h2>${pharmacy.nome}</h2>
+            <div style="font-size:12px; color:#555;">${pharmacy.endereco} | NUIT: ${pharmacy.nuit}</div>
             <div class="subtitle">PLANO DE COMPRAS</div>
             <div class="date">${today}</div>
         </div>
@@ -2809,7 +2819,7 @@ function printPlanoCompras() {
         <div class="total">TOTAL ESTIMADO: ${totalPlano.toLocaleString()} MZN</div>
         <div class="signatures"><div>_________________________<br>Assinatura do Comprador</div>
             <div>_________________________<br>Aprovado por</div></div>
-        <div class="footer">Processado por Computador (Sistema Farmacêutico)</div>
+        <div class="footer">Processado por Computador (${pharmacy.nome})</div>
         </body></html>`;
 
     var win = window.open('', '_blank');
