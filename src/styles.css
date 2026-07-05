@@ -220,9 +220,6 @@ body {
   display: none;
 }
 
-/* DEBUG */
-#sec-vendedor { background: yellow !important; display: block !important; border: 5px solid red !important; }
-.section.active { background: pink !important; display: block !important; }
 
 .sidebar-toggle {
   display: none;

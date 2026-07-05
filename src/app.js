@@ -2280,7 +2280,7 @@ async function setSaldoInicial() {
 
 // ====================== MESAS ======================
 function renderMesas() {
-    const grid = document.getElementById('mesas-grid');
+    const grid = document.getElementById('atendimentos-grid');
     const panel = document.getElementById('mesa-panel');
     
     grid.style.display = 'grid';
@@ -2310,9 +2310,9 @@ function renderMesas() {
 
 function openMesa(n) {
     activeMesa = n;
-    const grid = document.getElementById('mesas-grid');
+    const grid = document.getElementById('atendimentos-grid');
     const panel = document.getElementById('mesa-panel');
-    const title = document.getElementById('mesa-title');
+    const title = document.getElementById('atendimento-title');
     
     grid.style.display = 'none';
     panel.style.display = 'block';
