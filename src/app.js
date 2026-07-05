@@ -1899,8 +1899,6 @@ function renderVendedor() {
     console.log('[renderVendedor] label OK');
     renderVendedorStock();
     console.log('[renderVendedor] stock OK');
-    renderVendedorAtendimento();
-        console.log('[renderVendedor] atendimento OK, sec-vendedor=' + (document.getElementById('sec-vendedor') ? 'EXISTE' : 'AUSENTE'));
     console.log('[renderVendedor] FIM, sec-vendedor=' + (document.getElementById('sec-vendedor') ? 'EXISTE' : 'AUSENTE'));
 }
 
@@ -1922,124 +1920,6 @@ function renderVendedorStock(query) {
 
 function filterVendedorStock() {
     renderVendedorStock(document.getElementById('v-stock-search').value);
-}
-
-async function vAddCliente() {
-    var nome = document.getElementById('c-nome-v').value.trim();
-    if (!nome) { showNotification('Insira o nome do utente'); return; }
-    activeMesa = 1;
-    var existing = mesaClientes.find(function (c) { return c.mesa_numero === 1 && c.status === 'ativo' && c.nome_cliente === nome; });
-    if (existing) {
-        showNotification('Utente já está em atendimento.');
-        return;
-    }
-    await addClienteMesaComVendedor(nome, document.getElementById('c-nota-v').value.trim());
-}
-
-async function addClienteMesaComVendedor(nome, nota) {
-    try {
-        var nextId = Date.now();
-        var novoCliente = { id: nextId, mesa_numero: 1, nome_cliente: nome, nota_aparencia: nota || '', status: 'ativo', mesas_pedidos: [], created_at: new Date().toISOString() };
-        if (sb) {
-            var { data: res, error } = await sb.from(PREFIX + 'mesas_clientes').insert([{ mesa_numero: 1, nome_cliente: nome, nota_aparencia: nota || '' }]).select();
-            if (error) { showNotification('Erro: ' + error.message, 'error'); return; }
-            if (res && res[0]) novoCliente = { ...res[0], mesas_pedidos: [] };
-        }
-        showNotification('Utente adicionado!');
-        document.getElementById('c-nome-v').value = '';
-        document.getElementById('c-nota-v').value = '';
-        mesaClientes.unshift(novoCliente);
-        renderVendedorAtendimento();
-    } catch (e) {
-        showNotification('Erro inesperado: ' + e.message, 'error');
-        console.error(e);
-    }
-}
-
-function renderVendedorAtendimento() {
-    var el = document.getElementById('v-active-clients');
-    var clients = mesaClientes.filter(function (c) { return c.mesa_numero === 1 && c.status === 'ativo'; });
-    if (clients.length === 0) {
-        el.innerHTML = '<div class="empty">Nenhum utente em atendimento.</div>';
-        return;
-    }
-    el.innerHTML = clients.map(function (c) {
-        return '<div class="card" style="border:1px solid #ddd; margin-bottom:10px;">'
-            + '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; flex-wrap:wrap;">'
-            + '<div><strong style="font-size:16px;">' + escapeHTML(c.nome_cliente) + '</strong>'
-            + (c.nota_aparencia ? '<div style="font-size:12px; color:#666;">Obs: ' + escapeHTML(c.nota_aparencia) + '</div>' : '')
-            + '</div>'
-            + '<button class="btn btn-primary" onclick="openPayment(' + c.id + ')">Finalizar e Pagar</button>'
-            + '</div>'
-            + '<div style="background:#f9f9f9; padding:10px; border-radius:5px;">'
-            + '<div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">'
-            + '<select id="vp-prod-' + c.id + '" style="flex:1;">' + produtos.map(function (p) { return '<option value="' + p.id + '">' + escapeHTML(p.nome) + ' (' + (p.venda || 0).toFixed(2) + ' MT)</option>'; }).join('') + '</select>'
-            + '<input id="vp-qtd-' + c.id + '" type="number" value="1" style="width:60px;max-width:100%;flex:1 0 50px;">'
-            + '<button class="btn" onclick="vAddPedido(' + c.id + ')">+ Pedido</button>'
-            + '</div>'
-            + '<table style="width:100%; font-size:12px;"><thead><tr style="text-align:left;"><th>Item</th><th>Qtd</th><th>Preço</th><th>Total</th><th></th></tr></thead><tbody>'
-            + (c.mesas_pedidos || []).map(function (p) {
-                return '<tr><td>' + escapeHTML(p.produto_nome) + '</td><td>' + p.quantidade + '</td><td>' + (p.preco_unitario || 0).toFixed(2) + '</td><td>' + (p.total || 0).toFixed(2) + ' MT</td>'
-                    + '<td><button type="button" style="border:none; background:none; color:#E24B4A; cursor:pointer;" onclick="vRemovePedido(event, ' + p.id + ', ' + c.id + ')">🗑</button></td></tr>';
-            }).join('')
-            + '</tbody></table>'
-            + '<div style="text-align:right; margin-top:10px; font-weight:bold; font-size:14px;">Total: ' + ((c.mesas_pedidos || []).reduce(function (a, b) { return a + (b.total || 0); }, 0)).toFixed(2) + ' MT</div>'
-            + '</div></div>';
-    }).join('');
-}
-
-async function vAddPedido(clientId) {
-    try {
-        var pId = parseInt(document.getElementById('vp-prod-' + clientId).value);
-        var qtd = parseInt(document.getElementById('vp-qtd-' + clientId).value) || 0;
-        var prod = produtos.find(function (p) { return p.id === pId; });
-        if (!prod || qtd <= 0) return;
-        if (qtd > prod.qtd) { showNotification('Stock insuficiente. Disponível: ' + prod.qtd, 'error'); return; }
-        prod.qtd -= qtd;
-        var pedido = { id: Date.now(), cliente_id: clientId, produto_id: pId, produto_nome: prod.nome, quantidade: qtd, preco_unitario: prod.venda, total: qtd * prod.venda };
-        if (sb) {
-            var { data: res, error } = await sb.from(PREFIX + 'mesas_pedidos').insert([{ cliente_id: clientId, produto_id: pId, produto_nome: prod.nome, quantidade: qtd, preco_unitario: prod.venda, total: qtd * prod.venda }]).select();
-            if (error) { prod.qtd += qtd; showNotification('Erro: ' + error.message, 'error'); return; }
-            if (res && res[0]) pedido = res[0];
-        }
-        var client = mesaClientes.find(function (c) { return c.id === clientId; });
-        if (client) {
-            if (!client.mesas_pedidos) client.mesas_pedidos = [];
-            client.mesas_pedidos.push(pedido);
-        }
-        renderVendedorAtendimento();
-        renderVendedorStock(document.getElementById('v-stock-search').value);
-    } catch (e) {
-        showNotification('Erro inesperado: ' + e.message, 'error');
-        console.error(e);
-    }
-}
-
-async function vRemovePedido(event, pedidoId, clientId) {
-    try {
-        if (event) event.stopPropagation();
-        if (!(await showConfirm('Remover este pedido?'))) return;
-        var client = mesaClientes.find(function (c) { return c.id === clientId; });
-        if (!client) return;
-        var pedido = (client.mesas_pedidos || []).find(function (p) { return p.id === pedidoId; });
-        if (!pedido) return;
-        if (sb) {
-            var { error } = await sb.from(PREFIX + 'mesas_pedidos').delete().eq('id', pedidoId);
-            if (error) { showNotification('Erro: ' + error.message, 'error'); return; }
-        }
-        var prod = produtos.find(function (p) { return p.id === pedido.produto_id; });
-        if (prod) {
-            prod.qtd += pedido.quantidade;
-            if (sb) await sb.from(PREFIX + 'produtos').update({ quantidade: prod.qtd }).eq('id', prod.id);
-        }
-        client.mesas_pedidos = client.mesas_pedidos.filter(function (p) { return p.id !== pedidoId; });
-        showNotification('Pedido removido.', 'success');
-        renderVendedorAtendimento();
-        renderVendedorStock(document.getElementById('v-stock-search').value);
-    } catch (e) {
-        showNotification('Erro inesperado: ' + e.message, 'error');
-        console.error(e);
-    }
 }
 
 async function applyRoleRestrictions() {
@@ -2172,9 +2052,6 @@ Object.assign(window, {
     updateMovTotal,
     updatePaymentSummary,
     updatePlanoQtd,
-    vAddCliente,
-    vAddPedido,
-    vRemovePedido,
     filterVendedorStock,
     voltarAtendimento,
     removeDocItem,
