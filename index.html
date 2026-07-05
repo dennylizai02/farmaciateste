@@ -98,13 +98,13 @@
           <div class="form-group"><label>Preço de Compra (MZN)</label><input id="p-custo" type="number" min="0" placeholder="0"></div>
           <div class="form-group"><label>Preço de Venda (MZN)</label><input id="p-venda" type="number" min="0" placeholder="0"></div>
           <div class="form-group"><label>Fornecedor / Fabricante</label><input id="p-fornecedor" placeholder="Ex: MedPharma Lda"></div>
-          <div class="form-group" style="justify-content:flex-end;"><button class="btn btn-primary" onclick="addProduto()" style="margin-top:20px;width:100%;">+ Adicionar Medicamento</button></div>
+          <div class="form-group"><button class="btn btn-primary stock-add-btn" onclick="addProduto()">+ Adicionar Medicamento</button></div>
         </div>
       </div>
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+        <div class="stock-header">
           <div class="card-title" style="margin-bottom:0;">Todos os produtos</div>
-          <input id="search-prod" placeholder="Pesquisar..." style="width:180px;padding:5px 10px;font-size:12px;"
+          <input id="search-prod" placeholder="Pesquisar..." class="stock-search-input"
             oninput="renderStock()">
         </div>
         <div class="table-responsive">
@@ -163,13 +163,13 @@
         </div>
       </div>
       <div class="card">
-        <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
-          Histórico de movimentos
-          <div>
-            <input type="date" id="mov-hist-date" onchange="renderMovimentos()" style="margin-right:10px;">
-            <button class="btn btn-danger" onclick="deleteSelectedMovimentos()" style="margin-right:5px;">🗑️ Eliminar Selecionados</button>
-            <button class="btn" onclick="printDailyMovements()">🖨️ Imprimir Movimentos do Dia</button>
-            <button class="btn" onclick="printHistoricoMovimentos()" style="margin-left:5px;">🖨️ Imprimir</button>
+        <div class="card-title mov-header">
+          <span>Histórico de movimentos</span>
+          <div class="mov-header-actions">
+            <input type="date" id="mov-hist-date" onchange="renderMovimentos()">
+            <button class="btn btn-danger" onclick="deleteSelectedMovimentos()">🗑️ Eliminar</button>
+            <button class="btn" onclick="printDailyMovements()">🖨️ Mov. do Dia</button>
+            <button class="btn" onclick="printHistoricoMovimentos()">🖨️ Imprimir</button>
           </div>
         </div>
         <div class="table-responsive">
@@ -180,18 +180,18 @@
 
     <!-- DASHBOARD (Antigo Relatórios) -->
     <div class="section active" id="sec-relatorios">
-      <div class="period-select" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;">
+      <div class="dashboard-header">
         <div class="period-select">
-        <button class="period-btn active" onclick="setPeriodo('diário',this)">Diário</button>
-        <button class="period-btn" onclick="setPeriodo('semanal',this)">Semanal</button>
-        <button class="period-btn" onclick="setPeriodo('mensal',this)">Mensal</button>
-        <button class="period-btn" onclick="setPeriodo('trimestral',this)">Trimestral</button>
-        <button class="period-btn" onclick="setPeriodo('anual',this)">Anual</button>
-        <select id="periodo-count" onchange="renderRelatorios()" style="margin-left:10px; padding:2px 8px; font-size:12px; border-radius:15px;">
+          <button class="period-btn active" onclick="setPeriodo('diário',this)">Diário</button>
+          <button class="period-btn" onclick="setPeriodo('semanal',this)">Semanal</button>
+          <button class="period-btn" onclick="setPeriodo('mensal',this)">Mensal</button>
+          <button class="period-btn" onclick="setPeriodo('trimestral',this)">Trimestral</button>
+          <button class="period-btn" onclick="setPeriodo('anual',this)">Anual</button>
+          <select id="periodo-count" onchange="renderRelatorios()" class="periodo-count">
             <option value="7">Últimos 7 dias</option>
             <option value="14">Últimos 14 dias</option>
             <option value="30">Últimos 30 dias</option>
-        </select>
+          </select>
         </div>
         <button class="btn" onclick="printFaturacao()">🖨️ Imprimir</button>
       </div>
@@ -327,25 +327,25 @@
               <option value="cotacao">Cotação</option>
             </select>
           </div>
-          <div class="form-group" style="grid-column:span 2;"><label>Cliente</label><input id="doc-cliente"
+          <div class="form-group doc-cliente-group"><label>Cliente</label><input id="doc-cliente"
               placeholder="Nome do Cliente (opcional)"></div>
           <div class="form-group"><label>Desconto Global</label>
-            <div style="display:flex;gap:6px;">
-              <select id="doc-desconto-tipo" style="width:120px;" onchange="renderDocList()">
+            <div class="doc-desconto-row">
+              <select id="doc-desconto-tipo" onchange="renderDocList()">
                 <option value="valor">Valor (MZN)</option>
                 <option value="percentagem">Percentagem (%)</option>
               </select>
               <input id="doc-desconto" type="number" value="0"
-                min="0" oninput="renderDocList()" style="width:80px;">
+                min="0" oninput="renderDocList()">
             </div>
           </div>
         </div>
-        <div style="margin-top:1rem; border-top:0.5px solid var(--color-border-tertiary); padding-top:1rem;">
+        <div class="doc-add-item-section">
           <div class="form-row">
-            <div class="form-group" style="grid-column:span 2;"><label>Adicionar Produtos</label><select
+            <div class="form-group doc-produto-group"><label>Adicionar Produtos</label><select
                 id="doc-produto"></select></div>
             <div class="form-group"><label>Quantidade</label><input id="doc-qtd" type="number" value="1" min="1"></div>
-            <div class="form-group" style="justify-content:flex-end;"><button class="btn"
+            <div class="form-group doc-add-btn-group"><button class="btn"
                 onclick="addDocItem()">Adicionar à Lista</button></div>
           </div>
         </div>
@@ -364,15 +364,14 @@
             <tbody id="doc-items"></tbody>
           </table>
         </div>
-          <div style="text-align:right; margin-top:1rem; font-size:16px;">
-            <span style="display:inline-block;margin-right:20px;">Subtotal: <span id="doc-subtotal">0</span> MZN</span>
-            <span style="display:inline-block;margin-right:20px;color:#A32D2D;">Desconto: −<span id="doc-desconto-calc">0</span> MZN</span>
-            <span style="display:inline-block;font-weight:bold;">Total Final: <span id="doc-total">0</span> MZN</span>
+          <div class="doc-totals">
+            <span>Subtotal: <span id="doc-subtotal">0</span> MZN</span>
+            <span class="doc-discount">Desconto: −<span id="doc-desconto-calc">0</span> MZN</span>
+            <span class="doc-final">Total Final: <span id="doc-total">0</span> MZN</span>
           </div>
         </div>
-        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:1rem;">
-          <button class="btn btn-primary" onclick="saveAndDownloadPDF()">Gravar no BD &
-            PDF</button>
+        <div class="doc-actions">
+          <button class="btn btn-primary" onclick="saveAndDownloadPDF()">Gravar no BD & PDF</button>
         </div>
       </div>
       <div class="card">
@@ -386,10 +385,9 @@
       <div class="metrics" id="stock-metrics"></div>
       <div class="metrics" id="alertas-metrics"></div>
       <div class="card">
-        <div
-          style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:10px;">
+        <div class="relmensal-header">
           <div class="card-title" style="margin-bottom:0;">Relatório Mensal Completo</div>
-          <div style="display:flex; gap:10px;">
+          <div class="relmensal-actions">
             <input id="rm-mes" type="month" onchange="renderRelMensal()">
             <button class="btn btn-primary" onclick="printMensal()">🖨️ Imprimir</button>
           </div>
@@ -427,13 +425,13 @@
     <div class="section" id="sec-planocompras">
       <div class="card">
         <div class="card-title">Plano de Compras</div>
-        <div style="display:flex;gap:10px;margin-bottom:1rem;flex-wrap:wrap;align-items:flex-end;">
-          <div class="form-group" style="flex:2;min-width:200px;"><label>Produto</label><select id="plano-produto"></select></div>
-          <div class="form-group" style="width:80px;"><label>Qtd</label><input id="plano-qtd" type="number" value="1" min="1"></div>
-          <button class="btn btn-primary" onclick="addPlanoItem()" style="height:34px;">+ Adicionar</button>
-          <button class="btn" onclick="prePopulatePlano()" style="height:34px;">🔄 Auto-preencher</button>
-          <button class="btn" onclick="clearPlano()" style="height:34px;">🗑 Limpar</button>
-          <button class="btn btn-primary" onclick="confirmarCompra()" style="height:34px; background:#00796b; border-color:#00796b;">📦 Confirmar Compra</button>
+        <div class="plano-header">
+          <div class="form-group"><label>Produto</label><select id="plano-produto"></select></div>
+          <div class="form-group plano-qtd-group"><label>Qtd</label><input id="plano-qtd" type="number" value="1" min="1"></div>
+          <button class="btn btn-primary" onclick="addPlanoItem()">+ Adicionar</button>
+          <button class="btn" onclick="prePopulatePlano()">🔄 Auto-preencher</button>
+          <button class="btn" onclick="clearPlano()">🗑 Limpar</button>
+          <button class="btn btn-primary btn-confirm-compra" onclick="confirmarCompra()">📦 Confirmar Compra</button>
         </div>
         <div class="table-responsive">
           <table>
@@ -443,9 +441,9 @@
             <tbody id="plano-items"></tbody>
           </table>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--color-border-tertiary);">
-          <div style="font-size:14px;">Itens: <b><span id="plano-count">0</span></b></div>
-          <div style="font-size:18px;font-weight:500;">Total Estimado: <span id="plano-total" style="color:#00796b;">0</span> MZN</div>
+        <div class="plano-footer">
+          <div class="plano-count">Itens: <b><span id="plano-count">0</span></b></div>
+          <div class="plano-total">Total Estimado: <span id="plano-total">0</span> MZN</div>
           <button class="btn btn-primary" onclick="printPlanoCompras()">🖨️ Imprimir Plano</button>
         </div>
       </div>
@@ -481,7 +479,7 @@
         </div>
       </div>
       <div class="card">
-        <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="card-title saldo-header">
             <span>Histórico de Saldo</span>
             <button class="btn" onclick="setSaldoInicial()">⚙️ Definir Saldo Inicial</button>
         </div>
@@ -495,15 +493,15 @@
       
       <!-- Painel de Mesa -->
       <div id="mesa-panel" class="card" style="display:none;">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+          <div class="mesa-panel-header">
               <h2 id="atendimento-title">💊 Balcão de Atendimento</h2>
               <button class="btn" onclick="voltarAtendimento()">⬅ Voltar</button>
           </div>
           
-          <div class="form-row" style="background:var(--color-background-secondary); padding:1rem; border-radius:8px; margin-bottom:1.5rem;">
+          <div class="form-row mesa-atendimento-form">
               <div class="form-group"><label>Adicionar Utente</label><input id="c-nome" placeholder="Ex: Nome do Utente ou Descrição"></div>
               <div class="form-group"><label>Observações</label><input id="c-nota" placeholder="Ex: Necessita receita"></div>
-              <div class="form-group" style="justify-content:flex-end;"><button class="btn btn-primary" onclick="addClienteMesa()" style="margin-top:20px;">+ Iniciar Atendimento</button></div>
+              <div class="form-group mesa-add-btn-group"><button class="btn btn-primary" onclick="addClienteMesa()">+ Iniciar Atendimento</button></div>
           </div>
 
           <div id="active-clients"></div>
@@ -512,51 +510,51 @@
     </div>
 
     <!-- Modal de Pagamento (Global) -->
-    <div id="payment-modal" class="card" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); z-index:10001; width:90%; max-width:500px; box-shadow:0 0 50px rgba(0,0,0,0.5);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+    <div id="payment-modal" class="card payment-modal">
+        <div class="payment-modal-header">
             <h3>Pagamento Utente: <span id="pay-client-name"></span></h3>
             <button class="btn" onclick="closePayment()">Fechar</button>
         </div>
-        <div style="font-size:24px; font-weight:bold; margin-bottom:1.5rem; text-align:center;">Total: <span id="pay-total-amount">0</span> MT</div>
+        <div class="payment-total">Total: <span id="pay-total-amount">0</span> MT</div>
         
         <div id="payment-methods-list">
             <!-- Linhas de pagamento aqui -->
         </div>
         
-        <button class="btn" style="width:100%; margin-top:10px; border:1px dashed #ccc;" onclick="addPaymentRow()">+ Adicionar Outro Método</button>
+        <button class="btn payment-add-method" onclick="addPaymentRow()">+ Adicionar Outro Método</button>
         
-        <div style="margin-top:2rem; border-top:1px solid #eee; padding-top:1rem;">
-            <div style="display:flex; justify-content:space-between; font-weight:bold; margin-top:0.5rem; color:#A32D2D;" id="pay-change-row">
+        <div class="payment-footer">
+            <div class="payment-change" id="pay-change-row">
                 <span>Troco:</span>
                 <span id="pay-change-amount">0</span> MT
             </div>
-            <button id="btn-confirm-pay" class="btn btn-primary" style="width:100%; margin-top:1.5rem;" onclick="confirmarMesaPagamento()">Confirmar e Emitir Fatura</button>
+            <button id="btn-confirm-pay" class="btn btn-primary" onclick="confirmarMesaPagamento()">Confirmar e Emitir Fatura</button>
         </div>
     </div>
-    <div id="payment-overlay" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.5); z-index:10000;"></div>
+    <div id="payment-overlay" class="payment-overlay"></div>
 
     <!-- VENDEDOR -->
     <div class="section" id="sec-vendedor">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-        <h2 style="margin:0;">💊 Balcão de Atendimento</h2>
-        <div>
-          <span id="v-user-label" style="font-size:12px; margin-right:10px;"></span>
-          <button class="btn" style="padding:4px 8px; font-size:11px;" onclick="logoutUser()">Sair</button>
+      <div class="vendedor-header">
+        <h2>💊 Balcão de Atendimento</h2>
+        <div class="vendedor-user-info">
+          <span id="v-user-label"></span>
+          <button class="btn v-logout-btn" onclick="logoutUser()">Sair</button>
         </div>
       </div>
 
-      <div class="card" style="margin-bottom:1rem;">
+      <div class="card v-stock-card">
         <div class="card-title">Consultar Stock</div>
-        <input type="text" id="v-stock-search" placeholder="Pesquisar medicamento..." style="width:100%; margin-bottom:10px;" oninput="filterVendedorStock()">
-        <div id="v-stock-table" style="max-height:250px; overflow-y:auto;"></div>
+        <input type="text" id="v-stock-search" placeholder="Pesquisar medicamento..." oninput="filterVendedorStock()">
+        <div id="v-stock-table" class="v-stock-table"></div>
       </div>
 
       <div class="card">
         <div class="card-title">Atendimento</div>
-        <div class="form-row" style="background:var(--color-background-secondary); padding:1rem; border-radius:8px; margin-bottom:1.5rem;">
+        <div class="form-row v-atendimento-form">
           <div class="form-group"><label>Adicionar Utente</label><input id="c-nome-v" placeholder="Nome do Utente"></div>
           <div class="form-group"><label>Observações</label><input id="c-nota-v" placeholder="Necessita receita?"></div>
-          <div class="form-group" style="justify-content:flex-end;"><button class="btn btn-primary" onclick="vAddCliente()" style="margin-top:20px;">+ Iniciar Atendimento</button></div>
+          <div class="form-group v-add-btn-group"><button class="btn btn-primary" onclick="vAddCliente()">+ Iniciar Atendimento</button></div>
         </div>
         <div id="v-active-clients"></div>
       </div>

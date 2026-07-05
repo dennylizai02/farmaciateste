@@ -311,6 +311,311 @@ body {
   padding-bottom: 0.5rem;
 }
 
+.mov-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mov-header-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.mov-header-actions input[type="date"] {
+  padding: 4px 8px;
+  font-size: 12px;
+  width: auto;
+}
+
+.stock-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.stock-search-input {
+  width: 180px;
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+.stock-add-btn {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.periodo-count {
+  margin-left: 10px;
+  padding: 2px 8px;
+  font-size: 12px;
+  border-radius: 15px;
+}
+
+.doc-cliente-group {
+  grid-column: span 2;
+}
+
+.doc-desconto-row {
+  display: flex;
+  gap: 6px;
+}
+
+.doc-desconto-row select {
+  width: 120px;
+}
+
+.doc-desconto-row input {
+  width: 80px;
+}
+
+.doc-add-item-section {
+  margin-top: 1rem;
+  border-top: 0.5px solid var(--color-border-tertiary);
+  padding-top: 1rem;
+}
+
+.doc-produto-group {
+  grid-column: span 2;
+}
+
+.doc-add-btn-group {
+  justify-content: flex-end;
+}
+
+.doc-totals {
+  text-align: right;
+  margin-top: 1rem;
+  font-size: 16px;
+}
+
+.doc-totals span {
+  display: inline-block;
+}
+
+.doc-totals .doc-discount {
+  margin: 0 20px;
+  color: #A32D2D;
+}
+
+.doc-totals .doc-final {
+  font-weight: bold;
+}
+
+.doc-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 1rem;
+}
+
+.plano-header {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.plano-header .form-group:first-child {
+  flex: 2;
+  min-width: 200px;
+}
+
+.plano-qtd-group {
+  width: 80px;
+}
+
+.btn-confirm-compra {
+  height: 34px;
+  background: #00796b;
+  border-color: #00796b;
+}
+
+.plano-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 0.5px solid var(--color-border-tertiary);
+}
+
+.plano-count {
+  font-size: 14px;
+}
+
+.plano-total {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.plano-total span {
+  color: #00796b;
+}
+
+.saldo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.relmensal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.relmensal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.vendedor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.vendedor-header h2 {
+  margin: 0;
+}
+
+.vendedor-user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vendedor-user-info span {
+  font-size: 12px;
+}
+
+.v-logout-btn {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+.v-stock-card {
+  margin-bottom: 1rem;
+}
+
+.v-stock-card input {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.v-stock-table {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.v-atendimento-form {
+  background: var(--color-background-secondary);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.v-add-btn-group {
+  justify-content: flex-end;
+}
+
+.mesa-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.mesa-atendimento-form {
+  background: var(--color-background-secondary);
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.mesa-add-btn-group {
+  justify-content: flex-end;
+}
+
+.payment-modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10001;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 0 50px rgba(0,0,0,0.5);
+}
+
+.payment-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.payment-total {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.payment-add-method {
+  width: 100%;
+  margin-top: 10px;
+  border: 1px dashed #ccc;
+}
+
+.payment-footer {
+  margin-top: 2rem;
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+}
+
+.payment-change {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  margin-top: 0.5rem;
+  color: #A32D2D;
+}
+
+.payment-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.5);
+  z-index: 10000;
+}
+
+#btn-confirm-pay {
+  width: 100%;
+  margin-top: 1.5rem;
+}
+
 .badge-out {
   background: #FEE2E2;
   color: #991B1B;
@@ -601,6 +906,16 @@ select:focus {
   font-size: 13px;
 }
 
+@media (max-width: 900px) {
+  .metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  #saldo-metrics {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
@@ -636,19 +951,17 @@ select:focus {
     display: block;
   }
 
-  .metrics {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
   .chart-row {
     grid-template-columns: 1fr;
   }
 
   .form-row {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 
-  table {
+  table,
+  .table-responsive table {
+    min-width: 0;
     display: block;
     overflow-x: auto;
     white-space: nowrap;
@@ -657,11 +970,579 @@ select:focus {
   .metric-value {
     font-size: 18px;
   }
+
+  .card-title > div:last-child {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .card-title button,
+  .card-title .btn {
+    font-size: 11px;
+    padding: 4px 8px;
+    white-space: nowrap;
+  }
+
+  .period-select {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .period-select select {
+    margin-left: 0 !important;
+  }
+
+  .period-btn {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  #sec-relatorios > .period-select:first-child {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  #sec-relatorios > .period-select:first-child .period-select {
+    justify-content: center;
+  }
+
+  #sec-relatorios > .period-select:first-child > button {
+    width: 100%;
+    margin-top: 6px;
+  }
+
+  .movimento-tipo {
+    flex-wrap: wrap;
+  }
+
+  .tipo-btn {
+    flex: 1;
+    text-align: center;
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  #m-metodo-container {
+    flex-direction: column;
+  }
+
+  .mov-header-actions .btn {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .relmensal-header {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .relmensal-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .relmensal-actions input,
+  .relmensal-actions button {
+    flex: 1;
+  }
+
+  .mesa-panel-header {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .mesa-panel-header button {
+    width: 100%;
+  }
+
+  .mesa-atendimento-form {
+    grid-template-columns: 1fr;
+  }
+
+  .atendimentos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mesa-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .vendedor-header {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .vendedor-user-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .payment-modal {
+    width: 95% !important;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 1rem !important;
+  }
+
+  .payment-modal h3 {
+    font-size: 16px;
+  }
+
+  .payment-modal-header {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch !important;
+  }
+
+  .payment-modal-header button {
+    width: 100%;
+  }
+
+  .payment-total {
+    font-size: 20px;
+  }
+
+  .toast {
+    min-width: 0;
+    max-width: 90vw;
+    font-size: 13px;
+    padding: 12px 16px;
+  }
+
+  #toast-container {
+    right: 5px;
+    left: 5px;
+  }
+
+  .stock-header {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 8px;
+  }
+
+  .stock-search-input {
+    width: 100% !important;
+  }
+
+  #saldo-metrics {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  #saldo-metrics .metric-card {
+    padding: 8px 6px;
+  }
+
+  #sec-stock .card-title:first-child {
+    font-size: 13px;
+  }
+
+  .chart-wrap {
+    height: 220px;
+  }
+
+  .chart-container-inner {
+    height: 220px;
+  }
+
+  .chart-desc {
+    font-size: 12px;
+  }
+
+  .stock-add-btn {
+    margin-top: 10px !important;
+  }
+
+  .row-actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .row-actions button {
+    font-size: 11px;
+    padding: 4px 6px;
+  }
+
+  .login-card {
+    padding: 1.5rem;
+    margin: 1rem;
+    max-width: none;
+  }
+
+  .login-card h2 {
+    font-size: 20px;
+  }
+
+  #sec-stock .btn + .btn {
+    margin-top: 4px;
+  }
+
+  table {
+    font-size: 12px;
+  }
+
+  th,
+  td {
+    padding: 6px 8px;
+  }
+
+  .badge {
+    font-size: 10px;
+    padding: 1px 6px;
+  }
+
+  .confirm-dialog {
+    padding: 1.5rem;
+    width: 95%;
+  }
+
+  .confirm-dialog h3 {
+    font-size: 1.1rem;
+  }
+
+  .confirm-btns {
+    flex-direction: column;
+  }
+
+  .sidebar-toggle {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    top: 8px;
+    left: 8px;
+  }
+
+  #sec-movimentos > .card:first-child .form-row:last-child .form-group:last-child {
+    justify-content: stretch !important;
+  }
+
+  #sec-movimentos > .card:first-child .form-row:last-child .btn {
+    margin-top: 10px !important;
+  }
+
+  #sec-despesas > .card:first-child .form-row:last-child .form-group:last-child {
+    align-items: stretch !important;
+  }
+
+  #sec-despesas > .card:first-child .form-row:last-child .btn {
+    margin-top: 10px !important;
+  }
+
+  .mov-header {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 8px;
+  }
+
+  .mov-header-actions {
+    flex-wrap: wrap;
+  }
+
+  .mov-header-actions input[type="date"] {
+    width: 100%;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .dashboard-header .period-select {
+    justify-content: center;
+  }
+
+  .dashboard-header > button {
+    width: 100%;
+  }
+
+  .doc-cliente-group {
+    grid-column: span 1;
+  }
+
+  .doc-produto-group {
+    grid-column: span 1;
+  }
+
+  .doc-desconto-row select {
+    width: 100%;
+  }
+
+  .doc-desconto-row input {
+    width: 100%;
+  }
+
+  .doc-add-item-section .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .doc-add-btn-group {
+    justify-content: stretch !important;
+  }
+
+  .doc-totals {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+  }
+
+  .doc-totals .doc-discount {
+    margin: 0;
+  }
+
+  .doc-actions {
+    justify-content: stretch;
+  }
+
+  .doc-actions button {
+    width: 100%;
+  }
+
+  .plano-header {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .plano-header .form-group:first-child {
+    min-width: 0;
+  }
+
+  .plano-qtd-group {
+    width: 100%;
+  }
+
+  .plano-footer {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch !important;
+    text-align: center;
+  }
+
+  .plano-footer button {
+    width: 100%;
+  }
+
+  .saldo-header {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 8px;
+  }
+
+  .saldo-header button {
+    width: 100%;
+  }
+
+  .relmensal-header {
+    flex-direction: column;
+    align-items: stretch !important;
+  }
+
+  .relmensal-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .relmensal-actions input,
+  .relmensal-actions button {
+    flex: 1;
+  }
+
+  .vendedor-header {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 8px;
+  }
+
+  .vendedor-user-info {
+    justify-content: space-between;
+  }
+
+  .v-atendimento-form {
+    grid-template-columns: 1fr;
+  }
+
+  .v-add-btn-group {
+    justify-content: stretch !important;
+  }
+
+  .mesa-panel-header {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 8px;
+  }
+
+  .mesa-panel-header button {
+    width: 100%;
+  }
+
+  .mesa-atendimento-form {
+    grid-template-columns: 1fr;
+  }
+
+  .mesa-add-btn-group {
+    justify-content: stretch !important;
+  }
+
+  .payment-add-method {
+    font-size: 13px;
+    padding: 8px;
+  }
 }
 
 @media (max-width: 480px) {
   .metrics {
     grid-template-columns: 1fr;
+  }
+
+  #saldo-metrics {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .card {
+    padding: 0.75rem;
+  }
+
+  .card-title {
+    font-size: 13px;
+  }
+
+  .nav-btn {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+
+  .btn {
+    padding: 6px 10px;
+  }
+
+  .metric-card {
+    padding: 10px 12px;
+  }
+
+  .metric-value {
+    font-size: 16px;
+  }
+
+  .chart-wrap {
+    height: 200px;
+  }
+
+  .chart-container-inner {
+    height: 200px;
+  }
+
+  .main-content {
+    padding: 0.75rem;
+  }
+
+  .sidebar {
+    width: 200px;
+    min-width: 200px;
+  }
+
+  .sidebar-header {
+    padding: 0.75rem 0.75rem 0.5rem;
+  }
+
+  .sidebar-logo {
+    font-size: 14px;
+  }
+
+  .sidebar-nav .nav-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .atendimentos-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .mesa-card {
+    padding: 1.25rem 0.75rem;
+  }
+
+  .login-card {
+    padding: 1.25rem;
+  }
+
+  .login-input {
+    padding: 10px;
+    font-size: 13px;
+  }
+
+  .payment-modal {
+    padding: 0.75rem !important;
+  }
+
+  .payment-modal-header h3 {
+    font-size: 14px;
+  }
+
+  .payment-total {
+    font-size: 18px;
+  }
+
+  .table-responsive table {
+    font-size: 11px;
+  }
+
+  th,
+  td {
+    padding: 5px 6px;
+  }
+
+  .chart-scroll-wrap {
+    margin: 0 -0.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .period-btn {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .nav-icon {
+    font-size: 14px;
+    width: 20px;
+  }
+
+  .sidebar-date {
+    font-size: 10px;
+  }
+
+  .sidebar-user-label {
+    font-size: 11px;
+  }
+
+  .sidebar-logout {
+    font-size: 11px;
+  }
+
+  .tipo-btn {
+    font-size: 11px;
+    padding: 5px 6px;
+  }
+
+  .plano-header button {
+    font-size: 12px;
+  }
+
+  .confirm-dialog {
+    padding: 1rem;
+  }
+
+  .confirm-dialog h3 {
+    font-size: 1rem;
+  }
+
+  #rm-mes {
+    font-size: 12px;
   }
 }
 
@@ -767,37 +1648,9 @@ select:focus {
   border-radius: 20px;
 }
 
-.form-row {
-  grid-template-columns: 1fr;
-}
-
-.card {
-  padding: 0.75rem;
-}
-
-.card-title {
-  font-size: 13px;
-}
-
-.nav-btn {
-  padding: 5px 8px;
-  font-size: 11px;
-}
-
-.btn {
-  padding: 6px 10px;
-}
-
-.metric-card {
-  padding: 10px 12px;
-}
-
-.metric-value {
-  font-size: 16px;
-}
-
-.chart-wrap {
-  height: 200px;
+#chart-roi-container,
+#chart-lucro-container {
+  height: 300px;
 }
 
 #print-area {
