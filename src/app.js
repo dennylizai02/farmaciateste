@@ -2008,17 +2008,26 @@ async function venderProduto() {
     p.qtd -= qtd;
     checkLowStock(p);
 
-    var novoMov = { tipo: 'saida', produto_id: prodId, quantidade: qtd, preco_unitario: p.venda, total: qtd * p.venda, nota: '[Venda Balcão]', metodo_pagamento: metodo };
-
     if (!sb) { showNotification('Sem ligação à BD'); p.qtd += qtd; return; }
 
     try {
-        var res = await Promise.all([
-            sb.from(PREFIX + 'movimentos').insert([novoMov]).select(),
-            sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', prodId)
-        ]);
+        var prodRes = await sb.from(PREFIX + 'produtos').select('id').eq('id', prodId);
+        if (prodRes.error || !prodRes.data || prodRes.data.length === 0) {
+            var insRes = await sb.from(PREFIX + 'produtos').insert([
+                { id: prodId, nome: p.nome, categoria: p.cat || '', quantidade: p.qtd, stock_minimo: p.min || 0, preco_custo: p.custo || 0, preco_venda: p.venda || 0, fornecedor: p.forn || '' }
+            ]).select();
+            if (insRes.error) {
+                p.qtd += qtd;
+                showNotification('Erro ao criar produto na BD: ' + insRes.error.message);
+                return;
+            }
+        } else {
+            await sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', prodId);
+        }
 
-        var mRes = res[0];
+        var novoMov = { tipo: 'saida', produto_id: prodId, quantidade: qtd, preco_unitario: p.venda, total: qtd * p.venda, nota: '[Venda Balcão]', metodo_pagamento: metodo };
+        var mRes = await sb.from(PREFIX + 'movimentos').insert([novoMov]).select();
+
         if (!mRes.error && mRes.data && mRes.data.length > 0) {
             var mm = mRes.data[0];
             showNotification('Venda registada com sucesso!', 'success');
