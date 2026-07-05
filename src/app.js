@@ -2041,18 +2041,11 @@ function vGerarRecibo(movId) {
     var hora = m.dataHora || '';
     var metodoLabel = m.metodo || '—';
     printArea.innerHTML =
-        '<div style="font-family:sans-serif; color:#000; padding:20px; max-width:400px; margin:0 auto; background:#fff;">' +
-        '<div style="text-align:center; margin-bottom:20px; border-bottom:2px dashed #333; padding-bottom:15px;">' +
-        '<h2 style="margin:0; font-size:20px;">Farmácia Central</h2>' +
-        '<div style="font-size:13px; color:#555; margin-top:5px;">Recibo de Venda</div>' +
-        '<div style="font-size:12px; color:#777; margin-top:3px;">' + hoje + ' ' + hora + '</div></div>' +
-        '<table style="width:100%; border-collapse:collapse; font-size:13px; margin-bottom:15px;">' +
-        '<tr><td style="padding:4px 0;"><b>Produto:</b></td><td style="padding:4px 0; text-align:right;">' + escapeHTML(m.nome_v || '—') + '</td></tr>' +
-        '<tr><td style="padding:4px 0;"><b>Quantidade:</b></td><td style="padding:4px 0; text-align:right;">' + m.qtd + '</td></tr>' +
-        '<tr><td style="padding:4px 0;"><b>Preço Unit.:</b></td><td style="padding:4px 0; text-align:right;">' + (m.preco || 0).toLocaleString() + ' MT</td></tr>' +
-        '<tr style="border-top:2px solid #333;"><td style="padding:6px 0; font-size:16px;"><b>TOTAL:</b></td><td style="padding:6px 0; text-align:right; font-size:16px; font-weight:bold;">' + m.total.toLocaleString() + ' MT</td></tr>' +
-        '<tr><td style="padding:4px 0;"><b>Pagamento:</b></td><td style="padding:4px 0; text-align:right;">' + metodoLabel + '</td></tr></table>' +
-        '<div style="text-align:center; font-size:11px; color:#999; border-top:1px dashed #ccc; padding-top:15px; margin-top:10px;">Obrigado pela preferência!<br>Processado por Sistema Farmacêutico</div></div>';
+        '<div style="font-family:sans-serif; color:#000; padding:20px; max-width:400px; margin:0 auto; background:#fff; text-align:center;">' +
+        '<h1 style="margin:0 0 5px; font-size:22px;">Farmácia Central</h1>' +
+        '<div style="font-size:28px; font-weight:bold; margin:30px 0 10px;">' + escapeHTML(m.nome_v || '—') + '</div>' +
+        '<div style="font-size:16px; color:#555;">' + (hoje + ' ' + hora).trim() + '</div>' +
+        '<div style="margin-top:40px; font-size:11px; color:#999; border-top:1px dashed #ccc; padding-top:15px;">Obrigado pela preferência!<br>Processado por Sistema Farmacêutico</div></div>';
     generatePDF(printArea, 'Recibo_' + movId + '.pdf');
 }
 
