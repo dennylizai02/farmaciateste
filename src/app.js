@@ -1867,7 +1867,7 @@ async function loginUser() {
         userRole = 'gestor';
         localStorage.setItem('local_session_role', 'gestor');
         localStorage.setItem('local_session_user', 'admin');
-    } else if (email === 'vendas1' && pass === 'vendas1') {
+    } else if (email === 'vendas1' && pass === 'v1235') {
         userRole = 'vendedor';
         localStorage.setItem('local_session_role', 'vendedor');
         localStorage.setItem('local_session_user', 'vendas1');
