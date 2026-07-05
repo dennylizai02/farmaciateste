@@ -217,19 +217,6 @@ async function fetchData() {
     if (docRes.error) console.error('Documentos erro:', docRes.error);
 
 
-    if (produtos.length === 0) {
-        produtos = [
-            { id: 1, nome: 'Paracetamol 500mg', cat: 'Analgésicos', qtd: 50, min: 10, custo: 20, venda: 50, forn: 'MedPharma Lda' },
-            { id: 2, nome: 'Ibuprofeno 400mg', cat: 'Analgésicos', qtd: 30, min: 10, custo: 30, venda: 70, forn: 'MedPharma Lda' },
-            { id: 3, nome: 'Amoxicilina 500mg', cat: 'Antibióticos', qtd: 25, min: 10, custo: 45, venda: 90, forn: 'Farmalab' },
-            { id: 4, nome: 'Vitamina C 1000mg', cat: 'Vitaminas e Suplementos', qtd: 20, min: 5, custo: 100, venda: 180, forn: 'Saúde&Co' },
-            { id: 5, nome: 'Soro Oral 500ml', cat: 'Primeiros Socorros', qtd: 40, min: 10, custo: 15, venda: 35, forn: 'Farmalab' },
-            { id: 6, nome: 'Álcool 70% 500ml', cat: 'Higiene e Cuidados', qtd: 35, min: 15, custo: 25, venda: 55, forn: 'Higilab' },
-            { id: 7, nome: 'Gaze Esterilizada', cat: 'Material Médico', qtd: 60, min: 20, custo: 8, venda: 20, forn: 'MedPharma Lda' },
-            { id: 8, nome: 'Máscara Cirúrgica', cat: 'Material Médico', qtd: 100, min: 30, custo: 3, venda: 8, forn: 'Higilab' }
-        ];
-    }
-
     if (pRes.data && pRes.data.length > 0) {
         produtos = pRes.data.map(function (p) {
             return { id: p.id, nome: p.nome, cat: p.categoria, qtd: p.quantidade, min: p.stock_minimo, custo: p.preco_custo, venda: p.preco_venda, forn: p.fornecedor };
