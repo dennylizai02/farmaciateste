@@ -221,22 +221,13 @@ body {
 }
 
 /* DEBUG: forçar visibilidade do vendedor */
-.app.seller-mode {
-  display: flex !important;
-  background: red !important;
-}
-.app.seller-mode .main-content {
-  display: block !important;
-  background: blue !important;
-  min-height: 500px !important;
-  margin-left: 0 !important;
-  max-width: 100% !important;
-}
-.app.seller-mode .section.active#sec-vendedor {
+#sec-vendedor {
   display: block !important;
   background: yellow !important;
-  border: 10px solid green !important;
+  border: 10px solid red !important;
   min-height: 400px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 .sidebar-toggle {
