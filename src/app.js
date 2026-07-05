@@ -2116,6 +2116,9 @@ function vGerarRecibo(movId) {
     var metodoLabel = m.metodo || '—';
     var vendedorLabel = m.vendedor ? getVendedorDisplayName(m.vendedor) : '—';
     var subtotal = (m.preco || 0) * m.qtd;
+    var clienteEl = document.getElementById('v-cliente');
+    var clienteNome = clienteEl ? clienteEl.value.trim() : '';
+    if (!clienteNome) clienteNome = 'Cliente';
     printArea.innerHTML =
         '<div style="font-family:sans-serif; color:#000; padding:30px; max-width:700px; margin:0 auto; background:#fff; border:1px solid #ddd;">' +
         '<div style="text-align:center; border-bottom:2px solid #333; padding-bottom:20px; margin-bottom:20px;">' +
@@ -2123,6 +2126,7 @@ function vGerarRecibo(movId) {
         '<div style="font-size:12px; color:#555; margin-top:3px;">' + pharmacy.endereco + ' | NUIT: ' + pharmacy.nuit + '</div>' +
         '<div style="font-size:16px; font-weight:bold; margin-top:15px;">FACTURA N.º ' + movId + '</div>' +
         '<div style="font-size:12px; color:#555; margin-top:3px;">' + (hoje + ' ' + hora).trim() + '</div>' +
+        '<div style="font-size:12px; color:#555;">Cliente: ' + escapeHTML(clienteNome) + '</div>' +
         '<div style="font-size:12px; color:#555;">Vendedor: ' + vendedorLabel + '</div></div>' +
         '<table style="width:100%; border-collapse:collapse; font-size:13px; margin-bottom:20px;">' +
         '<thead>' +
@@ -2216,6 +2220,8 @@ async function venderProduto() {
             document.getElementById('v-preco').value = '';
             document.getElementById('v-total').textContent = '0,00 MT';
             document.getElementById('v-qtd').value = 1;
+            var cliEl = document.getElementById('v-cliente');
+            if (cliEl) cliEl.value = '';
             var infoEl = document.getElementById('v-prod-info');
             infoEl.innerHTML = '';
             infoEl.style.display = 'none';

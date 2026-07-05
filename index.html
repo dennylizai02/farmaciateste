@@ -557,6 +557,10 @@
       <div class="card v-venda-card" style="border-color: var(--color-green);">
         <div class="card-title v-venda-title">🛒 Nova Venda</div>
         <div class="v-venda-body">
+          <div style="margin-bottom:16px;">
+            <label class="v-label">Cliente</label>
+            <input id="v-cliente" type="text" placeholder="Nome do cliente (opcional)" class="v-prod-input" autocomplete="off">
+          </div>
           <div class="v-venda-produto">
             <label class="v-label">Medicamento</label>
             <input id="v-prod-search" list="v-prod-list" oninput="onVProdSearch()" onchange="onVProdChange()" placeholder="Digite o nome do medicamento..." class="v-prod-input" autocomplete="off">
