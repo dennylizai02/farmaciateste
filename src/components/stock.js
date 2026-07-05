@@ -58,7 +58,7 @@ export function renderStock(context) {
     (isGestor ? '<th>Mín.</th><th>Custo (MT)</th>' : '') +
     '<th>Venda (MT)</th>' +
     (isGestor ? '<th onclick="handleSort(\'margem\')" style="cursor:pointer; user-select:none;">Margem' + getSortIcon('margem') + '</th>' : '') +
-    (isGestor ? '<th onclick="handleSort(\'forn\')" style="cursor:pointer; user-select:none;">Fornecedor' + getSortIcon('forn') + '</th>' : '') +
+    '<th onclick="handleSort(\'forn\')" style="cursor:pointer; user-select:none;">Fornecedor' + getSortIcon('forn') + '</th>' +
     '<th onclick="handleSort(\'estado\')" style="cursor:pointer; user-select:none;">Estado' + getSortIcon('estado') + '</th>' +
     (isGestor ? '<th>Acções</th>' : '') + '</tr></thead><tbody>';
 
@@ -74,9 +74,12 @@ export function renderStock(context) {
     row += '<td><input type="number" value="' + p.venda + '" min="0" style="width:80px;padding:3px 6px;" onchange="updateField(' + p.id + ',\'preco_venda\',this.value)" ' + (isGestor ? '' : 'disabled') + '></td>';
 
     if (isGestor) {
-      row += '<td style="color:#3B6D11;">' + (p.venda > 0 ? Math.round((p.venda - p.custo) / p.venda * 100) : 0) + '%</td>' +
-        '<td><input type="text" value="' + escapeHTML(p.forn || '') + '" style="width:120px;padding:3px 6px;font-size:12px;" onchange="updateFornecedor(' + p.id + ',this.value)"></td>';
+      row += '<td style="color:#3B6D11;">' + (p.venda > 0 ? Math.round((p.venda - p.custo) / p.venda * 100) : 0) + '%</td>';
     }
+
+    row += '<td>' + (isGestor
+      ? '<input type="text" value="' + escapeHTML(p.forn || '') + '" style="width:120px;padding:3px 6px;font-size:12px;" onchange="updateFornecedor(' + p.id + ',this.value)">'
+      : escapeHTML(p.forn || '—')) + '</td>';
 
     row += '<td>' + getStatus(p) + '</td>';
 
