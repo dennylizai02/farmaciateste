@@ -220,15 +220,9 @@ body {
   display: none;
 }
 
-/* DEBUG: forçar visibilidade do vendedor */
-#sec-vendedor {
-  display: block !important;
-  background: yellow !important;
-  border: 10px solid red !important;
-  min-height: 400px !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
+/* DEBUG */
+#sec-vendedor { background: yellow !important; display: block !important; border: 5px solid red !important; }
+.section.active { background: pink !important; display: block !important; }
 
 .sidebar-toggle {
   display: none;

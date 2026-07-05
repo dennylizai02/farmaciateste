@@ -1900,7 +1900,8 @@ function renderVendedor() {
     renderVendedorStock();
     console.log('[renderVendedor] stock OK');
     renderVendedorAtendimento();
-    console.log('[renderVendedor] atendimento OK');
+        console.log('[renderVendedor] atendimento OK, sec-vendedor=' + (document.getElementById('sec-vendedor') ? 'EXISTE' : 'AUSENTE'));
+    console.log('[renderVendedor] FIM, sec-vendedor=' + (document.getElementById('sec-vendedor') ? 'EXISTE' : 'AUSENTE'));
 }
 
 function renderVendedorStock(query) {
@@ -2113,6 +2114,7 @@ async function initApp() {
     } catch (e) {
         console.error('INIT APP ERROR:', e);
     }
+    console.log('[initApp] FIM, sec-vendedor=' + (document.getElementById('sec-vendedor') ? 'EXISTE' : 'AUSENTE'));
 }
 
 // Expor funções usadas por handlers inline no HTML
@@ -2178,6 +2180,7 @@ Object.assign(window, {
 });
 
 // Check session on load
+console.log('[TOP LEVEL] sec-vendedor=' + (document.getElementById('sec-vendedor') ? 'EXISTE' : 'AUSENTE'));
 checkSession();
 
 // ====================== SALDO ======================
