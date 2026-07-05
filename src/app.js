@@ -2100,20 +2100,41 @@ function vGerarRecibo(movId) {
     var hoje = new Date().toLocaleDateString('pt-MZ');
     var hora = m.dataHora || '';
     var metodoLabel = m.metodo || '—';
+    var vendedorLabel = m.vendedor ? getVendedorDisplayName(m.vendedor) : '—';
+    var subtotal = (m.preco || 0) * m.qtd;
     printArea.innerHTML =
-        '<div style="font-family:sans-serif; color:#000; padding:20px; max-width:400px; margin:0 auto; background:#fff;">' +
-        '<div style="text-align:center; border-bottom:2px dashed #333; padding-bottom:15px; margin-bottom:15px;">' +
-        '<h1 style="margin:0; font-size:20px;">' + pharmacy.nome + '</h1>' +
-        '<div style="font-size:11px; color:#777;">' + pharmacy.endereco + ' | NUIT: ' + pharmacy.nuit + '</div>' +
-        '<h2 style="font-size:24px; font-weight:bold; margin:15px 0 5px;">' + escapeHTML(m.nome_v || '—') + '</h2>' +
-        '<div style="font-size:13px; color:#777;">' + (hoje + ' ' + hora).trim() + '</div></div>' +
-        '<table style="width:100%; border-collapse:collapse; font-size:14px;">' +
-        '<tr><td style="padding:5px 0;"><b>Quantidade:</b></td><td style="padding:5px 0; text-align:right;">' + m.qtd + '</td></tr>' +
-        '<tr><td style="padding:5px 0;"><b>Preço Unit.:</b></td><td style="padding:5px 0; text-align:right;">' + (m.preco || 0).toLocaleString() + ' MT</td></tr>' +
-        '<tr style="border-top:2px solid #333;"><td style="padding:8px 0; font-size:16px;"><b>TOTAL:</b></td><td style="padding:8px 0; text-align:right; font-size:16px; font-weight:bold;">' + m.total.toLocaleString() + ' MT</td></tr>' +
-        '<tr><td style="padding:5px 0;"><b>Pagamento:</b></td><td style="padding:5px 0; text-align:right;">' + metodoLabel + '</td></tr></table>' +
-        '<div style="text-align:center; font-size:11px; color:#999; border-top:1px dashed #ccc; padding-top:15px; margin-top:15px;">Obrigado pela preferência!<br>Processado por ' + pharmacy.nome + '</div></div>';
-    generatePDF(printArea, 'Recibo_' + movId + '.pdf');
+        '<div style="font-family:sans-serif; color:#000; padding:30px; max-width:700px; margin:0 auto; background:#fff; border:1px solid #ddd;">' +
+        '<div style="text-align:center; border-bottom:2px solid #333; padding-bottom:20px; margin-bottom:20px;">' +
+        '<h1 style="margin:0; font-size:26px;">' + pharmacy.nome + '</h1>' +
+        '<div style="font-size:12px; color:#555; margin-top:3px;">' + pharmacy.endereco + ' | NUIT: ' + pharmacy.nuit + '</div>' +
+        '<div style="font-size:16px; font-weight:bold; margin-top:15px;">FACTURA N.º ' + movId + '</div>' +
+        '<div style="font-size:12px; color:#555; margin-top:3px;">' + (hoje + ' ' + hora).trim() + '</div>' +
+        '<div style="font-size:12px; color:#555;">Vendedor: ' + vendedorLabel + '</div></div>' +
+        '<table style="width:100%; border-collapse:collapse; font-size:13px; margin-bottom:20px;">' +
+        '<thead>' +
+        '<tr style="background:#f0f0f0;">' +
+        '<th style="border:1px solid #ccc; padding:8px; text-align:center;">#</th>' +
+        '<th style="border:1px solid #ccc; padding:8px; text-align:left;">Descrição</th>' +
+        '<th style="border:1px solid #ccc; padding:8px; text-align:center;">Qtd</th>' +
+        '<th style="border:1px solid #ccc; padding:8px; text-align:right;">Preço Unit.</th>' +
+        '<th style="border:1px solid #ccc; padding:8px; text-align:right;">Total (MZN)</th>' +
+        '</tr></thead><tbody>' +
+        '<tr>' +
+        '<td style="border:1px solid #ccc; padding:8px; text-align:center;">1</td>' +
+        '<td style="border:1px solid #ccc; padding:8px;">' + escapeHTML(m.nome_v || '—') + '</td>' +
+        '<td style="border:1px solid #ccc; padding:8px; text-align:center;">' + m.qtd + '</td>' +
+        '<td style="border:1px solid #ccc; padding:8px; text-align:right;">' + (m.preco || 0).toLocaleString() + '</td>' +
+        '<td style="border:1px solid #ccc; padding:8px; text-align:right; font-weight:bold;">' + subtotal.toLocaleString() + '</td>' +
+        '</tr></tbody></table>' +
+        '<div style="text-align:right; font-size:14px; border-top:2px solid #333; padding-top:10px;">' +
+        '<div>Subtotal: ' + subtotal.toLocaleString() + ' MZN</div>' +
+        '<div style="font-size:20px; font-weight:bold; margin-top:5px;">TOTAL: ' + m.total.toLocaleString() + ' MZN</div>' +
+        '<div style="font-size:12px; color:#555; margin-top:5px;">Pagamento: ' + metodoLabel + '</div></div>' +
+        '<div style="margin-top:40px; font-size:12px; color:#777; display:flex; justify-content:space-between;">' +
+        '<div>_________________________<br>Entregue por</div>' +
+        '<div>_________________________<br>Recebido por</div></div>' +
+        '<div style="text-align:center; font-size:11px; margin-top:30px; color:#999; border-top:1px dashed #ccc; padding-top:10px;">Agradecemos a sua preferência. Volte sempre.<br>Processado por ' + pharmacy.nome + '</div></div>';
+    generatePDF(printArea, 'Factura_' + movId + '.pdf');
 }
 
 async function venderProduto() {
