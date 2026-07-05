@@ -26,7 +26,7 @@ function refreshAllViews() {
 
 function checkLowStock(p) {
     if (p && p.qtd <= p.min) {
-        showNotification('⚠️ Stock Baixo: ' + p.nome + ' (Resta: ' + p.qtd + ')', 'error');
+        showNotification('Stock Baixo: ' + p.nome + ' (Resta: ' + p.qtd + ')', 'error');
     }
 }
 
@@ -543,7 +543,7 @@ async function addMovimento() {
     if (tipoActivo === 'saida' || tipoActivo === 'quebra') {
         if (p.qtd < qtd) { showNotification('Stock insuficiente! Faça uma compra de entrada primeiro.'); return; }
         if (p.qtd - qtd <= p.min) {
-            showNotification('⚠ ATENÇÃO: O stock deste produto ficará BAIXO após esta venda!', 'info');
+            showNotification('ATENÇÃO: O stock deste produto ficará BAIXO após esta venda!', 'info');
         }
         p.qtd -= qtd;
         checkLowStock(p);
@@ -1562,7 +1562,7 @@ function addDocItem() {
     if (tipoDoc === 'factura') {
         if (prod.qtd <= 0) { showNotification('Stock ESGOTADO!', 'error'); return; }
         if (q > prod.qtd) { showNotification('Stock insuficiente! Apenas ' + prod.qtd + ' em stock.', 'error'); return; }
-        if (prod.qtd - q <= prod.min) showNotification('⚠ Stock BAIXO para este produto após venda.', 'info');
+        if (prod.qtd - q <= prod.min) showNotification('Stock BAIXO para este produto após venda.', 'info');
     }
 
     docItems.push({ id: prod.id, nome: prod.nome, qtd: q, preco: prod.venda, total: q * prod.venda });
@@ -2047,7 +2047,10 @@ function renderVendasDoDia() {
                 '<td>' + m.qtd + '</td>' +
                 '<td style="font-weight:500;">' + m.total.toLocaleString() + ' MT</td>' +
                 '<td><span class="badge">' + escapeHTML(m.metodo || '—') + '</span></td>' +
-                '<td><button class="v-recibo-btn" onclick="vPrintDocFromMov(' + m.id + ')" title="Reimprimir recibo">🖨️</button></td></tr>';
+                '<td><button class="v-recibo-btn" onclick="vPrintDocFromMov(' + m.id + ')" title="Reimprimir recibo">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+            '<polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>' +
+            '<rect x="6" y="14" width="12" height="8"/></svg></button></td></tr>';
         }).join('') +
         '<tr style="font-weight:bold;background:var(--color-background-secondary);"><td colspan="3">Total do Dia</td><td>' + totalDia.toLocaleString() + ' MT</td><td colspan="2"></td></tr>' +
         '</tbody></table>';
@@ -2182,7 +2185,7 @@ async function venderProduto() {
     if (p.qtd < qtd) { showNotification('Stock insuficiente! Disponível: ' + p.qtd); return; }
 
     if (p.qtd - qtd <= p.min) {
-        showNotification('⚠ O stock ficará baixo após esta venda!', 'info');
+        showNotification('O stock ficará baixo após esta venda!', 'info');
     }
 
     var metodoEl = document.querySelector('input[name="v-metodo"]:checked');
@@ -2494,8 +2497,9 @@ function renderMesas() {
             totalVal = client.mesas_pedidos.reduce((a, b) => a + b.total, 0);
         }
 
+        var mesaIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;vertical-align:middle;margin-right:4px;"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="8" width="7" height="13" rx="1"/></svg>';
         card.innerHTML = `
-            <h3 style="margin-bottom:10px;">🏥 Balcão ${i}</h3>
+            <h3 style="margin-bottom:10px;">${mesaIcon} Balcão ${i}</h3>
             <div class="mesa-badge" style="background:${client ? '#FFEBEE' : '#E8F5E9'}; color:${client ? '#C62828' : '#2E7D32'};">${client ? 'Em Atendimento' : 'Livre'}</div>
             ${client ? `<div style="font-size:12px; margin-top:10px; font-weight:bold;">${escapeHTML(client.nome_cliente)}</div>` : ''}
             ${totalVal > 0 ? `<div style="font-size:14px; margin-top:5px; color:#1565C0;">Total: ${totalVal.toLocaleString()} MT</div>` : ''}
@@ -2512,7 +2516,7 @@ function openMesa(n) {
     
     grid.style.display = 'none';
     panel.style.display = 'block';
-    title.textContent = '💊 Balcão de Atendimento ' + n;
+    title.textContent = 'Balcão de Atendimento ' + n;
     
     renderMesaContent();
 }
@@ -2551,7 +2555,7 @@ function renderMesaContent() {
                                 <td>${p.quantidade}</td>
                                 <td>${p.preco_unitario}</td>
                                 <td>${p.total} MT</td>
-                                <td><button type="button" style="border:none; background:none; color:#E24B4A; cursor:pointer; font-weight:bold;" onclick="removePedidoMesa(event, ${p.id}, ${c.id})">🗑</button></td>
+                                <td><button type="button" style="border:none; background:none; color:#E24B4A; cursor:pointer; padding:4px;" onclick="removePedidoMesa(event, ${p.id}, ${c.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></td>
                             </tr>
                         `).join('')}
                     </tbody>

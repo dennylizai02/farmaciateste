@@ -5,13 +5,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Farmácia Picoco — Gestão de Stock e Vendas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/styles.css">
 </head>
 
 <body>
 <div id="login-screen">
     <div class="login-card">
-      <h2 style="margin-bottom: 2rem; font-size: 24px; text-align: center;">💊 Farmácia Picoco</h2>
+      <h2 style="margin-bottom: 2rem; font-size: 24px; text-align: center; display:flex; align-items:center; justify-content:center; gap:8px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:28px;height:28px;">
+          <path d="M10.5 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+          <path d="M18 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+          <path d="M3.75 10.5h16.5"/>
+          <path d="M4.5 10.5v7.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-7.5"/>
+        </svg>
+        Farmácia Picoco
+      </h2>
       <div style="text-align:center; font-size: 12px; margin-bottom:1rem; opacity: 0.8;">Use as suas credenciais de acesso</div>
       <form onsubmit="event.preventDefault(); loginUser();">
         <input id="l-email" class="login-input" placeholder="Email">
@@ -23,56 +34,139 @@
   </div>
 
   <div class="app" style="display:none;">
-    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">☰</button>
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
-        <div class="sidebar-logo">💊 Farmácia Picoco</div>
+        <div class="sidebar-logo">
+          <span class="sidebar-logo-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.5 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+              <path d="M18 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+              <path d="M3.75 10.5h16.5"/>
+              <path d="M4.5 10.5v7.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-7.5"/>
+              <path d="M9 15.75h6"/>
+              <path d="M12 12.75v6"/>
+            </svg>
+          </span>
+          Farmácia Picoco
+        </div>
         <div class="sidebar-date" id="current-date"></div>
       </div>
       <nav class="sidebar-nav">
         <!-- Admin nav -->
         <div id="nav-admin-group">
           <button class="nav-btn active" onclick="showSection('relatorios')">
-            <span class="nav-icon">🏥</span>
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="18" rx="1"/>
+                <rect x="14" y="8" width="7" height="13" rx="1"/>
+              </svg>
+            </span>
             <span class="nav-label">Dashboard</span>
           </button>
           <button class="nav-btn" onclick="showSection('stock')">
-            <span class="nav-icon">💊</span>
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.5 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+                <path d="M18 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+                <path d="M3.75 10.5h16.5"/>
+                <path d="M4.5 10.5v7.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-7.5"/>
+              </svg>
+            </span>
             <span class="nav-label">Produtos</span>
           </button>
           <button class="nav-btn" onclick="showSection('despesas')">
-            <span class="nav-icon">💸</span>
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 7V4h16v3"/>
+                <path d="M4 11h16"/>
+                <path d="M4 15h16"/>
+                <path d="M4 19h16"/>
+                <path d="M9 7V4"/>
+                <path d="M15 7V4"/>
+              </svg>
+            </span>
             <span class="nav-label">Despesas</span>
           </button>
           <button class="nav-btn" onclick="showSection('planocompras')">
-            <span class="nav-icon">📦</span>
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <path d="M16 10a4 4 0 0 1-8 0"/>
+              </svg>
+            </span>
             <span class="nav-label">Compras</span>
           </button>
           <button class="nav-btn" id="nav-relmensal" onclick="showSection('relmensal')">
-            <span class="nav-icon">📊</span>
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10"/>
+                <line x1="12" y1="20" x2="12" y2="4"/>
+                <line x1="6" y1="20" x2="6" y2="14"/>
+              </svg>
+            </span>
             <span class="nav-label">Relatórios</span>
           </button>
           <button class="nav-btn" onclick="showSection('necessidades')">
-            <span class="nav-icon">⚠</span>
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 9v4"/>
+                <path d="M12 17h.01"/>
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              </svg>
+            </span>
             <span class="nav-label">Alertas</span>
           </button>
           <button class="nav-btn" id="nav-saldo" onclick="showSection('saldo')">
-            <span class="nav-icon">💰</span>
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/>
+                <path d="M12 18V6"/>
+              </svg>
+            </span>
             <span class="nav-label">Caixa</span>
           </button>
         </div>
         <!-- Vendedor nav -->
         <div id="nav-vendedor-group" style="display:none;">
           <button class="nav-btn active" onclick="showSection('vnova-venda')">
-            <span class="nav-icon">🛒</span>
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="9" cy="21" r="1"/>
+                <circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+              </svg>
+            </span>
             <span class="nav-label">Nova Venda</span>
           </button>
           <button class="nav-btn" onclick="showSection('vvendas')">
-            <span class="nav-icon">📋</span>
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+                <rect x="9" y="3" width="6" height="4" rx="1"/>
+                <line x1="9" y1="12" x2="15" y2="12"/>
+                <line x1="9" y1="16" x2="13" y2="16"/>
+              </svg>
+            </span>
             <span class="nav-label">Vendas do Dia</span>
           </button>
           <button class="nav-btn" onclick="showSection('vstock')">
-            <span class="nav-icon">💊</span>
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.5 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+                <path d="M18 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+                <path d="M3.75 10.5h16.5"/>
+                <path d="M4.5 10.5v7.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-7.5"/>
+              </svg>
+            </span>
             <span class="nav-label">Consultar Stock</span>
           </button>
         </div>
@@ -147,7 +241,14 @@
         <div class="movimento-tipo">
           <button class="tipo-btn active-entrada" id="tipo-entrada" onclick="setTipo('entrada')">+ Entrada</button>
           <button class="tipo-btn" id="tipo-saida" onclick="setTipo('saida')">− Saída (venda)</button>
-          <button class="tipo-btn" id="tipo-quebra" onclick="setTipo('quebra')">⚠ Quebra</button>
+          <button class="tipo-btn" id="tipo-quebra" onclick="setTipo('quebra')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+            Quebra
+          </button>
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -185,9 +286,29 @@
           <span>Histórico de movimentos</span>
           <div class="mov-header-actions">
             <input type="date" id="mov-hist-date" onchange="renderMovimentos()">
-            <button class="btn btn-danger" onclick="deleteSelectedMovimentos()">🗑️ Eliminar</button>
-            <button class="btn" onclick="printDailyMovements()">🖨️ Mov. do Dia</button>
-            <button class="btn" onclick="printHistoricoMovimentos()">🖨️ Imprimir</button>
+            <button class="btn btn-danger" onclick="deleteSelectedMovimentos()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+              Eliminar
+            </button>
+            <button class="btn" onclick="printDailyMovements()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+                <polyline points="6 9 6 2 18 2 18 9"/>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                <rect x="6" y="14" width="12" height="8"/>
+              </svg>
+              Mov. do Dia
+            </button>
+            <button class="btn" onclick="printHistoricoMovimentos()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+                <polyline points="6 9 6 2 18 2 18 9"/>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                <rect x="6" y="14" width="12" height="8"/>
+              </svg>
+              Imprimir
+            </button>
           </div>
         </div>
         <div class="table-responsive">
@@ -211,7 +332,14 @@
             <option value="30">Últimos 30 dias</option>
           </select>
         </div>
-        <button class="btn" onclick="printFaturacao()">🖨️ Imprimir</button>
+        <button class="btn" onclick="printFaturacao()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+            <polyline points="6 9 6 2 18 2 18 9"/>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+            <rect x="6" y="14" width="12" height="8"/>
+          </svg>
+          Imprimir
+        </button>
       </div>
       <div class="metrics" id="rel-metrics"></div>
       
@@ -407,7 +535,14 @@
           <div class="card-title" style="margin-bottom:0;">Relatório Mensal Completo</div>
           <div class="relmensal-actions">
             <input id="rm-mes" type="month" onchange="renderRelMensal()">
-            <button class="btn btn-primary" onclick="printMensal()">🖨️ Imprimir</button>
+            <button class="btn btn-primary" onclick="printMensal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+                <polyline points="6 9 6 2 18 2 18 9"/>
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                <rect x="6" y="14" width="12" height="8"/>
+              </svg>
+              Imprimir
+            </button>
           </div>
         </div>
         <div class="metrics" id="rm-metrics"></div>
@@ -447,9 +582,29 @@
           <div class="form-group"><label>Produto</label><select id="plano-produto"></select></div>
           <div class="form-group plano-qtd-group"><label>Qtd</label><input id="plano-qtd" type="number" value="1" min="1"></div>
           <button class="btn btn-primary" onclick="addPlanoItem()">+ Adicionar</button>
-          <button class="btn" onclick="prePopulatePlano()">🔄 Auto-preencher</button>
-          <button class="btn" onclick="clearPlano()">🗑 Limpar</button>
-          <button class="btn btn-primary btn-confirm-compra" onclick="confirmarCompra()">📦 Confirmar Compra</button>
+          <button class="btn" onclick="prePopulatePlano()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+              <polyline points="23 4 23 10 17 10"/>
+              <polyline points="1 20 1 14 7 14"/>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            Auto-preencher
+          </button>
+          <button class="btn" onclick="clearPlano()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            </svg>
+            Limpar
+          </button>
+          <button class="btn btn-primary btn-confirm-compra" onclick="confirmarCompra()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+            Confirmar Compra
+          </button>
         </div>
         <div class="table-responsive">
           <table>
@@ -462,7 +617,14 @@
         <div class="plano-footer">
           <div class="plano-count">Itens: <b><span id="plano-count">0</span></b></div>
           <div class="plano-total">Total Estimado: <span id="plano-total">0</span> MZN</div>
-          <button class="btn btn-primary" onclick="printPlanoCompras()">🖨️ Imprimir Plano</button>
+          <button class="btn btn-primary" onclick="printPlanoCompras()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+              <polyline points="6 9 6 2 18 2 18 9"/>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+            Imprimir Plano
+          </button>
         </div>
       </div>
     </div>
@@ -499,7 +661,13 @@
       <div class="card">
         <div class="card-title saldo-header">
             <span>Histórico de Saldo</span>
-            <button class="btn" onclick="setSaldoInicial()">⚙️ Definir Saldo Inicial</button>
+            <button class="btn" onclick="setSaldoInicial()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+              </svg>
+              Definir Saldo Inicial
+            </button>
         </div>
         <div id="saldo-list"></div>
       </div>
@@ -512,8 +680,22 @@
       <!-- Painel de Mesa -->
       <div id="mesa-panel" class="card" style="display:none;">
           <div class="mesa-panel-header">
-              <h2 id="atendimento-title">💊 Balcão de Atendimento</h2>
-              <button class="btn" onclick="voltarAtendimento()">⬅ Voltar</button>
+              <h2 id="atendimento-title" style="display:flex;align-items:center;gap:8px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px;">
+                  <path d="M10.5 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+                  <path d="M18 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+                  <path d="M3.75 10.5h16.5"/>
+                  <path d="M4.5 10.5v7.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-7.5"/>
+                </svg>
+                Balcão de Atendimento
+              </h2>
+              <button class="btn" onclick="voltarAtendimento()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;">
+                  <line x1="19" y1="12" x2="5" y2="12"/>
+                  <polyline points="12 19 5 12 12 5"/>
+                </svg>
+                Voltar
+              </button>
           </div>
           
           <div class="form-row mesa-atendimento-form">
@@ -554,15 +736,36 @@
 
     <!-- VENDEDOR - Nova Venda -->
     <div class="section" id="sec-vnova-venda">
-      <div class="card v-venda-card" style="border-color: var(--color-green);">
-        <div class="card-title v-venda-title">🛒 Nova Venda</div>
+      <div class="card v-venda-card">
+        <div class="card-title v-venda-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"/>
+            <circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          Nova Venda
+        </div>
         <div class="v-venda-body">
           <div style="margin-bottom:16px;">
-            <label class="v-label">Cliente</label>
+            <label class="v-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:middle;margin-right:4px;">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+              Cliente
+            </label>
             <input id="v-cliente" type="text" placeholder="Nome do cliente (opcional)" class="v-prod-input" autocomplete="off">
           </div>
           <div class="v-venda-produto">
-            <label class="v-label">Medicamento</label>
+            <label class="v-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:middle;margin-right:4px;">
+                <path d="M10.5 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+                <path d="M18 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+                <path d="M3.75 10.5h16.5"/>
+                <path d="M4.5 10.5v7.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-7.5"/>
+              </svg>
+              Medicamento
+            </label>
             <input id="v-prod-search" list="v-prod-list" oninput="onVProdSearch()" onchange="onVProdChange()" placeholder="Digite o nome do medicamento..." class="v-prod-input" autocomplete="off">
             <datalist id="v-prod-list"></datalist>
             <input type="hidden" id="v-prod-id">
@@ -572,9 +775,18 @@
             <div class="v-venda-field">
               <label class="v-label">Quantidade</label>
               <div class="v-qtd-wrapper">
-                <button type="button" class="v-qtd-btn" onclick="vQtdChange(-1)">−</button>
+                <button type="button" class="v-qtd-btn" onclick="vQtdChange(-1)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                </button>
                 <input id="v-qtd" type="number" min="1" value="1" oninput="vUpdateTotal()">
-                <button type="button" class="v-qtd-btn" onclick="vQtdChange(1)">+</button>
+                <button type="button" class="v-qtd-btn" onclick="vQtdChange(1)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"/>
+                    <line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                </button>
               </div>
             </div>
             <div class="v-venda-field">
@@ -590,24 +802,78 @@
               <div class="v-metodos">
                 <label class="v-metodo-btn active" data-metodo="CASH" onclick="vSelectMetodo(this)">
                   <input type="radio" name="v-metodo" value="CASH" checked hidden>
-                  <span>💵 Dinheiro</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="6" width="20" height="12" rx="2"/>
+                    <circle cx="12" cy="12" r="2"/>
+                    <path d="M6 12h.01M18 12h.01"/>
+                  </svg>
+                  <span class="v-metodo-label">Dinheiro</span>
+                  <span class="v-metodo-check">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </span>
                 </label>
                 <label class="v-metodo-btn" data-metodo="MPESA" onclick="vSelectMetodo(this)">
                   <input type="radio" name="v-metodo" value="MPESA" hidden>
-                  <span>📱 M-Pesa</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                  </svg>
+                  <span class="v-metodo-label">M-Pesa</span>
+                  <span class="v-metodo-check">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </span>
                 </label>
                 <label class="v-metodo-btn" data-metodo="EMOLA" onclick="vSelectMetodo(this)">
                   <input type="radio" name="v-metodo" value="EMOLA" hidden>
-                  <span>📱 e-Mola</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                  </svg>
+                  <span class="v-metodo-label">e-Mola</span>
+                  <span class="v-metodo-check">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </span>
                 </label>
                 <label class="v-metodo-btn" data-metodo="POS" onclick="vSelectMetodo(this)">
                   <input type="radio" name="v-metodo" value="POS" hidden>
-                  <span>💳 Cartão</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                    <line x1="1" y1="10" x2="23" y2="10"/>
+                  </svg>
+                  <span class="v-metodo-label">Cartão</span>
+                  <span class="v-metodo-check">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </span>
                 </label>
               </div>
             </div>
           </div>
-          <button class="btn v-vender-btn" onclick="venderProduto()">💊 Registar Venda</button>
+          <button class="btn v-vender-btn" onclick="venderProduto()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Registar Venda
+          </button>
+          <div class="v-pharmacy-signature">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.5 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+              <path d="M18 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+              <path d="M3.75 10.5h16.5"/>
+              <path d="M4.5 10.5v7.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-7.5"/>
+            </svg>
+            <span class="rx-divider"></span>
+            <span>Farmácia Picoco · MZ</span>
+            <span class="rx-divider"></span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 12h3l2-2 2 2 2-2 2 2 2-2 2 2h3"/>
+            </svg>
+          </div>
         </div>
       </div>
     </div>
@@ -616,8 +882,23 @@
     <div class="section" id="sec-vvendas">
       <div class="card">
         <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
-          <span>📋 Vendas do Dia</span>
-          <button class="btn" onclick="vPrintVendasDoDia()">🖨️ Imprimir</button>
+          <span style="display:flex;align-items:center;gap:6px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-dark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+              <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/>
+              <rect x="9" y="3" width="6" height="4" rx="1"/>
+              <line x1="9" y1="12" x2="15" y2="12"/>
+              <line x1="9" y1="16" x2="13" y2="16"/>
+            </svg>
+            Vendas do Dia
+          </span>
+          <button class="btn" onclick="vPrintVendasDoDia()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+              <polyline points="6 9 6 2 18 2 18 9"/>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+            Imprimir
+          </button>
         </div>
         <div id="v-vendas-table" class="v-vendas-table"></div>
       </div>
@@ -626,8 +907,16 @@
     <!-- VENDEDOR - Consultar Stock -->
     <div class="section" id="sec-vstock">
       <div class="card">
-        <div class="card-title">💊 Consultar Stock</div>
-        <input type="text" id="v-stock-search" placeholder="Pesquisar medicamento..." oninput="filterVendedorStock()" style="width:100%; margin-bottom:10px; padding:8px 12px; border:1px solid var(--color-border); border-radius:6px; box-sizing:border-box;">
+        <div class="card-title" style="display:flex;align-items:center;gap:6px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-dark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+            <path d="M10.5 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+            <path d="M18 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+            <path d="M3.75 10.5h16.5"/>
+            <path d="M4.5 10.5v7.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-7.5"/>
+          </svg>
+          Consultar Stock
+        </div>
+        <input type="text" id="v-stock-search" placeholder="Pesquisar medicamento..." oninput="filterVendedorStock()" style="width:100%; margin-bottom:10px; padding:8px 12px; border:1px solid var(--color-border); border-radius:var(--border-radius-md); box-sizing:border-box;">
         <div id="v-stock-table" class="v-stock-table"></div>
       </div>
     </div>
