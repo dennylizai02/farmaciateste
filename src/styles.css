@@ -216,6 +216,10 @@ body {
   display: none !important;
 }
 
+.sidebar-overlay {
+  display: none;
+}
+
 .sidebar-toggle {
   display: none;
   position: fixed;
