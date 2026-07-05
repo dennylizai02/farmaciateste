@@ -30,34 +30,52 @@
         <div class="sidebar-date" id="current-date"></div>
       </div>
       <nav class="sidebar-nav">
-        <button class="nav-btn active" onclick="showSection('relatorios')">
-          <span class="nav-icon">🏥</span>
-          <span class="nav-label">Dashboard</span>
-        </button>
-        <button class="nav-btn" onclick="showSection('stock')">
-          <span class="nav-icon">💊</span>
-          <span class="nav-label">Produtos</span>
-        </button>
-        <button class="nav-btn" onclick="showSection('despesas')">
-          <span class="nav-icon">💸</span>
-          <span class="nav-label">Despesas</span>
-        </button>
-        <button class="nav-btn" onclick="showSection('planocompras')">
-          <span class="nav-icon">📦</span>
-          <span class="nav-label">Compras</span>
-        </button>
-        <button class="nav-btn" id="nav-relmensal" onclick="showSection('relmensal')">
-          <span class="nav-icon">📊</span>
-          <span class="nav-label">Relatórios</span>
-        </button>
-        <button class="nav-btn" onclick="showSection('necessidades')">
-          <span class="nav-icon">⚠</span>
-          <span class="nav-label">Alertas</span>
-        </button>
-        <button class="nav-btn" id="nav-saldo" onclick="showSection('saldo')">
-          <span class="nav-icon">💰</span>
-          <span class="nav-label">Caixa</span>
-        </button>
+        <!-- Admin nav -->
+        <div id="nav-admin-group">
+          <button class="nav-btn active" onclick="showSection('relatorios')">
+            <span class="nav-icon">🏥</span>
+            <span class="nav-label">Dashboard</span>
+          </button>
+          <button class="nav-btn" onclick="showSection('stock')">
+            <span class="nav-icon">💊</span>
+            <span class="nav-label">Produtos</span>
+          </button>
+          <button class="nav-btn" onclick="showSection('despesas')">
+            <span class="nav-icon">💸</span>
+            <span class="nav-label">Despesas</span>
+          </button>
+          <button class="nav-btn" onclick="showSection('planocompras')">
+            <span class="nav-icon">📦</span>
+            <span class="nav-label">Compras</span>
+          </button>
+          <button class="nav-btn" id="nav-relmensal" onclick="showSection('relmensal')">
+            <span class="nav-icon">📊</span>
+            <span class="nav-label">Relatórios</span>
+          </button>
+          <button class="nav-btn" onclick="showSection('necessidades')">
+            <span class="nav-icon">⚠</span>
+            <span class="nav-label">Alertas</span>
+          </button>
+          <button class="nav-btn" id="nav-saldo" onclick="showSection('saldo')">
+            <span class="nav-icon">💰</span>
+            <span class="nav-label">Caixa</span>
+          </button>
+        </div>
+        <!-- Vendedor nav -->
+        <div id="nav-vendedor-group" style="display:none;">
+          <button class="nav-btn active" onclick="showSection('vnova-venda')">
+            <span class="nav-icon">🛒</span>
+            <span class="nav-label">Nova Venda</span>
+          </button>
+          <button class="nav-btn" onclick="showSection('vvendas')">
+            <span class="nav-icon">📋</span>
+            <span class="nav-label">Vendas do Dia</span>
+          </button>
+          <button class="nav-btn" onclick="showSection('vstock')">
+            <span class="nav-icon">💊</span>
+            <span class="nav-label">Consultar Stock</span>
+          </button>
+        </div>
       </nav>
       <div class="sidebar-footer">
         <div id="user-info">
@@ -534,18 +552,10 @@
     </div>
     <div id="payment-overlay" class="payment-overlay"></div>
 
-    <!-- VENDEDOR -->
-    <div class="section" id="sec-vendedor">
-      <div class="vendedor-header">
-        <h2>💊 Balcão de Atendimento</h2>
-        <div class="vendedor-user-info">
-          <span id="v-user-label"></span>
-          <button class="btn v-logout-btn" onclick="logoutUser()">Sair</button>
-        </div>
-      </div>
-
-      <div class="card v-venda-card">
-        <div class="card-title v-venda-title">Nova Venda</div>
+    <!-- VENDEDOR - Nova Venda -->
+    <div class="section" id="sec-vnova-venda">
+      <div class="card v-venda-card" style="border-color: var(--color-green);">
+        <div class="card-title v-venda-title">🛒 Nova Venda</div>
         <div class="v-venda-body">
           <div class="v-venda-produto">
             <label class="v-label">Medicamento</label>
@@ -596,18 +606,24 @@
           <button class="btn v-vender-btn" onclick="venderProduto()">💊 Registar Venda</button>
         </div>
       </div>
+    </div>
 
-      <div class="card v-vendas-card">
-        <div class="card-title v-vendas-title">
-          <span>Vendas do Dia</span>
-          <button class="btn v-print-btn" onclick="vPrintVendasDoDia()">🖨️ Imprimir</button>
+    <!-- VENDEDOR - Vendas do Dia -->
+    <div class="section" id="sec-vvendas">
+      <div class="card">
+        <div class="card-title" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>📋 Vendas do Dia</span>
+          <button class="btn" onclick="vPrintVendasDoDia()">🖨️ Imprimir</button>
         </div>
         <div id="v-vendas-table" class="v-vendas-table"></div>
       </div>
+    </div>
 
-      <div class="card v-stock-card">
-        <div class="card-title">Consultar Stock</div>
-        <input type="text" id="v-stock-search" placeholder="Pesquisar medicamento..." oninput="filterVendedorStock()">
+    <!-- VENDEDOR - Consultar Stock -->
+    <div class="section" id="sec-vstock">
+      <div class="card">
+        <div class="card-title">💊 Consultar Stock</div>
+        <input type="text" id="v-stock-search" placeholder="Pesquisar medicamento..." oninput="filterVendedorStock()" style="width:100%; margin-bottom:10px; padding:8px 12px; border:1px solid var(--color-border); border-radius:6px; box-sizing:border-box;">
         <div id="v-stock-table" class="v-stock-table"></div>
       </div>
     </div>

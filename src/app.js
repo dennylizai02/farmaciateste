@@ -86,6 +86,9 @@ function showSection(id) {
     if (id === 'relmensal') renderRelMensal();
     if (id === 'saldo') renderSaldo();
     if (id === 'mesas') renderMesas();
+    if (id === 'vnova-venda') renderVendedor();
+    if (id === 'vvendas') renderVendasDoDia();
+    if (id === 'vstock') renderVendedorStock();
 }
 
 function printDailyMovements() {
@@ -1951,14 +1954,8 @@ async function logoutUser() {
 }
 
 function renderVendedor() {
-    console.log('[renderVendedor] INICIO');
-    document.getElementById('v-user-label').textContent = getVendedorDisplayName(currentUserEmail);
-    console.log('[renderVendedor] label OK');
-    renderVendedorStock();
     populateVProdList();
-    renderVendasDoDia();
-    console.log('[renderVendedor] stock OK');
-    console.log('[renderVendedor] FIM, sec-vendedor=' + (document.getElementById('sec-vendedor') ? 'EXISTE' : 'AUSENTE'));
+    showSection('vnova-venda');
 }
 
 function renderVendedorStock(query) {
@@ -2227,20 +2224,14 @@ async function applyRoleRestrictions() {
     const app = document.querySelector('.app');
     console.log('[applyRoleRestrictions] sidebar=' + (!!sidebar) + ' app=' + (!!app));
     
+    document.getElementById('nav-admin-group').style.display = isGestor ? 'block' : 'none';
+    document.getElementById('nav-vendedor-group').style.display = isGestor ? 'none' : 'block';
+    
     if (!isGestor) {
         console.log('[applyRoleRestrictions] modo VENDEDOR');
-        document.querySelectorAll('.section').forEach(function (s) { s.classList.remove('active'); });
-        var sec = document.getElementById('sec-vendedor');
-        console.log('[applyRoleRestrictions] sec-vendedor=' + (!!sec));
-        if (sec) {
-            sec.classList.add('active');
-            console.log('[applyRoleRestrictions] sec-vendedor ativado');
-        }
-        if (sidebar) sidebar.style.display = 'none';
-        if (app) app.classList.add('seller-mode');
-        console.log('[applyRoleRestrictions] chamando renderVendedor...');
+        if (sidebar) sidebar.style.display = 'flex';
+        if (app) app.classList.remove('seller-mode');
         renderVendedor();
-        console.log('[applyRoleRestrictions] renderVendedor OK');
     } else {
         console.log('[applyRoleRestrictions] modo GESTOR');
         if (sidebar) sidebar.style.display = 'flex';
