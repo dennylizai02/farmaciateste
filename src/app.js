@@ -1948,6 +1948,10 @@ function onVProdSearch() {
     }
 }
 
+function onVProdChange() {
+    onVProdSearch();
+}
+
 function vQtdChange(delta) {
     var el = document.getElementById('v-qtd');
     var val = parseInt(el.value) || 1;
@@ -1969,12 +1973,25 @@ function vSelectMetodo(el) {
 }
 
 async function venderProduto() {
-    var prodId = parseInt(document.getElementById('v-prod-id').value);
-    var qtd = parseInt(document.getElementById('v-qtd').value) || 0;
-    var metodoEl = document.querySelector('input[name="v-metodo"]:checked');
-    var metodo = metodoEl ? metodoEl.value : 'CASH';
+    var searchEl = document.getElementById('v-prod-search');
+    var idEl = document.getElementById('v-prod-id');
+    var prodId = parseInt(idEl.value);
 
-    if (!prodId) { showNotification('Selecione um medicamento'); return; }
+    if (!prodId) {
+        var nome = searchEl.value.trim();
+        var pByName = produtos.find(function (x) { return x.nome === nome; });
+        if (pByName) {
+            prodId = pByName.id;
+            idEl.value = prodId;
+            document.getElementById('v-preco').value = pByName.venda || 0;
+            onVProdSearch();
+        } else {
+            showNotification('Selecione um medicamento válido');
+            return;
+        }
+    }
+
+    var qtd = parseInt(document.getElementById('v-qtd').value) || 0;
     if (!qtd) { showNotification('Insira a quantidade'); return; }
 
     var p = produtos.find(function (x) { return x.id === prodId; });
@@ -1985,35 +2002,45 @@ async function venderProduto() {
         showNotification('⚠ O stock ficará baixo após esta venda!', 'info');
     }
 
+    var metodoEl = document.querySelector('input[name="v-metodo"]:checked');
+    var metodo = metodoEl ? metodoEl.value : 'CASH';
+
     p.qtd -= qtd;
     checkLowStock(p);
 
     var novoMov = { tipo: 'saida', produto_id: prodId, quantidade: qtd, preco_unitario: p.venda, total: qtd * p.venda, nota: '[Venda Balcão]', metodo_pagamento: metodo };
 
-    if (!sb) { showNotification('Sem ligação à BD'); return; }
+    if (!sb) { showNotification('Sem ligação à BD'); p.qtd += qtd; return; }
 
-    var res = await Promise.all([
-        sb.from(PREFIX + 'movimentos').insert([novoMov]).select(),
-        sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', prodId)
-    ]);
+    try {
+        var res = await Promise.all([
+            sb.from(PREFIX + 'movimentos').insert([novoMov]).select(),
+            sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', prodId)
+        ]);
 
-    var mRes = res[0];
-    if (!mRes.error && mRes.data && mRes.data.length > 0) {
-        var mm = mRes.data[0];
-        showNotification('Venda registada com sucesso!', 'success');
-        movimentos.unshift({ id: mm.id, tipo: 'saida', prodId: mm.produto_id, qtd: mm.quantidade, preco: mm.preco_unitario, total: mm.total, data: mm.data.split('T')[0], nota: '', metodo: mm.metodo_pagamento, nome_v: p.nome, custo_aplicado: null });
-        document.getElementById('v-prod-search').value = '';
-        document.getElementById('v-prod-id').value = '';
-        document.getElementById('v-preco').value = '';
-        document.getElementById('v-total').textContent = '0,00 MT';
-        document.getElementById('v-qtd').value = 1;
-        document.getElementById('v-prod-info').innerHTML = '';
-        document.getElementById('v-prod-info').style.display = 'none';
-        rebuildFifo();
-        renderVendedorStock(document.getElementById('v-stock-search').value);
-    } else {
+        var mRes = res[0];
+        if (!mRes.error && mRes.data && mRes.data.length > 0) {
+            var mm = mRes.data[0];
+            showNotification('Venda registada com sucesso!', 'success');
+            movimentos.unshift({ id: mm.id, tipo: 'saida', prodId: mm.produto_id, qtd: mm.quantidade, preco: mm.preco_unitario, total: mm.total, data: mm.data.split('T')[0], nota: '', metodo: mm.metodo_pagamento, nome_v: p.nome, custo_aplicado: null });
+            searchEl.value = '';
+            idEl.value = '';
+            document.getElementById('v-preco').value = '';
+            document.getElementById('v-total').textContent = '0,00 MT';
+            document.getElementById('v-qtd').value = 1;
+            var infoEl = document.getElementById('v-prod-info');
+            infoEl.innerHTML = '';
+            infoEl.style.display = 'none';
+            rebuildFifo();
+            renderVendedorStock(document.getElementById('v-stock-search').value);
+        } else {
+            p.qtd += qtd;
+            showNotification('Erro ao registar venda: ' + (mRes.error ? mRes.error.message : 'resposta vazia'));
+        }
+    } catch (e) {
         p.qtd += qtd;
-        showNotification('Erro ao registar venda.');
+        showNotification('Erro inesperado: ' + e.message);
+        console.error('[venderProduto]', e);
     }
 }
 
@@ -2149,6 +2176,7 @@ Object.assign(window, {
     updatePlanoQtd,
     filterVendedorStock,
     onVProdSearch,
+    onVProdChange,
     vQtdChange,
     vUpdateTotal,
     vSelectMetodo,

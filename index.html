@@ -549,7 +549,7 @@
         <div class="v-venda-body">
           <div class="v-venda-produto">
             <label class="v-label">Medicamento</label>
-            <input id="v-prod-search" list="v-prod-list" oninput="onVProdSearch()" placeholder="Digite o nome do medicamento..." class="v-prod-input" autocomplete="off">
+            <input id="v-prod-search" list="v-prod-list" oninput="onVProdSearch()" onchange="onVProdChange()" placeholder="Digite o nome do medicamento..." class="v-prod-input" autocomplete="off">
             <datalist id="v-prod-list"></datalist>
             <input type="hidden" id="v-prod-id">
             <div id="v-prod-info" class="v-prod-info"></div>
