@@ -1015,86 +1015,6 @@ body {
   background: var(--color-border);
 }
 
-.mesa-panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.mesa-atendimento-form {
-  background: var(--color-background-secondary);
-  padding: 1rem;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-}
-
-.mesa-add-btn-group {
-  justify-content: flex-end;
-}
-
-.payment-modal {
-  display: none;
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10001;
-  width: 90%;
-  max-width: 500px;
-  box-shadow: 0 0 50px rgba(0,0,0,0.5);
-}
-
-.payment-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-
-.payment-total {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-.payment-add-method {
-  width: 100%;
-  margin-top: 10px;
-  border: 1px dashed #ccc;
-}
-
-.payment-footer {
-  margin-top: 2rem;
-  border-top: 1px solid #eee;
-  padding-top: 1rem;
-}
-
-.payment-change {
-  display: flex;
-  justify-content: space-between;
-  font-weight: bold;
-  margin-top: 0.5rem;
-  color: #A32D2D;
-}
-
-.payment-overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0,0,0,0.5);
-  z-index: 10000;
-}
-
-#btn-confirm-pay {
-  width: 100%;
-  margin-top: 1.5rem;
-}
-
 .badge-out {
   background: #FEE2E2;
   color: #991B1B;
@@ -1529,27 +1449,6 @@ select:focus {
     flex: 1;
   }
 
-  .mesa-panel-header {
-    flex-direction: column;
-    align-items: stretch !important;
-  }
-
-  .mesa-panel-header button {
-    width: 100%;
-  }
-
-  .mesa-atendimento-form {
-    grid-template-columns: 1fr;
-  }
-
-  .atendimentos-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .mesa-card {
-    padding: 1.5rem 1rem;
-  }
-
   .vendedor-header {
     flex-direction: column;
     align-items: stretch !important;
@@ -1559,31 +1458,6 @@ select:focus {
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
-
-  .payment-modal {
-    width: 95% !important;
-    max-height: 90vh;
-    overflow-y: auto;
-    padding: 1rem !important;
-  }
-
-  .payment-modal h3 {
-    font-size: 16px;
-  }
-
-  .payment-modal-header {
-    flex-direction: column;
-    gap: 8px;
-    align-items: stretch !important;
-  }
-
-  .payment-modal-header button {
-    width: 100%;
-  }
-
-  .payment-total {
-    font-size: 20px;
   }
 
   .toast {
@@ -1848,28 +1722,6 @@ select:focus {
     justify-content: stretch !important;
   }
 
-  .mesa-panel-header {
-    flex-direction: column;
-    align-items: stretch !important;
-    gap: 8px;
-  }
-
-  .mesa-panel-header button {
-    width: 100%;
-  }
-
-  .mesa-atendimento-form {
-    grid-template-columns: 1fr;
-  }
-
-  .mesa-add-btn-group {
-    justify-content: stretch !important;
-  }
-
-  .payment-add-method {
-    font-size: 13px;
-    padding: 8px;
-  }
 }
 
 @media (max-width: 480px) {
@@ -1940,15 +1792,6 @@ select:focus {
     font-size: 12px;
   }
 
-  .atendimentos-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-
-  .mesa-card {
-    padding: 1.25rem 0.75rem;
-  }
-
   .login-card {
     padding: 1.25rem;
   }
@@ -1956,18 +1799,6 @@ select:focus {
   .login-input {
     padding: 10px;
     font-size: 13px;
-  }
-
-  .payment-modal {
-    padding: 0.75rem !important;
-  }
-
-  .payment-modal-header h3 {
-    font-size: 14px;
-  }
-
-  .payment-total {
-    font-size: 18px;
   }
 
   .table-responsive table {
@@ -2086,48 +1917,6 @@ select:focus {
 
 .login-btn:hover {
   background: var(--color-green-dark);
-}
-
-.atendimentos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 20px;
-}
-
-.mesa-card {
-  padding: 2.5rem 1.5rem;
-  border-radius: 12px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 2px solid transparent;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-
-.mesa-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-}
-
-.mesa-card.free {
-  background: var(--color-green-light);
-  border-color: #a5d6a7;
-  color: var(--color-green-dark);
-}
-
-.mesa-card.occupied {
-  background: #FFF8E1;
-  border-color: #ffe082;
-  color: #E65100;
-}
-
-.mesa-badge {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 20px;
 }
 
 #chart-roi-container,

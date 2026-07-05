@@ -62,46 +62,19 @@ CREATE TABLE IF NOT EXISTS saldo_caixa (
   data TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 6. Mesas / Balcão — Clientes (Utentes)
-CREATE TABLE IF NOT EXISTS mesas_clientes (
-  id BIGSERIAL PRIMARY KEY,
-  mesa_numero INTEGER NOT NULL DEFAULT 1,
-  nome_cliente TEXT DEFAULT '',
-  nota_aparencia TEXT DEFAULT '',
-  status TEXT DEFAULT 'ativo',
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 7. Mesas / Balcão — Pedidos (itens do atendimento)
-CREATE TABLE IF NOT EXISTS mesas_pedidos (
-  id BIGSERIAL PRIMARY KEY,
-  cliente_id INTEGER REFERENCES mesas_clientes(id) ON DELETE CASCADE,
-  produto_id INTEGER,
-  produto_nome TEXT DEFAULT '',
-  quantidade INTEGER NOT NULL DEFAULT 1,
-  preco_unitario NUMERIC(12,2) DEFAULT 0,
-  total NUMERIC(12,2) DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
 -- Índices úteis
 CREATE INDEX IF NOT EXISTS idx_movimentos_data ON movimentos(data);
 CREATE INDEX IF NOT EXISTS idx_movimentos_produto ON movimentos(produto_id);
 CREATE INDEX IF NOT EXISTS idx_despesas_data ON despesas(data);
 CREATE INDEX IF NOT EXISTS idx_documentos_data ON documentos(data);
-CREATE INDEX IF NOT EXISTS idx_mesas_clientes_status ON mesas_clientes(status);
-CREATE INDEX IF NOT EXISTS idx_mesas_pedidos_cliente ON mesas_pedidos(cliente_id);
 
--- 8. Perfis de utilizadores (vinculado ao auth.users do Supabase Auth)
+-- 6. Perfis de utilizadores (vinculado ao auth.users do Supabase Auth)
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   role TEXT NOT NULL DEFAULT 'vendedor',
   display_name TEXT DEFAULT '',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
-
--- Remover FK problemática (produtos podem estar apenas em memória)
-ALTER TABLE IF EXISTS mesas_pedidos DROP CONSTRAINT IF EXISTS mesas_pedidos_produto_id_fkey;
 
 -- ============================================================
 -- RLS: Permitir acesso anónimo (desativar RLS em todas as tabelas)
@@ -111,6 +84,4 @@ ALTER TABLE movimentos DISABLE ROW LEVEL SECURITY;
 ALTER TABLE despesas DISABLE ROW LEVEL SECURITY;
 ALTER TABLE documentos DISABLE ROW LEVEL SECURITY;
 ALTER TABLE saldo_caixa DISABLE ROW LEVEL SECURITY;
-ALTER TABLE mesas_clientes DISABLE ROW LEVEL SECURITY;
-ALTER TABLE mesas_pedidos DISABLE ROW LEVEL SECURITY;
 ALTER TABLE profiles DISABLE ROW LEVEL SECURITY;

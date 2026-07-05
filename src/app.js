@@ -37,8 +37,6 @@ let documentos = [];
 let docItems = [];
 let planoItems = [];
 let saldoMovimentos = [];
-let mesaClientes = [];
-
 let tipoActivo = 'entrada';
 let periodoActivo = 'diário';
 let currentSortField = 'nome';
@@ -46,8 +44,6 @@ let currentSortOrder = 'asc';
 let chartVendas, chartLucro, chartRelVendas, chartRelLucro, chartTop5, chartDiario, chartROI;
 let userRole = 'gestor';
 let currentUserEmail = '';
-let activeMesa = null;
-
 // ---------- DATE ----------
 const dateEl = document.getElementById('current-date');
 if (dateEl) dateEl.textContent = new Date().toLocaleDateString('pt-MZ', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -85,7 +81,6 @@ function showSection(id) {
     if (id === 'planocompras') renderPlanoCompras();
     if (id === 'relmensal') renderRelMensal();
     if (id === 'saldo') renderSaldo();
-    if (id === 'mesas') renderMesas();
     if (id === 'vnova-venda') renderVendedor();
     if (id === 'vvendas') renderVendasDoDia();
     if (id === 'vstock') renderVendedorStock();
@@ -206,13 +201,11 @@ async function fetchData() {
             fetchAllRows('movimentos', '*, produtos(nome)', 'data', false),
             fetchAllRows('despesas', '*', 'data', false),
             fetchAllRows('documentos', '*', 'data', false),
-            fetchAllRows('saldo_caixa', '*', 'data', false),
-            sb.from(PREFIX + 'mesas_clientes').select('*, mesas_pedidos(*)').order('created_at', { ascending: false })
+            fetchAllRows('saldo_caixa', '*', 'data', false)
         ]);
         pRes = results[0]; mRes = results[1]; dRes = results[2]; docRes = results[3];
-        var sRes = results[4]; var msRes = results[5];
+        var sRes = results[4];
         if (sRes.data) saldoMovimentos = sRes.data;
-        if (msRes.data) mesaClientes = msRes.data;
     } catch (e) {
         console.error('fetchData error:', e);
         return;
@@ -2317,20 +2310,15 @@ async function initApp() {
 
 // Expor funções usadas por handlers inline no HTML
 Object.assign(window, {
-    addClienteMesa,
     addDespesa,
     addDocItem,
     addMovimento,
-    addPaymentRow,
-    addPedidoMesa,
     addPlanoItem,
     addProduto,
     addSaldoMovimento,
     clearPlano,
     closeConfirmModal,
-    closePayment,
     confirmarCompra,
-    confirmarMesaPagamento,
     deleteDocumento,
     deleteDespesa,
     deleteMovimento,
@@ -2341,7 +2329,6 @@ Object.assign(window, {
     loginUser,
     logoutUser,
     onProductSearch,
-    openPayment,
     prePopulatePlano,
     printDailyMovements,
     printFaturacao,
@@ -2350,7 +2337,6 @@ Object.assign(window, {
     printPlanoCompras,
     prepareDocPrintArea,
     renderDocList,
-    renderMesas,
     renderMovimentos,
     renderRelMensal,
     renderRelatorios,
@@ -2365,7 +2351,6 @@ Object.assign(window, {
     toggleCustomProdCat,
     toggleSelectAllMovs,
     updateMovTotal,
-    updatePaymentSummary,
     updatePlanoQtd,
     filterVendedorStock,
     onVProdSearch,
@@ -2377,9 +2362,7 @@ Object.assign(window, {
     vGerarRecibo,
     vPrintDocFromMov,
     vPrintVendasDoDia,
-    voltarAtendimento,
     removeDocItem,
-    removePedidoMesa,
     removePlanoItem
 });
 
@@ -2476,333 +2459,6 @@ async function setSaldoInicial() {
         fetchData().then(renderSaldo);
     }
 }
-
-// ====================== MESAS ======================
-function renderMesas() {
-    const grid = document.getElementById('atendimentos-grid');
-    const panel = document.getElementById('mesa-panel');
-    
-    grid.style.display = 'grid';
-    panel.style.display = 'none';
-    grid.innerHTML = '';
-    
-    for (let i = 1; i <= 10; i++) {
-        const client = mesaClientes.find(c => c.mesa_numero === i && c.status === 'ativo');
-        const card = document.createElement('div');
-        card.className = 'mesa-card ' + (client ? 'occupied' : 'free');
-        card.onclick = () => openMesa(i);
-        
-        let totalVal = 0;
-        if (client && client.mesas_pedidos) {
-            totalVal = client.mesas_pedidos.reduce((a, b) => a + b.total, 0);
-        }
-
-        var mesaIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;vertical-align:middle;margin-right:4px;"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="8" width="7" height="13" rx="1"/></svg>';
-        card.innerHTML = `
-            <h3 style="margin-bottom:10px;">${mesaIcon} Balcão ${i}</h3>
-            <div class="mesa-badge" style="background:${client ? '#FFEBEE' : '#E8F5E9'}; color:${client ? '#C62828' : '#2E7D32'};">${client ? 'Em Atendimento' : 'Livre'}</div>
-            ${client ? `<div style="font-size:12px; margin-top:10px; font-weight:bold;">${escapeHTML(client.nome_cliente)}</div>` : ''}
-            ${totalVal > 0 ? `<div style="font-size:14px; margin-top:5px; color:#1565C0;">Total: ${totalVal.toLocaleString()} MT</div>` : ''}
-        `;
-        grid.appendChild(card);
-    }
-}
-
-function openMesa(n) {
-    activeMesa = n;
-    const grid = document.getElementById('atendimentos-grid');
-    const panel = document.getElementById('mesa-panel');
-    const title = document.getElementById('atendimento-title');
-    
-    grid.style.display = 'none';
-    panel.style.display = 'block';
-    title.textContent = 'Balcão de Atendimento ' + n;
-    
-    renderMesaContent();
-}
-
-function renderMesaContent() {
-    const clientListEl = document.getElementById('active-clients');
-    const clients = mesaClientes.filter(c => c.mesa_numero === activeMesa && c.status === 'ativo');
-    
-    if (clients.length === 0) {
-        clientListEl.innerHTML = '<div class="empty">Nenhum utente activo neste balcão.</div>';
-        return;
-    }
-
-    clientListEl.innerHTML = clients.map(c => `
-        <div class="card" style="border:1px solid #ddd; margin-bottom:10px;">
-            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; flex-wrap:wrap;">
-                <div>
-                    <strong style="font-size:16px;">${escapeHTML(c.nome_cliente)}</strong>
-                    ${c.nota_aparencia ? `<div style="font-size:12px; color:#666;">Obs: ${escapeHTML(c.nota_aparencia)}</div>` : ''}
-                </div>
-                <button class="btn btn-primary" onclick="openPayment(${c.id})">Finalizar e Pagar</button>
-            </div>
-            
-            <div style="background:#f9f9f9; padding:10px; border-radius:5px;">
-                <div style="display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
-                    <select id="p-prod-${c.id}" style="flex:1;">${produtos.map(p => `<option value="${p.id}">${escapeHTML(p.nome)} (${p.venda} MT)</option>`).join('')}</select>
-                    <input id="p-qtd-${c.id}" type="number" value="1" style="width:60px;max-width:100%;flex:1 0 50px;">
-                    <button class="btn" onclick="addPedidoMesa(${c.id})">+ Pedido</button>
-                </div>
-                <table style="width:100%; font-size:12px;">
-                    <thead><tr style="text-align:left;"><th>Item</th><th>Qtd</th><th>Preço</th><th>Total</th><th style="width:20px;"></th></tr></thead>
-                    <tbody>
-                        ${(c.mesas_pedidos || []).map(p => `
-                            <tr>
-                                <td>${escapeHTML(p.produto_nome)}</td>
-                                <td>${p.quantidade}</td>
-                                <td>${p.preco_unitario}</td>
-                                <td>${p.total} MT</td>
-                                <td><button type="button" style="border:none; background:none; color:#E24B4A; cursor:pointer; padding:4px;" onclick="removePedidoMesa(event, ${p.id}, ${c.id})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button></td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-                <div style="text-align:right; margin-top:10px; font-weight:bold; font-size:14px;">Total Cliente: ${c.mesas_pedidos.reduce((a, b) => a + b.total, 0).toLocaleString()} MT</div>
-            </div>
-        </div>
-    `).join('');
-}
-
-async function addClienteMesa() {
-    const nome = document.getElementById('c-nome').value.trim();
-    const nota = document.getElementById('c-nota').value.trim();
-    if (!nome) { showNotification('Insira o nome do utente'); return; }
-
-    const payload = { mesa_numero: activeMesa, nome_cliente: nome, nota_aparencia: nota };
-    const { data: res, error } = await sb.from(PREFIX + 'mesas_clientes').insert([payload]).select();
-    
-    if (!error) {
-        showNotification('Cliente adicionado!');
-        document.getElementById('c-nome').value = '';
-        document.getElementById('c-nota').value = '';
-        mesaClientes.unshift({ ...res[0], mesas_pedidos: [] });
-        renderMesaContent();
-    }
-}
-
-async function removePedidoMesa(event, pedidoId, clientId) {
-    if (event) event.stopPropagation();
-    if (!(await showConfirm('Eliminar este pedido e devolver o stock?'))) return;
-    const client = mesaClientes.find(c => c.id === clientId);
-    if (!client) return;
-    const pedido = client.mesas_pedidos.find(p => p.id === pedidoId);
-    if (!pedido) return;
-
-    const { error } = await sb.from(PREFIX + 'mesas_pedidos').delete().eq('id', pedidoId);
-    if (!error) {
-        // Devolver stock
-        const prod = produtos.find(p => p.id === pedido.produto_id);
-        if (prod) {
-            prod.qtd += pedido.quantidade;
-            await sb.from(PREFIX + 'produtos').update({ quantidade: prod.qtd }).eq('id', prod.id);
-        }
-        client.mesas_pedidos = client.mesas_pedidos.filter(p => p.id !== pedidoId);
-        showNotification('Pedido removido e stock devolvido.', 'success');
-        renderMesaContent();
-        renderStock();
-    } else {
-        showNotification('Erro ao remover pedido: ' + error.message);
-    }
-}
-async function addPedidoMesa(clientId) {
-    const pId = parseInt(document.getElementById('p-prod-' + clientId).value);
-    const qtd = parseInt(document.getElementById('p-qtd-' + clientId).value) || 0;
-    const prod = produtos.find(p => p.id === pId);
-    
-    if (!prod || qtd <= 0) return;
-    
-    const payload = { 
-        cliente_id: clientId, 
-        produto_id: pId, 
-        produto_nome: prod.nome, 
-        quantidade: qtd, 
-        preco_unitario: prod.venda, 
-        total: qtd * prod.venda 
-    };
-    
-    const { data: res, error } = await sb.from(PREFIX + 'mesas_pedidos').insert([payload]).select();
-    if (!error) {
-        const client = mesaClientes.find(c => c.id === clientId);
-        if (client) {
-            if (!client.mesas_pedidos) client.mesas_pedidos = [];
-            client.mesas_pedidos.push(res[0]);
-        }
-        renderMesaContent();
-    }
-}
-
-function voltarMesas() {
-    activeMesa = null;
-    renderMesas();
-}
-
-function voltarAtendimento() {
-    voltarMesas();
-}
-
-// Lógica de Pagamento Múltiplo
-let currentPayClient = null;
-let currentPayTotal = 0;
-
-function openPayment(clientId) {
-    currentPayClient = mesaClientes.find(c => c.id === clientId);
-    if (!currentPayClient || !currentPayClient.mesas_pedidos || currentPayClient.mesas_pedidos.length === 0) {
-        showNotification('Nenhum pedido para pagar.'); return;
-    }
-
-    currentPayTotal = currentPayClient.mesas_pedidos.reduce((a, b) => a + b.total, 0);
-    
-    document.getElementById('pay-client-name').textContent = currentPayClient.nome_cliente;
-    document.getElementById('pay-total-amount').textContent = currentPayTotal.toLocaleString();
-    document.getElementById('payment-methods-list').innerHTML = '';
-    
-    // Adicionar primeira linha de pagamento
-    addPaymentRow('CASH', currentPayTotal);
-    
-    document.getElementById('payment-modal').style.display = 'block';
-    document.getElementById('payment-overlay').style.display = 'block';
-}
-
-function closePayment() {
-    document.getElementById('payment-modal').style.display = 'none';
-    document.getElementById('payment-overlay').style.display = 'none';
-}
-
-function addPaymentRow(method = 'CASH', value = 0) {
-    const list = document.getElementById('payment-methods-list');
-    const div = document.createElement('div');
-    div.className = 'payment-row';
-    div.style.display = 'flex';
-    div.style.gap = '10px';
-    div.style.marginBottom = '10px';
-    div.style.flexWrap = 'wrap';
-    
-    div.innerHTML = `
-        <select class="pay-method" style="flex:2;" onchange="updatePaymentSummary()">
-            <option value="CASH" ${method === 'CASH' ? 'selected' : ''}>Dinheiro (CASH)</option>
-            <option value="MPESA" ${method === 'MPESA' ? 'selected' : ''}>M-Pesa</option>
-            <option value="EMOLA" ${method === 'EMOLA' ? 'selected' : ''}>e-Mola</option>
-            <option value="POS" ${method === 'POS' ? 'selected' : ''}>Cartão (POS)</option>
-            <option value="TRANSFERENCIA" ${method === 'TRANSFERENCIA' ? 'selected' : ''}>Transferência</option>
-            <option value="BANCO" ${method === 'BANCO' ? 'selected' : ''}>Banco / Outro</option>
-        </select>
-        <input class="pay-value" type="number" step="0.01" value="${value}" style="flex:1;" oninput="updatePaymentSummary()">
-        <button class="btn btn-danger" onclick="this.parentElement.remove(); updatePaymentSummary()">X</button>
-    `;
-    list.appendChild(div);
-    updatePaymentSummary();
-}
-
-function updatePaymentSummary() {
-    const rows = document.querySelectorAll('.payment-row');
-    let sum = 0;
-    rows.forEach(row => {
-        sum += parseFloat(row.querySelector('.pay-value').value) || 0;
-    });
-    
-    document.getElementById('pay-current-sum').textContent = sum.toLocaleString();
-    
-    const change = sum - currentPayTotal;
-    const changeRow = document.getElementById('pay-change-row');
-    const changeEl = document.getElementById('pay-change-amount');
-    
-    if (change > 0) {
-        changeRow.style.display = 'flex';
-        changeEl.textContent = change.toLocaleString();
-    } else {
-        changeRow.style.display = 'none';
-        changeEl.textContent = '0';
-    }
-
-    const btn = document.getElementById('btn-confirm-pay');
-    
-    // Permitir confirmar se valor for >= total
-    if (sum >= currentPayTotal - 0.01) {
-        btn.disabled = false;
-        btn.style.opacity = '1';
-    } else {
-        btn.disabled = true;
-        btn.style.opacity = '0.5';
-    }
-}
-
-async function confirmarMesaPagamento() {
-    const rows = document.querySelectorAll('.payment-row');
-    const payments = [];
-    rows.forEach(row => {
-        payments.push({
-            metodo: row.querySelector('.pay-method').value,
-            valor: parseFloat(row.querySelector('.pay-value').value) || 0
-        });
-    });
-
-    // 1. Gerar Factura Documento
-    var invoice;
-    const payloadDoc = {
-        tipo: 'factura',
-        cliente: currentPayClient.nome_cliente + ' (Balcão ' + currentPayClient.mesa_numero + ')',
-        total: currentPayTotal,
-        metodo_pagamento: payments.map(p => p.metodo).join(' / '),
-        detalhes: { 
-            items: currentPayClient.mesas_pedidos.map(p => ({ nome: p.produto_nome, id: p.produto_id, qtd: p.quantidade, preco: p.preco_unitario, total: p.total })),
-            pagamentos: payments
-        }
-    };
-
-    if (sb) {
-        const { data: docRes, error: docErr } = await sb.from(PREFIX + 'documentos').insert([payloadDoc]).select();
-        let dbInvoice = docRes && docRes.length > 0 ? docRes[0] : null;
-        if (!docErr && !dbInvoice) {
-            const { data: latest } = await sb.from(PREFIX + 'documentos').select('*').eq('cliente', payloadDoc.cliente).order('created_at', { ascending: false }).limit(1);
-            if (latest) dbInvoice = latest[0];
-        }
-        if (docErr || !dbInvoice) {
-            console.error('Erro Fatura:', docErr);
-            showNotification('Erro ao gerar factura. Tente novamente.', 'error'); 
-            return;
-        }
-        invoice = dbInvoice;
-
-        // 2. Registar em Saldo Caixa
-        for (const p of payments) {
-            if (p.valor > 0) {
-                await sb.from(PREFIX + 'saldo_caixa').insert([{
-                    tipo: 'investimento',
-                    metodo: p.metodo,
-                    valor: p.valor,
-                    descricao: 'Venda Balcão ' + currentPayClient.mesa_numero + ' (' + currentPayClient.nome_cliente + ')'
-                }]);
-            }
-        }
-
-        // 3. Fechar cliente e sincronizar stock
-        await sb.from(PREFIX + 'mesas_clientes').update({ status: 'pago' }).eq('id', currentPayClient.id);
-        await syncInvoiceToStock(dbInvoice);
-    } else {
-        // Modo offline: factura local apenas para impressão
-        invoice = { id: 'OFF-' + Date.now(), ...payloadDoc, data: new Date().toISOString().split('T')[0] };
-        currentPayClient.status = 'pago';
-    }
-
-    currentPayClient.status = 'pago';
-    showNotification('Pagamento concluído!', 'success');
-    closePayment();
-    if (userRole === 'vendedor') {
-        prepareDocPrintArea(invoice);
-        setTimeout(function () {
-            generatePDF(document.getElementById('print-area'), 'Factura_' + invoice.id + '.pdf');
-        }, 500);
-        fetchData().then(function () { renderVendedor(); });
-    } else {
-        voltarMesas();
-        fetchData().then(renderMesas);
-    }
-}
-
-
 
 // ====================== PLANO DE COMPRAS ======================
 function renderPlanoCompras() {
