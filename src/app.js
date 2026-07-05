@@ -2047,10 +2047,27 @@ function renderVendasDoDia() {
                 '<td>' + m.qtd + '</td>' +
                 '<td style="font-weight:500;">' + m.total.toLocaleString() + ' MT</td>' +
                 '<td><span class="badge">' + escapeHTML(m.metodo || '—') + '</span></td>' +
-                '<td><button class="v-recibo-btn" onclick="vGerarRecibo(' + m.id + ')" title="Reimprimir recibo">🖨️</button></td></tr>';
+                '<td><button class="v-recibo-btn" onclick="vPrintDocFromMov(' + m.id + ')" title="Reimprimir recibo">🖨️</button></td></tr>';
         }).join('') +
         '<tr style="font-weight:bold;background:var(--color-background-secondary);"><td colspan="3">Total do Dia</td><td>' + totalDia.toLocaleString() + ' MT</td><td colspan="2"></td></tr>' +
         '</tbody></table>';
+}
+
+function vPrintDocFromMov(movId) {
+    var m = movimentos.find(function (x) { return x.id === movId; });
+    if (!m) { showNotification('Movimento não encontrado.'); return; }
+    var doc = {
+        tipo: 'factura',
+        id: 'R' + m.id,
+        data: m.data || new Date().toISOString().split('T')[0],
+        cliente: 'Cliente Avulso',
+        total: m.total,
+        detalhes: {
+            items: [{ nome: m.nome_v || '—', qtd: m.qtd, preco: m.preco || 0, total: m.total }],
+            desconto: 0
+        }
+    };
+    printDoc(doc);
 }
 
 function vPrintVendasDoDia() {
@@ -2205,7 +2222,7 @@ async function venderProduto() {
             rebuildFifo();
             renderVendedorStock(document.getElementById('v-stock-search').value);
             renderVendasDoDia();
-            setTimeout(function () { vGerarRecibo(mm.id); }, 500);
+            setTimeout(function () { vPrintDocFromMov(mm.id); }, 500);
         } else {
             p.qtd += qtd;
             showNotification('Erro ao registar venda: ' + (mRes.error ? mRes.error.message : 'resposta vazia'));
@@ -2349,6 +2366,7 @@ Object.assign(window, {
     vSelectMetodo,
     venderProduto,
     vGerarRecibo,
+    vPrintDocFromMov,
     vPrintVendasDoDia,
     voltarAtendimento,
     removeDocItem,
