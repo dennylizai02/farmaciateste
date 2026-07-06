@@ -276,6 +276,21 @@
             </div>
           </div>
         </div>
+
+        <div class="card">
+          <div class="card-title">
+            Movimentos do Dia
+            <div class="mov-dia-filter">
+              <select id="mov-dia-tipo" onchange="renderMovimentosDoDia()">
+                <option value="">Todos os tipos</option>
+                <option value="entrada">+ Entrada</option>
+                <option value="saida">− Saída (venda)</option>
+                <option value="quebra">! Quebra</option>
+              </select>
+            </div>
+          </div>
+          <div id="mov-dia-table"></div>
+        </div>
       </div>
 
       <!-- TAB: Produtos em Quarentena -->

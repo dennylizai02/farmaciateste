@@ -22,6 +22,7 @@ let chartPrintMensal = null;
 
 function refreshAllViews() {
     renderMovimentos(); renderStock(); renderRelatorios(); renderCaixa(); renderAlertas(); renderNecessidades(); renderDocsHistory();
+    renderMovimentosDoDia();
 }
 
 function checkLowStock(p) {
@@ -521,6 +522,9 @@ function showStockTab(tab) {
     if (tab === 'gestao' || tab === 'all' || tab === 'quarentena') {
         populateGestaoSelect();
     }
+    if (tab === 'gestao') {
+        renderMovimentosDoDia();
+    }
     if (tab === 'all') {
         renderStock();
     }
@@ -543,6 +547,59 @@ function populateGestaoData() {
     if (dataInput && !dataInput.value) {
         dataInput.value = new Date().toISOString().split('T')[0];
     }
+}
+
+function renderMovimentosDoDia() {
+    var hoje = new Date();
+    var hojeStr = hoje.getFullYear() + '-' + String(hoje.getMonth() + 1).padStart(2, '0') + '-' + String(hoje.getDate()).padStart(2, '0');
+    var tipoFiltro = document.getElementById('mov-dia-tipo').value;
+    var tipoLabel = { entrada: 'Entrada', saida: 'Venda', quebra: 'Quebra' };
+
+    var movs = movimentos.filter(function (m) {
+        if (m.data !== hojeStr) return false;
+        if (tipoFiltro && m.tipo !== tipoFiltro) return false;
+        return true;
+    });
+
+    movs.sort(function (a, b) {
+        return (b.id || 0) - (a.id || 0);
+    });
+
+    var container = document.getElementById('mov-dia-table');
+    if (!container) return;
+
+    if (movs.length === 0) {
+        container.innerHTML = '<div class="empty">Nenhum movimento registado hoje</div>';
+        return;
+    }
+
+    var totalEntradas = 0, totalSaidas = 0;
+    movs.forEach(function (m) {
+        if (m.tipo === 'entrada') totalEntradas += m.total;
+        else totalSaidas += m.total;
+    });
+
+    container.innerHTML =
+        '<table><thead><tr><th>Hora</th><th>Tipo</th><th>Produto</th><th>Qtd</th><th>Valor</th><th>Vendedor</th></tr></thead><tbody>' +
+        movs.map(function (m) {
+            var isQuar = (m.tipo === 'quebra' && m.nota && m.nota.indexOf('[Quarentena]') !== -1);
+            var label = isQuar ? 'Quarentena' : (tipoLabel[m.tipo] || m.tipo);
+            var cor = m.tipo === 'entrada' ? 'badge-ok' : m.tipo === 'saida' ? 'badge' : 'badge-low';
+            var vendedorLabel = m.vendedor ? getVendedorDisplayName(m.vendedor) : '—';
+            return '<tr>' +
+                '<td style="color:var(--color-text-secondary);font-size:12px;">' + escapeHTML(m.dataHora || m.data || '') + '</td>' +
+                '<td><span class="badge ' + cor + '">' + escapeHTML(label) + '</span></td>' +
+                '<td>' + escapeHTML(m.nome_v || '—') + '</td>' +
+                '<td>' + m.qtd + '</td>' +
+                '<td>' + m.total.toLocaleString() + ' MZN</td>' +
+                '<td style="font-size:12px;">' + escapeHTML(vendedorLabel) + '</td></tr>';
+        }).join('') +
+        '</tbody></table>' +
+        '<div class="mov-dia-summary">' +
+        '<span class="mov-dia-summary-item"><strong>Entradas:</strong> ' + totalEntradas.toLocaleString() + ' MZN</span>' +
+        '<span class="mov-dia-summary-item"><strong>Saídas:</strong> ' + totalSaidas.toLocaleString() + ' MZN</span>' +
+        '<span class="mov-dia-summary-item"><strong>Saldo:</strong> ' + (totalEntradas - totalSaidas).toLocaleString() + ' MZN</span>' +
+        '</div>';
 }
 
 async function gestaoMovimento() {
@@ -600,6 +657,7 @@ async function gestaoMovimento() {
     showNotification('Movimento registado com sucesso!', 'success');
     renderStock();
     renderMovimentos();
+    renderMovimentosDoDia();
     renderRelatorios();
 }
 

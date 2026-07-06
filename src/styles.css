@@ -449,6 +449,68 @@ body {
   display: block;
 }
 
+/* ── Movimentos do Dia (na aba Gestão) ── */
+.mov-dia-filter {
+  margin-left: auto;
+}
+
+.mov-dia-filter select {
+  padding: 4px 10px;
+  font-size: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  background: var(--color-background-primary);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+#mov-dia-table {
+  margin-top: 0.5rem;
+}
+
+#mov-dia-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+#mov-dia-table th,
+#mov-dia-table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+#mov-dia-table th {
+  background: var(--color-background-secondary);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-secondary);
+}
+
+#mov-dia-table tbody tr:hover {
+  background: var(--color-background-secondary);
+}
+
+.mov-dia-summary {
+  display: flex;
+  gap: 20px;
+  padding: 12px 10px;
+  margin-top: 8px;
+  border-top: 2px solid var(--color-border);
+  font-size: 13px;
+}
+
+.mov-dia-summary-item {
+  color: var(--color-text-secondary);
+}
+
+.mov-dia-summary-item strong {
+  color: var(--color-text);
+}
+
 /* === Modal Overlay === */
 .modal-overlay {
   display: none;
