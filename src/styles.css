@@ -28,6 +28,10 @@
   --color-success: #10B981;
   --color-success-light: #ECFDF5;
 
+  --color-green: #10B981;
+  --color-green-light: #D1FAE5;
+  --color-green-dark: #065F46;
+
   --border-radius-sm: 6px;
   --border-radius-md: 8px;
   --border-radius-lg: 12px;
