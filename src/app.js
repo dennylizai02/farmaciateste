@@ -1505,39 +1505,39 @@ function renderRelMensal() {
 
     // Tabela Vendas
     document.getElementById('rm-vendas').innerHTML = vendas.length ?
-        '<table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Preço</th><th>Total</th><th>Pagamento</th></tr></thead><tbody>' +
+        '<table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Preço</th><th>Total</th><th>Pagamento</th><th>Acções</th></tr></thead><tbody>' +
         vendas.map(function (m) {
-            return '<tr><td style="font-size:12px;">' + escapeHTML(m.data) + '</td><td>' + escapeHTML(m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td>' + m.preco + '</td><td style="font-weight:500;">' + m.total.toLocaleString() + ' MZN</td><td><span class="badge">' + escapeHTML(m.metodo || '—') + '</span></td></tr>';
+            return '<tr><td style="font-size:12px;">' + escapeHTML(m.data) + '</td><td>' + escapeHTML(m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td>' + m.preco + '</td><td style="font-weight:500;">' + m.total.toLocaleString() + ' MZN</td><td><span class="badge">' + escapeHTML(m.metodo || '—') + '</span></td><td><button class="btn btn-danger" style="padding:2px 6px;font-size:10px;" onclick="deleteMovimento(' + m.id + ')">Remover</button></td></tr>';
         }).join('') +
-        '<tr style="font-weight:bold;background:var(--color-background-secondary);"><td colspan="4">TOTAL VENDAS</td><td>' + totalVendas.toLocaleString() + ' MZN</td><td></td></tr>' +
+        '<tr style="font-weight:bold;background:var(--color-background-secondary);"><td colspan="4">TOTAL VENDAS</td><td>' + totalVendas.toLocaleString() + ' MZN</td><td colspan="2"></td></tr>' +
         '</tbody></table>' : '<div class="empty">Nenhuma venda neste mês</div>';
 
     // Tabela Compras
     document.getElementById('rm-compras').innerHTML = compras.length ?
-        '<table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Preço</th><th>Total</th><th>Pagamento</th></tr></thead><tbody>' +
+        '<table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Preço</th><th>Total</th><th>Pagamento</th><th>Acções</th></tr></thead><tbody>' +
         compras.map(function (m) {
-            return '<tr><td style="font-size:12px;">' + escapeHTML(m.data) + '</td><td>' + escapeHTML(m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td>' + m.preco + '</td><td style="font-weight:500;">' + m.total.toLocaleString() + ' MZN</td><td><span class="badge">' + escapeHTML(m.metodo || '—') + '</span></td></tr>';
+            return '<tr><td style="font-size:12px;">' + escapeHTML(m.data) + '</td><td>' + escapeHTML(m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td>' + m.preco + '</td><td style="font-weight:500;">' + m.total.toLocaleString() + ' MZN</td><td><span class="badge">' + escapeHTML(m.metodo || '—') + '</span></td><td><button class="btn btn-danger" style="padding:2px 6px;font-size:10px;" onclick="deleteMovimento(' + m.id + ')">Remover</button></td></tr>';
         }).join('') +
-        '<tr style="font-weight:bold;background:var(--color-background-secondary);"><td colspan="4">TOTAL COMPRAS</td><td>' + totalCompras.toLocaleString() + ' MZN</td><td></td></tr>' +
+        '<tr style="font-weight:bold;background:var(--color-background-secondary);"><td colspan="4">TOTAL COMPRAS</td><td>' + totalCompras.toLocaleString() + ' MZN</td><td colspan="2"></td></tr>' +
         '</tbody></table>' : '<div class="empty">Nenhuma compra neste mês</div>';
 
     // Tabela Quebras
     var realQuebrasCost = quebras.reduce(function (a, m) { return a + (m.fifo_cost || 0); }, 0);
     document.getElementById('rm-quebras').innerHTML = quebras.length ?
-        '<table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Custo (FIFO)</th><th>Notas</th></tr></thead><tbody>' +
+        '<table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Custo (FIFO)</th><th>Notas</th><th>Acções</th></tr></thead><tbody>' +
         quebras.map(function (m) {
-            return '<tr><td style="font-size:12px;">' + escapeHTML(m.data) + '</td><td>' + escapeHTML(m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td style="color:#A32D2D;">' + (m.fifo_cost || 0).toLocaleString() + ' MZN</td><td style="font-size:12px;">' + escapeHTML(m.nota || '—') + '</td></tr>';
+            return '<tr><td style="font-size:12px;">' + escapeHTML(m.data) + '</td><td>' + escapeHTML(m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td style="color:#A32D2D;">' + (m.fifo_cost || 0).toLocaleString() + ' MZN</td><td style="font-size:12px;">' + escapeHTML(m.nota || '—') + '</td><td><button class="btn btn-danger" style="padding:2px 6px;font-size:10px;" onclick="deleteMovimento(' + m.id + ')">Remover</button></td></tr>';
         }).join('') +
-        '<tr style="font-weight:bold;background:var(--color-background-secondary);"><td colspan="3">CUSTO TOTAL QUEBRAS</td><td>' + realQuebrasCost.toLocaleString() + ' MZN</td><td></td></tr>' +
+        '<tr style="font-weight:bold;background:var(--color-background-secondary);"><td colspan="3">CUSTO TOTAL QUEBRAS</td><td>' + realQuebrasCost.toLocaleString() + ' MZN</td><td colspan="2"></td></tr>' +
         '</tbody></table>' : '<div class="empty">Nenhuma quebra neste mês</div>';
 
     // Tabela Despesas
     document.getElementById('rm-despesas').innerHTML = despMes.length ?
-        '<table><thead><tr><th>Data</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th>Pagamento</th></tr></thead><tbody>' +
+        '<table><thead><tr><th>Data</th><th>Categoria</th><th>Descrição</th><th>Valor</th><th>Pagamento</th><th>Acções</th></tr></thead><tbody>' +
         despMes.map(function (d) {
-            return '<tr><td style="font-size:12px;">' + escapeHTML(d.data) + '</td><td><span class="badge badge-low">' + escapeHTML(d.categoria) + '</span></td><td>' + escapeHTML(d.descricao) + '</td><td style="font-weight:500;color:#A32D2D;">' + d.valor.toLocaleString() + ' MZN</td><td><span class="badge">' + escapeHTML(d.metodo) + '</span></td></tr>';
+            return '<tr><td style="font-size:12px;">' + escapeHTML(d.data) + '</td><td><span class="badge badge-low">' + escapeHTML(d.categoria) + '</span></td><td>' + escapeHTML(d.descricao) + '</td><td style="font-weight:500;color:#A32D2D;">' + d.valor.toLocaleString() + ' MZN</td><td><span class="badge">' + escapeHTML(d.metodo) + '</span></td><td><button class="btn btn-danger" style="padding:2px 6px;font-size:10px;" onclick="deleteDespesa(' + d.id + ')">Remover</button></td></tr>';
         }).join('') +
-        '<tr style="font-weight:bold;background:var(--color-background-secondary);"><td colspan="3">TOTAL DESPESAS</td><td>' + totalDespesas.toLocaleString() + ' MZN</td><td></td></tr>' +
+        '<tr style="font-weight:bold;background:var(--color-background-secondary);"><td colspan="3">TOTAL DESPESAS</td><td>' + totalDespesas.toLocaleString() + ' MZN</td><td colspan="2"></td></tr>' +
         '</tbody></table>' : '<div class="empty">Nenhuma despesa neste mês</div>';
 }
 
