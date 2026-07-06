@@ -929,42 +929,14 @@
   </div>
   <div id="toast-container"></div>
 
-  <!-- Modal: Editar Preços -->
-  <div id="precos-modal" class="modal-overlay">
-    <div class="modal-dialog">
-      <h3>Editar Preços</h3>
-      <p style="margin-bottom:16px;color:var(--color-text-secondary);" id="precos-modal-produto"></p>
-      <div class="form-row" style="gap:12px;">
-        <div class="form-group">
-          <label>Preço de Compra (MZN)</label>
-          <input id="precos-custo" type="number" min="0" step="0.01">
-        </div>
-        <div class="form-group">
-          <label>Preço de Venda (MZN)</label>
-          <input id="precos-venda" type="number" min="0" step="0.01">
-        </div>
-      </div>
-      <div class="confirm-btns" style="margin-top:20px;">
-        <button class="btn" style="background:#f2f2f2;" onclick="closePrecosModal()">Cancelar</button>
-        <button class="btn btn-primary" onclick="salvarPrecos()">Salvar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal: Aumentar / Diminuir Stock -->
+  <!-- Modal: Diminuir Stock -->
   <div id="stock-modal" class="modal-overlay">
     <div class="modal-dialog">
-      <h3 id="stock-modal-title">Ajustar Stock</h3>
+      <h3 id="stock-modal-title">Diminuir Stock</h3>
       <p style="margin-bottom:16px;color:var(--color-text-secondary);" id="stock-modal-produto"></p>
-      <div class="form-row" style="gap:12px;">
-        <div class="form-group">
-          <label>Quantidade</label>
-          <input id="stock-modal-qtd" type="number" min="1" placeholder="1">
-        </div>
-        <div class="form-group" id="stock-modal-tipo-group">
-          <label>Tipo de Operação</label>
-          <select id="stock-modal-tipo"></select>
-        </div>
+      <div class="form-group" id="stock-modal-tipo-group">
+        <label>Tipo de Operação</label>
+        <select id="stock-modal-tipo"></select>
       </div>
       <div class="confirm-btns" style="margin-top:20px;">
         <button class="btn" style="background:#f2f2f2;" onclick="closeStockModal()">Cancelar</button>
