@@ -610,7 +610,7 @@ function renderMovimentosDoDia() {
             var isQuar = (m.tipo === 'quebra' && m.nota && m.nota.indexOf('[Quarentena]') !== -1);
             var label = isQuar ? 'Quarentena' : (tipoLabel[m.tipo] || m.tipo);
             var cor = m.tipo === 'entrada' ? 'badge-ok' : m.tipo === 'saida' ? 'badge' : 'badge-low';
-            var vendedorLabel = m.vendedor ? getVendedorDisplayName(m.vendedor) : '—';
+            var vendedorLabel = m.vendedor ? getVendedorDisplayName(m.vendedor) : 'Administrador';
             return '<tr>' +
                 '<td style="color:var(--color-text-secondary);font-size:12px;">' + escapeHTML(m.dataHora || m.data || '') + '</td>' +
                 '<td><span class="badge ' + cor + '">' + escapeHTML(label) + '</span></td>' +
@@ -623,7 +623,7 @@ function renderMovimentosDoDia() {
         '<div class="mov-dia-summary">' +
         '<span class="mov-dia-summary-item"><strong>Entradas:</strong> ' + totalEntradas.toLocaleString() + ' MZN</span>' +
         '<span class="mov-dia-summary-item"><strong>Saídas:</strong> ' + totalSaidas.toLocaleString() + ' MZN</span>' +
-        '<span class="mov-dia-summary-item"><strong>Saldo:</strong> ' + (totalEntradas - totalSaidas).toLocaleString() + ' MZN</span>' +
+        '<span class="mov-dia-summary-item"><strong>Fluxo:</strong> ' + (totalSaidas - totalEntradas).toLocaleString() + ' MZN</span>' +
         '</div>';
 }
 
