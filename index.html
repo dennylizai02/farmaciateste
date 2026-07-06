@@ -399,11 +399,18 @@
           <button class="period-btn" onclick="setPeriodo('mensal',this)">Mensal</button>
           <button class="period-btn" onclick="setPeriodo('trimestral',this)">Trimestral</button>
           <button class="period-btn" onclick="setPeriodo('anual',this)">Anual</button>
+          <button class="period-btn" onclick="setPeriodo('dia',this)" style="margin-left:8px;">Dia</button>
+          <button class="period-btn" onclick="setPeriodo('intervalo',this)">Intervalo</button>
           <select id="periodo-count" onchange="renderRelatorios()" class="periodo-count">
             <option value="7">Últimos 7 dias</option>
             <option value="14">Últimos 14 dias</option>
             <option value="30">Últimos 30 dias</option>
           </select>
+          <div id="periodo-date-inputs" style="display:none; gap:8px; align-items:center; flex-wrap:wrap; margin-left:8px;">
+            <input id="periodo-data-dia" type="date" onchange="renderRelatorios()" style="padding:4px 8px;font-size:12px;border-radius:6px;border:1px solid var(--color-border);">
+            <span id="periodo-data-sep" style="display:none;color:var(--color-text-secondary);font-size:12px;">até</span>
+            <input id="periodo-data-fim" type="date" onchange="renderRelatorios()" style="display:none;padding:4px 8px;font-size:12px;border-radius:6px;border:1px solid var(--color-border);">
+          </div>
         </div>
         <button class="btn" onclick="printFaturacao()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">

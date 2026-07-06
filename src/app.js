@@ -163,6 +163,31 @@ function setPeriodo(p, btn) {
         
         sel.style.display = (p === 'diário' || p === 'semanal' || p === 'mensal') ? 'inline-block' : 'none';
     }
+
+    var dateInputs = document.getElementById('periodo-date-inputs');
+    var dataDia = document.getElementById('periodo-data-dia');
+    var dataFim = document.getElementById('periodo-data-fim');
+    var dataSep = document.getElementById('periodo-data-sep');
+
+    if (p === 'dia') {
+        dateInputs.style.display = 'flex';
+        dataDia.style.display = 'inline-block';
+        dataFim.style.display = 'none';
+        dataSep.style.display = 'none';
+        if (!dataDia.value) dataDia.value = new Date().toISOString().split('T')[0];
+    } else if (p === 'intervalo') {
+        dateInputs.style.display = 'flex';
+        dataDia.style.display = 'inline-block';
+        dataFim.style.display = 'inline-block';
+        dataSep.style.display = 'inline';
+        if (!dataDia.value) dataDia.value = new Date().toISOString().split('T')[0];
+        if (!dataFim.value) {
+            var d = new Date(); d.setDate(d.getDate() + 7);
+            dataFim.value = d.toISOString().split('T')[0];
+        }
+    } else {
+        dateInputs.style.display = 'none';
+    }
     
     renderRelatorios();
 }
@@ -1197,6 +1222,40 @@ function renderRelatorios() {
             const trim = Math.floor(new Date(d.data).getMonth() / 3);
             lucroData[trim] -= d.valor;
         });
+    } else if (periodoActivo === 'dia') {
+        labels = []; vendasData = []; lucroData = []; unidData = []; quebrasData = [];
+        var dataDia = document.getElementById('periodo-data-dia');
+        var key = dataDia ? dataDia.value : new Date().toISOString().split('T')[0];
+        labels.push(key);
+        const mSales = movimentos.filter(m => m.tipo === 'saida' && m.data === key);
+        const rec = mSales.reduce((a, m) => a + m.total, 0);
+        const custoVendas = mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+        const unid = mSales.reduce((a, m) => a + m.qtd, 0);
+        const mQuebras = movimentos.filter(m => m.tipo === 'quebra' && m.nota !== '[Quarentena]' && m.data === key);
+        const loss = mQuebras.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+        const despDia = despesas.filter(d => d.data === key).reduce((a, d) => a + d.valor, 0);
+        const luc = rec - custoVendas - loss - despDia;
+        vendasData.push(rec); lucroData.push(luc); unidData.push(unid); quebrasData.push(loss);
+    } else if (periodoActivo === 'intervalo') {
+        labels = []; vendasData = []; lucroData = []; unidData = []; quebrasData = [];
+        var dataIni = document.getElementById('periodo-data-dia');
+        var dataFim = document.getElementById('periodo-data-fim');
+        var ini = dataIni ? dataIni.value : new Date().toISOString().split('T')[0];
+        var fim = dataFim ? dataFim.value : new Date().toISOString().split('T')[0];
+        labels.push(ini + ' a ' + fim);
+        const mSales = movimentos.filter(m => {
+            return m.tipo === 'saida' && m.data >= ini && m.data <= fim;
+        });
+        const rec = mSales.reduce((a, m) => a + m.total, 0);
+        const custoVendas = mSales.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+        const unid = mSales.reduce((a, m) => a + m.qtd, 0);
+        const mQuebras = movimentos.filter(m => {
+            return m.tipo === 'quebra' && m.nota !== '[Quarentena]' && m.data >= ini && m.data <= fim;
+        });
+        const loss = mQuebras.reduce((a, m) => a + (m.fifo_cost || 0), 0);
+        const despInt = despesas.filter(d => d.data >= ini && d.data <= fim).reduce((a, d) => a + d.valor, 0);
+        const luc = rec - custoVendas - loss - despInt;
+        vendasData.push(rec); lucroData.push(luc); unidData.push(unid); quebrasData.push(loss);
     } else {
         labels = [new Date().getFullYear() - 2, new Date().getFullYear() - 1, new Date().getFullYear()];
         vendasData = [0, 0, 0]; lucroData = [0, 0, 0]; unidData = [0, 0, 0]; quebrasData = [0, 0, 0];
@@ -1264,6 +1323,15 @@ function renderRelatorios() {
                 var trim = Math.floor(new Date().getMonth() / 3);
                 var mTrim = Math.floor(new Date(m.data).getMonth() / 3);
                 match = m.data.startsWith(new Date().getFullYear()) && mTrim === trim;
+            } else if (periodoActivo === 'dia') {
+                var dd = document.getElementById('periodo-data-dia');
+                match = m.data === (dd ? dd.value : new Date().toISOString().split('T')[0]);
+            } else if (periodoActivo === 'intervalo') {
+                var di = document.getElementById('periodo-data-dia');
+                var df = document.getElementById('periodo-data-fim');
+                var ini = di ? di.value : '';
+                var fim = df ? df.value : '';
+                match = ini && fim && m.data >= ini && m.data <= fim;
             } else {
                 match = m.data.startsWith(new Date().getFullYear());
             }
@@ -2549,6 +2617,7 @@ Object.assign(window, {
     prepareDocPrintArea,
     renderDocList,
     renderMovimentos,
+    renderMovimentosDoDia,
     renderRelMensal,
     renderRelatorios,
     renderStock,
