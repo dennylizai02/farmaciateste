@@ -104,7 +104,7 @@ function renderQuarentena(context) {
   const qList = document.getElementById('quarentena-list');
   if (!qList) return;
 
-  const qs = movimentos.filter(m => m.tipo === 'quebra' && m.nota === '[Quarentena]');
+  const qs = movimentos.filter(m => m.tipo === 'quebra' && m.nota && m.nota.indexOf('[Quarentena]') !== -1);
   if (qs.length === 0) {
     qList.innerHTML = '<tr><td colspan="4" class="empty">Nenhum produto em quarentena.</td></tr>';
     return;

@@ -837,7 +837,7 @@ function renderMovimentos() {
     document.getElementById('mov-table').innerHTML = movsToShow.length ?
         '<table><thead><tr><th><input type="checkbox" onclick="toggleSelectAllMovs(this)"></th><th>Data/Hora</th><th>Tipo</th><th>Produto</th><th>Qtd</th><th>Preço unit.</th><th>Total</th><th>Pagamento</th><th>Vendedor</th><th>Notas</th><th>Acções</th></tr></thead><tbody>' +
         movsToShow.map(function (m) {
-            var isQuar = (m.tipo === 'quebra' && m.nota === '[Quarentena]');
+            var isQuar = (m.tipo === 'quebra' && m.nota && m.nota.indexOf('[Quarentena]') !== -1);
             var cor = m.tipo === 'entrada' ? 'badge-ok' : m.tipo === 'saida' ? 'badge' : (isQuar ? 'badge' : 'badge-low');
             var style = m.tipo === 'saida' ? ' style="background:#E6F1FB;color:#185FA5;"' : (isQuar ? ' style="background:#F3F4F6;color:#4B5563;"' : '');
             var label = isQuar ? 'Quarentena' : tipoLabel[m.tipo];
