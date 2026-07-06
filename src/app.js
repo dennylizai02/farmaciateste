@@ -2494,6 +2494,7 @@ Object.assign(window, {
     renderRelMensal,
     renderRelatorios,
     renderStock,
+    removeProduto,
     saveAndDownloadPDF,
     setPeriodo,
     setSaldoInicial,
