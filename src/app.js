@@ -355,40 +355,96 @@ async function updateQtd(id, val) {
     }
 
     var diff = Math.abs(newQtd - oldQtd);
-    var tipo = '';
-    var nota = '[Ajuste Manual de Stock]';
 
     if (newQtd > oldQtd) {
         if (!(await showConfirm('Deseja aumentar o stock de "' + p.nome + '" em ' + diff + ' unidades? Será gerada uma Entrada.'))) { renderStock(); return; }
-        tipo = 'entrada';
+        p.qtd = newQtd;
+        checkLowStock(p);
+        var novoMov = {
+            tipo: 'entrada',
+            produto_id: id,
+            quantidade: diff,
+            preco_unitario: p.custo,
+            total: diff * p.custo,
+            nota: '[Ajuste Manual]',
+            metodo_pagamento: 'CASH'
+        };
+        if (sb) {
+            await Promise.all([
+                sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', id),
+                sb.from(PREFIX + 'movimentos').insert([novoMov])
+            ]);
+            await fetchData();
+        }
+        renderStock(); renderRelatorios(); renderMovimentos();
     } else {
-        var resp = prompt('Diminuição de ' + diff + ' unidades em "' + p.nome + '". Foi Saída (venda), Quebra ou Ajuste/Quarentena? Digite "S" para Saída, "Q" para Quebra ou "A" para Ajuste:');
-        if (!resp) { renderStock(); return; }
-        if (resp.toUpperCase() === 'S') { tipo = 'saida'; nota = '[Ajuste Manual]'; }
-        else if (resp.toUpperCase() === 'Q') { tipo = 'quebra'; nota = '[Ajuste Manual]'; }
-        else if (resp.toUpperCase() === 'A') { tipo = 'quebra'; nota = '[Quarentena]'; }
-        else { showNotification('Opção inválida. Operação cancelada.'); renderStock(); return; }
+        // Reverter o input para o valor antigo enquanto o modal está aberto
+        renderStock();
+        openDiminuirStockModal(id, diff, newQtd);
+    }
+}
+
+var pendingDiminuir = null;
+
+function openDiminuirStockModal(id, diff, newQtd) {
+    var p = produtos.find(function (x) { return x.id === id; });
+    if (!p) return;
+    pendingDiminuir = { id: id, diff: diff, newQtd: newQtd };
+    document.getElementById('stock-modal-title').textContent = 'Diminuir Stock';
+    document.getElementById('stock-modal-produto').textContent = p.nome + ' — Diminuir ' + diff + ' unidades (Stock actual: ' + p.qtd + ')';
+    var tipoSel = document.getElementById('stock-modal-tipo');
+    tipoSel.innerHTML =
+        '<option value="saida">Saída (venda)</option>' +
+        '<option value="quebra">Quebra</option>' +
+        '<option value="quarentena">Quarentena</option>';
+    document.getElementById('stock-modal-tipo-group').style.display = 'block';
+    document.getElementById('stock-modal').classList.add('open');
+}
+
+async function confirmStockModal() {
+    if (!pendingDiminuir) { closeStockModal(); return; }
+    var p = produtos.find(function (x) { return x.id === pendingDiminuir.id; });
+    if (!p) { closeStockModal(); return; }
+
+    var tipo = document.getElementById('stock-modal-tipo').value;
+    var diff = pendingDiminuir.diff;
+    var notas = '';
+
+    if (tipo === 'quarentena') {
+        tipo = 'quebra';
+        notas = '[Quarentena]';
     }
 
-    p.qtd = newQtd;
+    if (p.qtd < diff) {
+        showNotification('Stock insuficiente! Tem apenas ' + p.qtd + ' unidades.', 'error');
+        closeStockModal();
+        return;
+    }
+
+    p.qtd = pendingDiminuir.newQtd;
     checkLowStock(p);
+
     var novoMov = {
         tipo: tipo,
-        produto_id: id,
+        produto_id: pendingDiminuir.id,
         quantidade: diff,
-        preco_unitario: tipo === 'entrada' ? p.custo : p.venda,
-        total: diff * (tipo === 'entrada' ? p.custo : p.venda),
-        nota: nota,
+        preco_unitario: p.venda,
+        total: diff * p.venda,
+        nota: notas || '[Ajuste Manual]',
         metodo_pagamento: 'CASH'
     };
 
     if (sb) {
         await Promise.all([
-            sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', id),
+            sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', pendingDiminuir.id),
             sb.from(PREFIX + 'movimentos').insert([novoMov])
         ]);
         await fetchData();
     }
+
+    pendingDiminuir = null;
+    closeStockModal();
+    showNotification('Stock actualizado com sucesso!', 'success');
     renderStock(); renderRelatorios(); renderMovimentos();
 }
 
@@ -2438,7 +2494,12 @@ async function venderProduto() {
             rebuildFifo();
             renderVendedorStock(document.getElementById('v-stock-search').value);
             renderVendasDoDia();
-            setTimeout(function () { vPrintDocFromMov(mm.id); }, 500);
+            var imprimirRecibo = document.getElementById('v-imprimir-recibo').checked;
+            if (imprimirRecibo) {
+                setTimeout(function () { vPrintDocFromMov(mm.id); }, 500);
+            } else {
+                setTimeout(function () { vGerarRecibo(mm.id); }, 500);
+            }
         } else {
             p.qtd += qtd;
             showNotification('Erro ao registar venda: ' + (mRes.error ? mRes.error.message : 'resposta vazia'));

@@ -1089,6 +1089,56 @@ body {
   transition: color 0.2s;
 }
 
+/* ── Toggle Imprimir Recibo ── */
+.v-print-toggle {
+  margin-top: 1rem;
+}
+
+.v-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  user-select: none;
+}
+
+.v-toggle-label input[type="checkbox"] {
+  display: none;
+}
+
+.v-toggle-check {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.v-toggle-label input:checked + .v-toggle-check {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.v-toggle-label input:checked + .v-toggle-check::after {
+  content: '';
+  width: 6px;
+  height: 10px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-top: -2px;
+}
+
+.v-toggle-label:hover .v-toggle-check {
+  border-color: var(--color-primary);
+}
+
 /* ── Botão Registar Venda ── */
 .v-vender-btn {
   width: 100%;
