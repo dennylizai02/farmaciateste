@@ -80,7 +80,12 @@ function showSection(id) {
     if (id === 'necessidades') renderNecessidades();
     if (id === 'documentos') populateDocProdutoSelect();
     if (id === 'planocompras') renderPlanoCompras();
-    if (id === 'relmensal') renderRelMensal();
+    if (id === 'relmensal') {
+        if (!periodoActivo || (periodoActivo !== 'dia' && periodoActivo !== 'intervalo')) {
+            setPeriodo('mensal', document.querySelector('#sec-relmensal .period-btn'));
+        }
+        renderRelMensal();
+    }
     if (id === 'saldo') renderSaldo();
     if (id === 'vnova-venda') renderVendedor();
     if (id === 'vvendas') renderVendasDoDia();
@@ -164,32 +169,67 @@ function setPeriodo(p, btn) {
         sel.style.display = (p === 'diário' || p === 'semanal' || p === 'mensal') ? 'inline-block' : 'none';
     }
 
+    // Dashboard date inputs
     var dateInputs = document.getElementById('periodo-date-inputs');
-    var dataDia = document.getElementById('periodo-data-dia');
-    var dataFim = document.getElementById('periodo-data-fim');
-    var dataSep = document.getElementById('periodo-data-sep');
-
-    if (p === 'dia') {
-        dateInputs.style.display = 'flex';
-        dataDia.style.display = 'inline-block';
-        dataFim.style.display = 'none';
-        dataSep.style.display = 'none';
-        if (!dataDia.value) dataDia.value = new Date().toISOString().split('T')[0];
-    } else if (p === 'intervalo') {
-        dateInputs.style.display = 'flex';
-        dataDia.style.display = 'inline-block';
-        dataFim.style.display = 'inline-block';
-        dataSep.style.display = 'inline';
-        if (!dataDia.value) dataDia.value = new Date().toISOString().split('T')[0];
-        if (!dataFim.value) {
-            var d = new Date(); d.setDate(d.getDate() + 7);
-            dataFim.value = d.toISOString().split('T')[0];
+    if (dateInputs) {
+        var dataDia = document.getElementById('periodo-data-dia');
+        var dataFim = document.getElementById('periodo-data-fim');
+        var dataSep = document.getElementById('periodo-data-sep');
+        if (p === 'dia') {
+            dateInputs.style.display = 'flex';
+            dataDia.style.display = 'inline-block';
+            dataFim.style.display = 'none';
+            dataSep.style.display = 'none';
+            if (!dataDia.value) dataDia.value = new Date().toISOString().split('T')[0];
+        } else if (p === 'intervalo') {
+            dateInputs.style.display = 'flex';
+            dataDia.style.display = 'inline-block';
+            dataFim.style.display = 'inline-block';
+            dataSep.style.display = 'inline';
+            if (!dataDia.value) dataDia.value = new Date().toISOString().split('T')[0];
+            if (!dataFim.value) {
+                var d = new Date(); d.setDate(d.getDate() + 7);
+                dataFim.value = d.toISOString().split('T')[0];
+            }
+        } else {
+            dateInputs.style.display = 'none';
         }
-    } else {
-        dateInputs.style.display = 'none';
+    }
+
+    // Relatório Mensal date inputs
+    var dateInputsRm = document.getElementById('periodo-date-inputs-rm');
+    if (dateInputsRm) {
+        var dataDiaRm = document.getElementById('rm-data-dia');
+        var dataFimRm = document.getElementById('rm-data-fim');
+        var dataSepRm = document.getElementById('rm-data-sep');
+        if (p === 'dia') {
+            dateInputsRm.style.display = 'flex';
+            dataDiaRm.style.display = 'inline-block';
+            dataFimRm.style.display = 'none';
+            dataSepRm.style.display = 'none';
+            if (!dataDiaRm.value) dataDiaRm.value = new Date().toISOString().split('T')[0];
+        } else if (p === 'intervalo') {
+            dateInputsRm.style.display = 'flex';
+            dataDiaRm.style.display = 'inline-block';
+            dataFimRm.style.display = 'inline-block';
+            dataSepRm.style.display = 'inline';
+            if (!dataDiaRm.value) dataDiaRm.value = new Date().toISOString().split('T')[0];
+            if (!dataFimRm.value) {
+                var d2 = new Date(); d2.setDate(d2.getDate() + 7);
+                dataFimRm.value = d2.toISOString().split('T')[0];
+            }
+        } else {
+            dateInputsRm.style.display = 'none';
+        }
     }
     
-    renderRelatorios();
+    // Refresh the right section
+    var relmensal = document.getElementById('sec-relmensal');
+    if (relmensal && relmensal.classList.contains('active')) {
+        renderRelMensal();
+    } else {
+        renderRelatorios();
+    }
 }
 
 // ====================== DATA ======================
@@ -1470,15 +1510,44 @@ function renderRelatorios() {
 
 // ====================== RELATÓRIO MENSAL ======================
 function renderRelMensal() {
+    var titleEl = document.getElementById('rm-title');
     var mesEl = document.getElementById('rm-mes');
-    if (!mesEl.value) {
-        var now = new Date();
-        mesEl.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-    }
-    var mesSel = mesEl.value; // "2026-03"
+    var dataDia = document.getElementById('rm-data-dia');
+    var dataFim = document.getElementById('rm-data-fim');
 
-    var movMes = movimentos.filter(function (m) { return m.data.substring(0, 7) === mesSel; });
-    var despMes = despesas.filter(function (d) { return d.data.substring(0, 7) === mesSel; });
+    var movMes, despMes;
+
+    if (periodoActivo === 'dia') {
+        var key = dataDia ? dataDia.value : new Date().toISOString().split('T')[0];
+        if (!dataDia.value) dataDia.value = key;
+        movMes = movimentos.filter(function (m) { return m.data === key; });
+        despMes = despesas.filter(function (d) { return d.data === key; });
+        if (titleEl) titleEl.textContent = 'Relatório — Dia ' + key;
+        mesEl.style.display = 'none';
+    } else if (periodoActivo === 'intervalo') {
+        var ini = dataDia ? dataDia.value : new Date().toISOString().split('T')[0];
+        var fim = dataFim ? dataFim.value : '';
+        if (!dataDia.value) dataDia.value = ini;
+        if (!fim) {
+            var d = new Date(); d.setDate(d.getDate() + 7);
+            fim = d.toISOString().split('T')[0];
+            dataFim.value = fim;
+        }
+        movMes = movimentos.filter(function (m) { return m.data >= ini && m.data <= fim; });
+        despMes = despesas.filter(function (d) { return d.data >= ini && d.data <= fim; });
+        if (titleEl) titleEl.textContent = 'Relatório — ' + ini + ' a ' + fim;
+        mesEl.style.display = 'none';
+    } else {
+        if (!mesEl.value) {
+            var now = new Date();
+            mesEl.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+        }
+        var mesSel = mesEl.value;
+        movMes = movimentos.filter(function (m) { return m.data.substring(0, 7) === mesSel; });
+        despMes = despesas.filter(function (d) { return d.data.substring(0, 7) === mesSel; });
+        if (titleEl) titleEl.textContent = 'Relatório — ' + mesSel;
+        mesEl.style.display = 'inline-block';
+    }
 
     var vendas = movMes.filter(function (m) { return m.tipo === 'saida'; });
     var compras = movMes.filter(function (m) { return m.tipo === 'entrada'; });
