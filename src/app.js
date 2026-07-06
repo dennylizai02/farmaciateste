@@ -71,7 +71,7 @@ function showSection(id) {
     }
 
     if (id === 'relatorios') renderRelatorios();
-    if (id === 'stock') { renderStock(); renderAlertas(); }
+    if (id === 'stock') { showStockTab('all'); populateGestaoData(); renderAlertas(); }
     if (id === 'movimentos') renderMovimentos();
     if (id === 'alertas') renderAlertas();
     if (id === 'caixa') renderCaixa();
@@ -448,6 +448,233 @@ async function updateFornecedor(id, val) {
         p.forn = val;
         if (sb) await sb.from(PREFIX + 'produtos').update({ fornecedor: val }).eq('id', id);
     }
+}
+
+// ====================== STOCK TABS ======================
+function showStockTab(tab) {
+    document.querySelectorAll('.stock-tab').forEach(function (t) { t.classList.remove('active'); });
+    document.querySelectorAll('.stock-tab-content').forEach(function (c) { c.classList.remove('active'); });
+    var btn = document.querySelector('.stock-tab[data-tab="' + tab + '"]');
+    if (btn) btn.classList.add('active');
+    var content = document.getElementById('stock-tab-' + tab);
+    if (content) content.classList.add('active');
+
+    if (tab === 'add') {
+        // Populate gestao select when switching to gestao tab
+    }
+    if (tab === 'gestao' || tab === 'all' || tab === 'quarentena') {
+        populateGestaoSelect();
+    }
+    if (tab === 'all') {
+        renderStock();
+    }
+    if (tab === 'quarentena') {
+        renderStock();
+    }
+}
+
+function populateGestaoSelect() {
+    var sel = document.getElementById('gestao-produto');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Seleccione um produto...</option>' +
+        produtos.map(function (p) {
+            return '<option value="' + p.id + '">' + escapeHTML(p.nome) + ' (Stock: ' + p.qtd + ')</option>';
+        }).join('');
+}
+
+function populateGestaoData() {
+    var dataInput = document.getElementById('gestao-data');
+    if (dataInput && !dataInput.value) {
+        dataInput.value = new Date().toISOString().split('T')[0];
+    }
+}
+
+async function gestaoMovimento() {
+    var prodId = parseInt(document.getElementById('gestao-produto').value);
+    if (!prodId) { showNotification('Seleccione um produto!'); return; }
+    var tipo = document.getElementById('gestao-tipo').value;
+    var qtd = parseInt(document.getElementById('gestao-qtd').value);
+    if (!qtd || qtd < 1) { showNotification('Insira uma quantidade válida!'); return; }
+    var data = document.getElementById('gestao-data').value;
+    var notas = document.getElementById('gestao-notas').value.trim();
+
+    var p = produtos.find(function (x) { return x.id === prodId; });
+    if (!p) { showNotification('Produto não encontrado!'); return; }
+
+    if (tipo === 'saida' && p.qtd < qtd) {
+        if (!(await showConfirm('Stock insuficiente! Tem apenas ' + p.qtd + ' unidades. Deseja continuar mesmo assim?'))) return;
+    }
+    if ((tipo === 'quebra' || tipo === 'quarentena') && p.qtd < qtd) {
+        showNotification('Stock insuficiente! Tem apenas ' + p.qtd + ' unidades.', 'error');
+        return;
+    }
+
+    if (tipo === 'quarentena') {
+        tipo = 'quebra';
+        notas = (notas ? notas + ' | ' : '') + '[Quarentena]';
+    }
+
+    var diff = qtd;
+    var novoMov = {
+        tipo: tipo,
+        produto_id: prodId,
+        quantidade: diff,
+        preco_unitario: tipo === 'entrada' ? p.custo : p.venda,
+        total: diff * (tipo === 'entrada' ? p.custo : p.venda),
+        nota: notas || (tipo === 'entrada' ? '[Gestão manual]' : '[Gestão manual]'),
+        metodo_pagamento: 'CASH',
+        data: data || undefined
+    };
+
+    if (tipo === 'entrada') p.qtd += diff;
+    else p.qtd -= diff;
+    if (p.qtd < 0) p.qtd = 0;
+    checkLowStock(p);
+
+    if (sb) {
+        await Promise.all([
+            sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', prodId),
+            sb.from(PREFIX + 'movimentos').insert([novoMov])
+        ]);
+        await fetchData();
+    }
+
+    document.getElementById('gestao-qtd').value = '';
+    document.getElementById('gestao-notas').value = '';
+    showNotification('Movimento registado com sucesso!', 'success');
+    renderStock();
+    renderMovimentos();
+    renderRelatorios();
+}
+
+// ====================== STOCK MODALS ======================
+let stockModalId = null;
+let stockModalMode = null;
+
+function openAumentarStock(id) {
+    var p = produtos.find(function (x) { return x.id === id; });
+    if (!p) return;
+    stockModalId = id;
+    stockModalMode = 'aumentar';
+    document.getElementById('stock-modal-title').textContent = 'Aumentar Stock';
+    document.getElementById('stock-modal-produto').textContent = p.nome + ' (Stock actual: ' + p.qtd + ')';
+    document.getElementById('stock-modal-qtd').value = 1;
+    var tipoSel = document.getElementById('stock-modal-tipo');
+    tipoSel.innerHTML = '<option value="entrada">Entrada (compra/reposição)</option>';
+    document.getElementById('stock-modal-tipo-group').style.display = 'block';
+    document.getElementById('stock-modal').classList.add('open');
+}
+
+function openDiminuirStock(id) {
+    var p = produtos.find(function (x) { return x.id === id; });
+    if (!p) return;
+    stockModalId = id;
+    stockModalMode = 'diminuir';
+    document.getElementById('stock-modal-title').textContent = 'Diminuir Stock';
+    document.getElementById('stock-modal-produto').textContent = p.nome + ' (Stock actual: ' + p.qtd + ')';
+    document.getElementById('stock-modal-qtd').value = 1;
+    var tipoSel = document.getElementById('stock-modal-tipo');
+    tipoSel.innerHTML =
+        '<option value="saida">Saída (venda)</option>' +
+        '<option value="quebra">Quebra</option>' +
+        '<option value="quarentena">Quarentena</option>';
+    document.getElementById('stock-modal-tipo-group').style.display = 'block';
+    document.getElementById('stock-modal').classList.add('open');
+}
+
+function closeStockModal() {
+    document.getElementById('stock-modal').classList.remove('open');
+    stockModalId = null;
+    stockModalMode = null;
+}
+
+async function confirmStockModal() {
+    if (!stockModalId || !stockModalMode) return;
+    var p = produtos.find(function (x) { return x.id === stockModalId; });
+    if (!p) { closeStockModal(); return; }
+
+    var qtd = parseInt(document.getElementById('stock-modal-qtd').value);
+    if (!qtd || qtd < 1) { showNotification('Insira uma quantidade válida!'); return; }
+
+    var tipo = document.getElementById('stock-modal-tipo').value;
+    var notas = '';
+
+    if (stockModalMode === 'diminuir') {
+        if (tipo === 'quarentena') {
+            tipo = 'quebra';
+            notas = '[Quarentena]';
+        }
+        if (p.qtd < qtd) {
+            showNotification('Stock insuficiente! Tem apenas ' + p.qtd + ' unidades.', 'error');
+            return;
+        }
+    }
+
+    var novoMov = {
+        tipo: tipo,
+        produto_id: stockModalId,
+        quantidade: qtd,
+        preco_unitario: tipo === 'entrada' ? p.custo : p.venda,
+        total: qtd * (tipo === 'entrada' ? p.custo : p.venda),
+        nota: notas || '[Ajuste Manual]',
+        metodo_pagamento: 'CASH'
+    };
+
+    if (tipo === 'entrada') p.qtd += qtd;
+    else p.qtd -= qtd;
+    if (p.qtd < 0) p.qtd = 0;
+    checkLowStock(p);
+
+    if (sb) {
+        await Promise.all([
+            sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', stockModalId),
+            sb.from(PREFIX + 'movimentos').insert([novoMov])
+        ]);
+        await fetchData();
+    }
+
+    closeStockModal();
+    showNotification('Stock actualizado com sucesso!', 'success');
+    renderStock();
+    renderMovimentos();
+    renderRelatorios();
+}
+
+function openEditarPrecos(id) {
+    var p = produtos.find(function (x) { return x.id === id; });
+    if (!p) return;
+    document.getElementById('precos-modal-produto').textContent = p.nome;
+    document.getElementById('precos-custo').value = p.custo;
+    document.getElementById('precos-venda').value = p.venda;
+    document.getElementById('precos-modal').dataset.prodId = id;
+    document.getElementById('precos-modal').classList.add('open');
+}
+
+function closePrecosModal() {
+    document.getElementById('precos-modal').classList.remove('open');
+}
+
+async function salvarPrecos() {
+    var id = parseInt(document.getElementById('precos-modal').dataset.prodId);
+    var p = produtos.find(function (x) { return x.id === id; });
+    if (!p) { closePrecosModal(); return; }
+
+    var custo = parseFloat(document.getElementById('precos-custo').value) || 0;
+    var venda = parseFloat(document.getElementById('precos-venda').value) || 0;
+
+    p.custo = custo;
+    p.venda = venda;
+
+    if (sb) {
+        await Promise.all([
+            sb.from(PREFIX + 'produtos').update({ preco_custo: custo }).eq('id', id),
+            sb.from(PREFIX + 'produtos').update({ preco_venda: venda }).eq('id', id)
+        ]);
+    }
+
+    closePrecosModal();
+    showNotification('Preços actualizados com sucesso!', 'success');
+    renderStock();
 }
 
 // ====================== MOVIMENTOS ======================
@@ -2305,6 +2532,9 @@ Object.assign(window, {
     addSaldoMovimento,
     clearPlano,
     closeConfirmModal,
+    closePrecosModal,
+    closeStockModal,
+    confirmStockModal,
     confirmarCompra,
     deleteDocumento,
     deleteDespesa,
@@ -2313,9 +2543,13 @@ Object.assign(window, {
     devolverQuarentena,
     downloadPDFFromHistory,
     editDespesa,
+    gestaoMovimento,
     loginUser,
     logoutUser,
     onProductSearch,
+    openAumentarStock,
+    openDiminuirStock,
+    openEditarPrecos,
     prePopulatePlano,
     printDailyMovements,
     printFaturacao,
@@ -2328,11 +2562,13 @@ Object.assign(window, {
     renderRelMensal,
     renderRelatorios,
     renderStock,
+    salvarPrecos,
     saveAndDownloadPDF,
     setPeriodo,
     setSaldoInicial,
     setTipo,
     showSection,
+    showStockTab,
     toggleSidebar,
     toggleCustomCat,
     toggleCustomProdCat,

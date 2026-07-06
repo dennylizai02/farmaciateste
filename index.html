@@ -183,53 +183,111 @@
 
     <!-- STOCK -->
     <div class="section" id="sec-stock">
-      <div class="card" id="stock-add-card">
-        <div class="card-title">Adicionar Medicamento</div>
-        <div class="form-row">
-          <div class="form-group"><label>Nome Comercial</label><input id="p-nome" placeholder="Ex: Paracetamol 500mg"></div>
-          <div class="form-group"><label>Categoria Terapêutica</label>
-            <select id="p-cat" onchange="toggleCustomProdCat()">
-              <option>Analgésicos</option>
-              <option>Antibióticos</option>
-              <option>Vitaminas e Suplementos</option>
-              <option>Higiene e Cuidados</option>
-              <option>Primeiros Socorros</option>
-              <option>Material Médico</option>
-              <option>Pediatria</option>
-              <option>Dermocosméticos</option>
-              <option>Saúde Oral</option>
-              <option>Outros</option>
-              <option value="Outra...">Outra... (Especificar nova)</option>
-            </select>
-            <input id="p-cat-custom" style="display:none; margin-top:4px;" placeholder="Nome da nova categoria">
+      <div class="stock-tabs">
+        <button class="stock-tab active" data-tab="add" onclick="showStockTab('add')">Adicionar Medicamento</button>
+        <button class="stock-tab" data-tab="all" onclick="showStockTab('all')">Todos os Produtos</button>
+        <button class="stock-tab" data-tab="gestao" onclick="showStockTab('gestao')">Gestão</button>
+        <button class="stock-tab" data-tab="quarentena" onclick="showStockTab('quarentena')">Produtos em Quarentena</button>
+      </div>
+
+      <!-- TAB: Adicionar Medicamento -->
+      <div id="stock-tab-add" class="stock-tab-content active">
+        <div class="card" id="stock-add-card">
+          <div class="card-title">Adicionar Medicamento</div>
+          <div class="form-row">
+            <div class="form-group"><label>Nome Comercial</label><input id="p-nome" placeholder="Ex: Paracetamol 500mg"></div>
+            <div class="form-group"><label>Categoria Terapêutica</label>
+              <select id="p-cat" onchange="toggleCustomProdCat()">
+                <option>Analgésicos</option>
+                <option>Antibióticos</option>
+                <option>Vitaminas e Suplementos</option>
+                <option>Higiene e Cuidados</option>
+                <option>Primeiros Socorros</option>
+                <option>Material Médico</option>
+                <option>Pediatria</option>
+                <option>Dermocosméticos</option>
+                <option>Saúde Oral</option>
+                <option>Outros</option>
+                <option value="Outra...">Outra... (Especificar nova)</option>
+              </select>
+              <input id="p-cat-custom" style="display:none; margin-top:4px;" placeholder="Nome da nova categoria">
+            </div>
+            <div class="form-group"><label>Qtd. em Stock</label><input id="p-qtd" type="number" min="0" placeholder="0"></div>
+            <div class="form-group"><label>Stock Mínimo</label><input id="p-min" type="number" min="0" placeholder="10"></div>
           </div>
-          <div class="form-group"><label>Qtd. em Stock</label><input id="p-qtd" type="number" min="0" placeholder="0"></div>
-          <div class="form-group"><label>Stock Mínimo</label><input id="p-min" type="number" min="0" placeholder="10"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Preço de Compra (MZN)</label><input id="p-custo" type="number" min="0" placeholder="0"></div>
-          <div class="form-group"><label>Preço de Venda (MZN)</label><input id="p-venda" type="number" min="0" placeholder="0"></div>
-          <div class="form-group"><label>Fornecedor / Fabricante</label><input id="p-fornecedor" placeholder="Ex: MedPharma Lda"></div>
-          <div class="form-group"><button class="btn btn-primary stock-add-btn" onclick="addProduto()">+ Adicionar Medicamento</button></div>
+          <div class="form-row">
+            <div class="form-group"><label>Preço de Compra (MZN)</label><input id="p-custo" type="number" min="0" placeholder="0"></div>
+            <div class="form-group"><label>Preço de Venda (MZN)</label><input id="p-venda" type="number" min="0" placeholder="0"></div>
+            <div class="form-group"><label>Fornecedor / Fabricante</label><input id="p-fornecedor" placeholder="Ex: MedPharma Lda"></div>
+            <div class="form-group"><button class="btn btn-primary stock-add-btn" onclick="addProduto()">+ Adicionar Medicamento</button></div>
+          </div>
         </div>
       </div>
-      <div class="card">
-        <div class="stock-header">
-          <div class="card-title" style="margin-bottom:0;">Todos os produtos</div>
-          <input id="search-prod" placeholder="Pesquisar..." class="stock-search-input"
-            oninput="renderStock()">
-        </div>
-        <div class="table-responsive">
-          <div id="stock-table"></div>
+
+      <!-- TAB: Todos os Produtos -->
+      <div id="stock-tab-all" class="stock-tab-content">
+        <div class="card">
+          <div class="stock-header">
+            <div class="card-title" style="margin-bottom:0;">Todos os produtos</div>
+            <input id="search-prod" placeholder="Pesquisar..." class="stock-search-input"
+              oninput="renderStock()">
+          </div>
+          <div class="metrics" id="stock-metrics"></div>
+          <div class="table-responsive">
+            <div id="stock-table"></div>
+          </div>
         </div>
       </div>
-      <div class="card" style="margin-top:20px;">
-        <div class="card-title">Produtos em Quarentena</div>
-        <div class="table-responsive">
-          <table>
-            <thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Devolver</th></tr></thead>
-            <tbody id="quarentena-list"></tbody>
-          </table>
+
+      <!-- TAB: Gestão -->
+      <div id="stock-tab-gestao" class="stock-tab-content">
+        <div class="card">
+          <div class="card-title">Gestão de Stock</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Produto</label>
+              <select id="gestao-produto"><option value="">Seleccione um produto...</option></select>
+            </div>
+            <div class="form-group">
+              <label>Tipo de Operação</label>
+              <select id="gestao-tipo">
+                <option value="entrada">+ Entrada</option>
+                <option value="saida">− Saída (venda)</option>
+                <option value="quebra">! Quebra</option>
+                <option value="quarentena">⚠ Quarentena</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Quantidade</label>
+              <input id="gestao-qtd" type="number" min="1" placeholder="1">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Data</label>
+              <input id="gestao-data" type="date">
+            </div>
+            <div class="form-group">
+              <label>Notas (opcional)</label>
+              <input id="gestao-notas" placeholder="Motivo / Observação">
+            </div>
+            <div class="form-group" style="align-self:flex-end;">
+              <button class="btn btn-primary" onclick="gestaoMovimento()">Registar Movimento</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: Produtos em Quarentena -->
+      <div id="stock-tab-quarentena" class="stock-tab-content">
+        <div class="card">
+          <div class="card-title">Produtos em Quarentena</div>
+          <div class="table-responsive">
+            <table>
+              <thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Devolver</th></tr></thead>
+              <tbody id="quarentena-list"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -528,7 +586,6 @@
 
     <!-- RELATÓRIO MENSAL -->
     <div class="section" id="sec-relmensal">
-      <div class="metrics" id="stock-metrics"></div>
       <div class="metrics" id="alertas-metrics"></div>
       <div class="card">
         <div class="relmensal-header">
@@ -864,6 +921,50 @@
   </main>
   </div>
   <div id="toast-container"></div>
+
+  <!-- Modal: Editar Preços -->
+  <div id="precos-modal" class="modal-overlay">
+    <div class="modal-dialog">
+      <h3>Editar Preços</h3>
+      <p style="margin-bottom:16px;color:var(--color-text-secondary);" id="precos-modal-produto"></p>
+      <div class="form-row" style="gap:12px;">
+        <div class="form-group">
+          <label>Preço de Compra (MZN)</label>
+          <input id="precos-custo" type="number" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Preço de Venda (MZN)</label>
+          <input id="precos-venda" type="number" min="0" step="0.01">
+        </div>
+      </div>
+      <div class="confirm-btns" style="margin-top:20px;">
+        <button class="btn" style="background:#f2f2f2;" onclick="closePrecosModal()">Cancelar</button>
+        <button class="btn btn-primary" onclick="salvarPrecos()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Aumentar / Diminuir Stock -->
+  <div id="stock-modal" class="modal-overlay">
+    <div class="modal-dialog">
+      <h3 id="stock-modal-title">Ajustar Stock</h3>
+      <p style="margin-bottom:16px;color:var(--color-text-secondary);" id="stock-modal-produto"></p>
+      <div class="form-row" style="gap:12px;">
+        <div class="form-group">
+          <label>Quantidade</label>
+          <input id="stock-modal-qtd" type="number" min="1" placeholder="1">
+        </div>
+        <div class="form-group" id="stock-modal-tipo-group">
+          <label>Tipo de Operação</label>
+          <select id="stock-modal-tipo"></select>
+        </div>
+      </div>
+      <div class="confirm-btns" style="margin-top:20px;">
+        <button class="btn" style="background:#f2f2f2;" onclick="closeStockModal()">Cancelar</button>
+        <button class="btn btn-primary" id="stock-modal-ok" onclick="confirmStockModal()">Confirmar</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Custom Confirm Modal -->
   <div id="confirm-overlay" class="confirm-overlay">

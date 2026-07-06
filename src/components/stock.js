@@ -64,7 +64,7 @@ export function renderStock(context) {
 
   const stockHtml = filtered.length ? header + filtered.map(function (p) {
     let row = '<tr><td>' + escapeHTML(p.nome) + '</td><td>' + escapeHTML(p.cat) + '</td>' +
-      '<td><input type="number" value="' + p.qtd + '" min="0" style="width:60px;padding:3px 6px;" onchange="updateQtd(' + p.id + ',this.value)" ' + (isGestor ? '' : 'disabled') + '></td>';
+      '<td style="font-weight:700;">' + p.qtd + '</td>';
 
     if (isGestor) {
       row += '<td><input type="number" value="' + p.min + '" min="0" style="width:60px;padding:3px 6px;" onchange="updateField(' + p.id + ',\'stock_minimo\',this.value)"></td>' +
@@ -84,7 +84,12 @@ export function renderStock(context) {
     row += '<td>' + getStatus(p) + '</td>';
 
     if (isGestor) {
-      row += '<td><button class="btn btn-danger" onclick="removeProduto(' + p.id + ')">Remover</button></td>';
+      row += '<td><div class="stock-actions">' +
+        '<button class="btn-sm btn-sm-success" onclick="openAumentarStock(' + p.id + ')">+ Aumentar</button>' +
+        '<button class="btn-sm btn-sm-warning" onclick="openDiminuirStock(' + p.id + ')">− Diminuir</button>' +
+        '<button class="btn-sm btn-sm-info" onclick="openEditarPrecos(' + p.id + ')">Preços</button>' +
+        '<button class="btn-sm btn-sm-danger" onclick="removeProduto(' + p.id + ')">Remover</button>' +
+        '</div></td>';
     }
 
     row += '</tr>';
