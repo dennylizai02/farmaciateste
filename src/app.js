@@ -1171,26 +1171,52 @@ function renderAlertas() {
     var esgotados = produtos.filter(function (p) { return p.qtd === 0; });
     var todos = esgotados.concat(baixo);
 
+    var hoje = new Date();
+    var expirar30 = produtos.filter(function (p) {
+        if (!p.validade) return false;
+        var d = new Date(p.validade);
+        var diff = Math.ceil((d - hoje) / (1000 * 60 * 60 * 24));
+        return diff >= 0 && diff <= 30;
+    });
+    var expirados = produtos.filter(function (p) {
+        if (!p.validade) return false;
+        var d = new Date(p.validade);
+        return d < hoje;
+    });
+
     var metricsEl = document.getElementById('alertas-metrics');
     if (metricsEl) {
         metricsEl.innerHTML = `
             <div class="metric-card"><div class="metric-label">Esgotados</div><div class="metric-value" style="color:#A32D2D;">${esgotados.length}</div></div>
             <div class="metric-card"><div class="metric-label">Stock Baixo</div><div class="metric-value" style="color:#854F0B;">${baixo.length}</div></div>
-            <div class="metric-card"><div class="metric-label">Total Alertas</div><div class="metric-value">${todos.length}</div></div>
+            <div class="metric-card"><div class="metric-label">A Expirar (30d)</div><div class="metric-value" style="color:#B8860B;">${expirar30.length}</div></div>
+            <div class="metric-card"><div class="metric-label">Expirados</div><div class="metric-value" style="color:#A32D2D;">${expirados.length}</div></div>
         `;
     }
 
     var quebras = movimentos.filter(function (m) { return m.tipo === 'quebra'; });
     var quebrasEl = document.getElementById('quebras-list');
     if (quebrasEl) {
-        // Ordena quebras das mais recentes para as mais antigas e pega as últimas 5? 
-        // O utilizador pediu: "Coloca as 5 ultimas quebras e um scroll para que se possa visualizar todas as outras"
-        // Como implementamos o scroll por CSS no HTML (max-height), aqui apenas renderizamos todas as quebras. 
         quebrasEl.innerHTML = quebras.length ?
             '<table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Custo estimado</th><th>Notas</th></tr></thead><tbody>' +
             quebras.map(function (m) {
                 return '<tr><td style="font-size:12px;color:var(--color-text-secondary);">' + escapeHTML(m.data) + '</td><td>' + escapeHTML(m.nome_v || '—') + '</td><td>' + m.qtd + '</td><td style="color:#A32D2D;">' + m.total.toLocaleString() + ' MZN</td><td style="font-size:12px;color:var(--color-text-secondary);">' + escapeHTML(m.nota || '—') + '</td></tr>';
             }).join('') + '</tbody></table>' : '<div class="empty">Nenhuma quebra registada</div>';
+    }
+
+    var expirarEl = document.getElementById('expirar-list');
+    if (expirarEl) {
+        var aExpirar = expirados.concat(expirar30);
+        aExpirar.sort(function (a, b) { return new Date(a.validade) - new Date(b.validade); });
+        expirarEl.innerHTML = aExpirar.length ?
+            '<table><thead><tr><th>Produto</th><th>Validade</th><th>Stock</th><th>Estado</th></tr></thead><tbody>' +
+            aExpirar.map(function (p) {
+                var d = new Date(p.validade);
+                var expirado = d < hoje;
+                var cor = expirado ? 'color:#A32D2D;' : 'color:#B8860B;';
+                var label = expirado ? 'Expirado' : 'A expirar';
+                return '<tr><td>' + escapeHTML(p.nome) + '</td><td style="' + cor + 'font-weight:500;">' + escapeHTML(p.validade) + '</td><td>' + p.qtd + '</td><td><span class="badge ' + (expirado ? 'badge-out' : 'badge-low') + '">' + label + '</span></td></tr>';
+            }).join('') + '</tbody></table>' : '<div class="empty">Nenhum produto próximo da validade</div>';
     }
 }
 
