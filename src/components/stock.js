@@ -110,7 +110,7 @@ export function renderStock(context) {
 }
 
 function renderQuarentena(context) {
-  const { movimentos, produtos } = context;
+  const { movimentos, produtos, escapeHTML } = context;
   const qList = document.getElementById('quarentena-list');
   if (!qList) return;
 
