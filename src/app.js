@@ -2692,6 +2692,7 @@ Object.assign(window, {
     downloadPDFFromHistory,
     editDespesa,
     gestaoMovimento,
+    handleSort,
     loginUser,
     logoutUser,
     onProductSearch,
@@ -2719,8 +2720,13 @@ Object.assign(window, {
     toggleCustomCat,
     toggleCustomProdCat,
     toggleSelectAllMovs,
+    updateField,
+    updateFornecedor,
+    updateLote,
     updateMovTotal,
     updatePlanoQtd,
+    updateQtd,
+    updateValidade,
     filterVendedorStock,
     onVProdSearch,
     onVProdChange,
@@ -2733,7 +2739,6 @@ Object.assign(window, {
     vPrintVendasDoDia,
     removeDocItem,
     removePlanoItem,
-    updateQtd
 });
 
 // Check session on load
