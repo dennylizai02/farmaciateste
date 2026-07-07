@@ -285,7 +285,7 @@ async function fetchData() {
 
     if (pRes.data && pRes.data.length > 0) {
         produtos = pRes.data.map(function (p) {
-            return { id: p.id, nome: p.nome, cat: p.categoria, qtd: p.quantidade, min: p.stock_minimo, custo: p.preco_custo, venda: p.preco_venda, forn: p.fornecedor };
+            return { id: p.id, nome: p.nome, cat: p.categoria, qtd: p.quantidade, min: p.stock_minimo, custo: p.preco_custo, venda: p.preco_venda, forn: p.fornecedor, validade: p.validade, lote: p.lote };
         });
     }
     if (mRes.data) {
@@ -541,15 +541,17 @@ async function addProduto() {
         stock_minimo: parseInt(document.getElementById('p-min').value) || 10,
         preco_custo: parseFloat(document.getElementById('p-custo').value) || 0,
         preco_venda: parseFloat(document.getElementById('p-venda').value) || 0,
-        fornecedor: document.getElementById('p-fornecedor').value
+        fornecedor: document.getElementById('p-fornecedor').value,
+        validade: document.getElementById('p-validade').value || null,
+        lote: document.getElementById('p-lote').value.trim()
     };
     if (!sb) { showNotification('Sem ligação à BD'); return; }
     var res = await sb.from(PREFIX + 'produtos').insert([novoProd]).select();
     if (!res.error && res.data && res.data.length > 0) {
         var p = res.data[0];
         showNotification('Produto "' + p.nome + '" adicionado!', 'success');
-        produtos.push({ id: p.id, nome: p.nome, cat: p.categoria, qtd: p.quantidade, min: p.stock_minimo, custo: p.preco_custo, venda: p.preco_venda, forn: p.fornecedor });
-        ['p-nome', 'p-qtd', 'p-min', 'p-custo', 'p-venda', 'p-fornecedor'].forEach(function (x) { document.getElementById(x).value = ''; });
+        produtos.push({ id: p.id, nome: p.nome, cat: p.categoria, qtd: p.quantidade, min: p.stock_minimo, custo: p.preco_custo, venda: p.preco_venda, forn: p.fornecedor, validade: p.validade, lote: p.lote });
+        ['p-nome', 'p-qtd', 'p-min', 'p-custo', 'p-venda', 'p-fornecedor', 'p-validade', 'p-lote'].forEach(function (x) { document.getElementById(x).value = ''; });
         document.getElementById('p-cat').value = 'Analgésicos';
         document.getElementById('p-cat-custom').style.display = 'none';
         document.getElementById('p-cat-custom').value = '';
@@ -569,6 +571,22 @@ async function updateFornecedor(id, val) {
     if (p) {
         p.forn = val;
         if (sb) await sb.from(PREFIX + 'produtos').update({ fornecedor: val }).eq('id', id);
+    }
+}
+
+async function updateLote(id, val) {
+    var p = produtos.find(function (x) { return x.id === id; });
+    if (p) {
+        p.lote = val;
+        if (sb) await sb.from(PREFIX + 'produtos').update({ lote: val }).eq('id', id);
+    }
+}
+
+async function updateValidade(id, val) {
+    var p = produtos.find(function (x) { return x.id === id; });
+    if (p) {
+        p.validade = val || null;
+        if (sb) await sb.from(PREFIX + 'produtos').update({ validade: val || null }).eq('id', id);
     }
 }
 
@@ -2533,7 +2551,7 @@ async function venderProduto() {
         var prodRes = await sb.from(PREFIX + 'produtos').select('id').eq('id', prodId);
         if (prodRes.error || !prodRes.data || prodRes.data.length === 0) {
             var insRes = await sb.from(PREFIX + 'produtos').insert([
-                { id: prodId, nome: p.nome, categoria: p.cat || '', quantidade: p.qtd, stock_minimo: p.min || 0, preco_custo: p.custo || 0, preco_venda: p.venda || 0, fornecedor: p.forn || '' }
+                { id: prodId, nome: p.nome, categoria: p.cat || '', quantidade: p.qtd, stock_minimo: p.min || 0, preco_custo: p.custo || 0, preco_venda: p.venda || 0, fornecedor: p.forn || '', validade: p.validade || null, lote: p.lote || '' }
             ]).select();
             if (insRes.error) {
                 p.qtd += qtd;

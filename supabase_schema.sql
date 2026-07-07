@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS produtos (
   preco_custo NUMERIC(12,2) DEFAULT 0,
   preco_venda NUMERIC(12,2) DEFAULT 0,
   fornecedor TEXT DEFAULT '',
+  validade DATE DEFAULT NULL,
+  lote TEXT DEFAULT '',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -61,6 +63,10 @@ CREATE TABLE IF NOT EXISTS saldo_caixa (
   descricao TEXT DEFAULT '',
   data TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- Migração: adicionar colunas validade e lote (para bases já existentes)
+ALTER TABLE produtos ADD COLUMN IF NOT EXISTS validade DATE DEFAULT NULL;
+ALTER TABLE produtos ADD COLUMN IF NOT EXISTS lote TEXT DEFAULT '';
 
 -- Índices úteis
 CREATE INDEX IF NOT EXISTS idx_movimentos_data ON movimentos(data);

@@ -58,6 +58,8 @@ export function renderStock(context) {
     (isGestor ? '<th>Mín.</th><th>Custo (MT)</th>' : '') +
     '<th>Venda (MT)</th>' +
     (isGestor ? '<th onclick="handleSort(\'margem\')" style="cursor:pointer; user-select:none;">Margem' + getSortIcon('margem') + '</th>' : '') +
+    '<th>Validade</th>' +
+    '<th>Lote</th>' +
     '<th onclick="handleSort(\'forn\')" style="cursor:pointer; user-select:none;">Fornecedor' + getSortIcon('forn') + '</th>' +
     '<th onclick="handleSort(\'estado\')" style="cursor:pointer; user-select:none;">Estado' + getSortIcon('estado') + '</th>' +
     (isGestor ? '<th>Acções</th>' : '') + '</tr></thead><tbody>';
@@ -76,6 +78,14 @@ export function renderStock(context) {
     if (isGestor) {
       row += '<td style="color:#3B6D11;">' + (p.venda > 0 ? Math.round((p.venda - p.custo) / p.venda * 100) : 0) + '%</td>';
     }
+
+    row += '<td>' + (isGestor
+      ? '<input type="date" value="' + (p.validade || '') + '" style="width:130px;padding:3px 6px;font-size:12px;" onchange="updateValidade(' + p.id + ',this.value)">'
+      : (p.validade || '—')) + '</td>';
+
+    row += '<td>' + (isGestor
+      ? '<input type="text" value="' + escapeHTML(p.lote || '') + '" style="width:100px;padding:3px 6px;font-size:12px;" onchange="updateLote(' + p.id + ',this.value)">'
+      : escapeHTML(p.lote || '—')) + '</td>';
 
     row += '<td>' + (isGestor
       ? '<input type="text" value="' + escapeHTML(p.forn || '') + '" style="width:120px;padding:3px 6px;font-size:12px;" onchange="updateFornecedor(' + p.id + ',this.value)">'
