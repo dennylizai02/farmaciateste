@@ -1178,18 +1178,17 @@ function renderNecessidades() {
     }
 
     var aExpirar = expirados.concat(expirar30);
-    if (aExpirar.length > 0) {
-        aExpirar.sort(function (a, b) { return new Date(a.validade) - new Date(b.validade); });
-        html += '<div style="margin-top:1.5rem;"><div class="card-title">Produtos a Expirar</div>' +
-            '<div class="table-responsive"><table><thead><tr><th>Produto</th><th>Validade</th><th>Stock</th><th>Estado</th></tr></thead><tbody>' +
-            aExpirar.map(function (p) {
-                var d = new Date(p.validade);
-                var expirado = d < hoje;
-                var cor = expirado ? 'color:#A32D2D;' : 'color:#B8860B;';
-                var label = expirado ? 'Expirado' : 'A expirar';
-                return '<tr><td>' + escapeHTML(p.nome) + '</td><td style="' + cor + 'font-weight:500;">' + escapeHTML(p.validade) + '</td><td>' + p.qtd + '</td><td><span class="badge ' + (expirado ? 'badge-out' : 'badge-low') + '">' + label + '</span></td></tr>';
-            }).join('') + '</tbody></table></div></div>';
-    }
+    aExpirar.sort(function (a, b) { return new Date(a.validade) - new Date(b.validade); });
+    html += '<div style="margin-top:1.5rem;"><div class="card-title">Produtos a Expirar</div>' +
+        '<div class="table-responsive"><table><thead><tr><th>Produto</th><th>Validade</th><th>Stock</th><th>Estado</th></tr></thead><tbody>' +
+        (aExpirar.length ? aExpirar.map(function (p) {
+            var d = new Date(p.validade);
+            var expirado = d < hoje;
+            var cor = expirado ? 'color:#A32D2D;' : 'color:#B8860B;';
+            var label = expirado ? 'Expirado' : 'A expirar';
+            return '<tr><td>' + escapeHTML(p.nome) + '</td><td style="' + cor + 'font-weight:500;">' + escapeHTML(p.validade) + '</td><td>' + p.qtd + '</td><td><span class="badge ' + (expirado ? 'badge-out' : 'badge-low') + '">' + label + '</span></td></tr>';
+        }).join('') : '<tr><td colspan="4" class="empty">Nenhum produto próximo da validade</td></tr>') +
+        '</tbody></table></div></div>';
 
     cont.innerHTML = html;
 }
@@ -1237,6 +1236,7 @@ function renderAlertas() {
     if (expirarEl) {
         var aExpirar = expirados.concat(expirar30);
         aExpirar.sort(function (a, b) { return new Date(a.validade) - new Date(b.validade); });
+        var hojeStr = hoje.toISOString().split('T')[0];
         expirarEl.innerHTML = aExpirar.length ?
             '<table><thead><tr><th>Produto</th><th>Validade</th><th>Stock</th><th>Estado</th></tr></thead><tbody>' +
             aExpirar.map(function (p) {
@@ -1244,7 +1244,8 @@ function renderAlertas() {
                 var expirado = d < hoje;
                 var cor = expirado ? 'color:#A32D2D;' : 'color:#B8860B;';
                 var label = expirado ? 'Expirado' : 'A expirar';
-                return '<tr><td>' + escapeHTML(p.nome) + '</td><td style="' + cor + 'font-weight:500;">' + escapeHTML(p.validade) + '</td><td>' + p.qtd + '</td><td><span class="badge ' + (expirado ? 'badge-out' : 'badge-low') + '">' + label + '</span></td></tr>';
+                var diasRest = Math.ceil((d - hoje) / (1000 * 60 * 60 * 24));
+                return '<tr><td>' + escapeHTML(p.nome) + '</td><td style="' + cor + 'font-weight:500;">' + escapeHTML(p.validade) + ' ' + (expirado ? '(vencido)' : '(' + diasRest + ' dias)') + '</td><td>' + p.qtd + '</td><td><span class="badge ' + (expirado ? 'badge-out' : 'badge-low') + '">' + label + '</span></td></tr>';
             }).join('') + '</tbody></table>' : '<div class="empty">Nenhum produto próximo da validade</div>';
     }
 }
