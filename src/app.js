@@ -1139,30 +1139,59 @@ function renderNecessidades() {
     var cont = document.getElementById('nec-list');
     if (!cont) return;
 
-    if (rep.length === 0) {
-        cont.innerHTML = '<div class="empty">Stock robusto. Não há necessidade de reforço por enquanto!</div>';
-        return;
-    }
-
-    var totalCompras = 0, lucroExp = 0;
-    var linhas = rep.map(function (p) {
-        var comprar = p.min - p.qtd;
-        var custoPrev = comprar * p.custo;
-        var lucroPrev = comprar * (p.venda - p.custo);
-        totalCompras += custoPrev; lucroExp += lucroPrev;
-        return '<tr><td>' + escapeHTML(p.nome) + '</td>' +
-            '<td style="color:#A32D2D;font-weight:500;">' + p.qtd + '</td>' +
-            '<td>' + p.min + '</td><td style="font-weight:bold;">' + comprar + '</td>' +
-            '<td>' + p.custo + ' MZN</td><td>' + custoPrev.toLocaleString() + ' MZN</td>' +
-            '<td style="color:#3B6D11;">' + lucroPrev.toLocaleString() + ' MZN</td></tr>';
+    var hoje = new Date();
+    var expirar30 = produtos.filter(function (p) {
+        if (!p.validade) return false;
+        var d = new Date(p.validade);
+        var diff = Math.ceil((d - hoje) / (1000 * 60 * 60 * 24));
+        return diff >= 0 && diff <= 30;
+    });
+    var expirados = produtos.filter(function (p) {
+        if (!p.validade) return false;
+        var d = new Date(p.validade);
+        return d < hoje;
     });
 
-    cont.innerHTML =
-        '<div style="margin-bottom:1rem;font-size:14px;background:#F9F9F9;padding:10px;border-radius:8px;">' +
-        'Necessidades estimadas em <b>' + totalCompras.toLocaleString() + ' MZN</b> para recuperar stock mínimo. ' +
-        'Lucro esperado (venda total): <b style="color:#3B6D11;">' + lucroExp.toLocaleString() + ' MZN</b></div>' +
-        '<div class="table-responsive"><table><thead><tr><th>Produto</th><th>Stock Atual</th><th>Mínimo</th><th>A Comprar</th><th>Custo Unit.</th><th>Investimento</th><th>Lucro Esperado</th></tr></thead>' +
-        '<tbody>' + linhas.join('') + '</tbody></table></div>';
+    var html = '';
+
+    if (rep.length > 0) {
+        var totalCompras = 0, lucroExp = 0;
+        var linhas = rep.map(function (p) {
+            var comprar = p.min - p.qtd;
+            var custoPrev = comprar * p.custo;
+            var lucroPrev = comprar * (p.venda - p.custo);
+            totalCompras += custoPrev; lucroExp += lucroPrev;
+            return '<tr><td>' + escapeHTML(p.nome) + '</td>' +
+                '<td style="color:#A32D2D;font-weight:500;">' + p.qtd + '</td>' +
+                '<td>' + p.min + '</td><td style="font-weight:bold;">' + comprar + '</td>' +
+                '<td>' + p.custo + ' MZN</td><td>' + custoPrev.toLocaleString() + ' MZN</td>' +
+                '<td style="color:#3B6D11;">' + lucroPrev.toLocaleString() + ' MZN</td></tr>';
+        });
+        html +=
+            '<div style="margin-bottom:1rem;font-size:14px;background:#F9F9F9;padding:10px;border-radius:8px;">' +
+            'Necessidades estimadas em <b>' + totalCompras.toLocaleString() + ' MZN</b> para recuperar stock mínimo. ' +
+            'Lucro esperado (venda total): <b style="color:#3B6D11;">' + lucroExp.toLocaleString() + ' MZN</b></div>' +
+            '<div class="table-responsive"><table><thead><tr><th>Produto</th><th>Stock Atual</th><th>Mínimo</th><th>A Comprar</th><th>Custo Unit.</th><th>Investimento</th><th>Lucro Esperado</th></tr></thead>' +
+            '<tbody>' + linhas.join('') + '</tbody></table></div>';
+    } else {
+        html += '<div class="empty">Stock robusto. Não há necessidade de reforço por enquanto!</div>';
+    }
+
+    var aExpirar = expirados.concat(expirar30);
+    if (aExpirar.length > 0) {
+        aExpirar.sort(function (a, b) { return new Date(a.validade) - new Date(b.validade); });
+        html += '<div style="margin-top:1.5rem;"><div class="card-title">Produtos a Expirar</div>' +
+            '<div class="table-responsive"><table><thead><tr><th>Produto</th><th>Validade</th><th>Stock</th><th>Estado</th></tr></thead><tbody>' +
+            aExpirar.map(function (p) {
+                var d = new Date(p.validade);
+                var expirado = d < hoje;
+                var cor = expirado ? 'color:#A32D2D;' : 'color:#B8860B;';
+                var label = expirado ? 'Expirado' : 'A expirar';
+                return '<tr><td>' + escapeHTML(p.nome) + '</td><td style="' + cor + 'font-weight:500;">' + escapeHTML(p.validade) + '</td><td>' + p.qtd + '</td><td><span class="badge ' + (expirado ? 'badge-out' : 'badge-low') + '">' + label + '</span></td></tr>';
+            }).join('') + '</tbody></table></div></div>';
+    }
+
+    cont.innerHTML = html;
 }
 
 // ====================== ALERTAS ======================
