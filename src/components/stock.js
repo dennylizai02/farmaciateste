@@ -106,7 +106,7 @@ export function renderStock(context) {
     stockElement.innerHTML = stockHtml;
   }
 
-  renderQuarentena(context);
+  try { renderQuarentena(context); } catch (e) { console.warn('renderQuarentena error:', e); }
 }
 
 function renderQuarentena(context) {
