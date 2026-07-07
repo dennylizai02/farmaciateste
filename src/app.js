@@ -1152,7 +1152,10 @@ function renderNecessidades() {
         return d < hoje;
     });
 
-    var html = '';
+    var html = '<div class="metrics" style="margin-bottom:1rem;">' +
+        '<div class="metric-card"><div class="metric-label">A Expirar (30d)</div><div class="metric-value" style="color:#B8860B;">' + expirar30.length + '</div></div>' +
+        '<div class="metric-card"><div class="metric-label">Expirados</div><div class="metric-value" style="color:#A32D2D;">' + expirados.length + '</div></div>' +
+        '</div>';
 
     if (rep.length > 0) {
         var totalCompras = 0, lucroExp = 0;
