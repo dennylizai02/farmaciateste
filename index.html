@@ -183,11 +183,21 @@
 
     <!-- STOCK -->
     <div class="section" id="sec-stock">
-      <div class="stock-tabs">
-        <button class="stock-tab active" data-tab="add" onclick="showStockTab('add')">Adicionar Medicamento</button>
-        <button class="stock-tab" data-tab="all" onclick="showStockTab('all')">Todos os Produtos</button>
-        <button class="stock-tab" data-tab="gestao" onclick="showStockTab('gestao')">Gestão</button>
-        <button class="stock-tab" data-tab="quarentena" onclick="showStockTab('quarentena')">Produtos em Quarentena</button>
+      <div class="stock-tabs" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:1rem;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button class="stock-tab active" data-tab="add" onclick="showStockTab('add')">Adicionar Medicamento</button>
+          <button class="stock-tab" data-tab="all" onclick="showStockTab('all')">Todos os Produtos</button>
+          <button class="stock-tab" data-tab="gestao" onclick="showStockTab('gestao')">Gestão</button>
+          <button class="stock-tab" data-tab="quarentena" onclick="showStockTab('quarentena')">Produtos em Quarentena</button>
+        </div>
+        <button class="btn" onclick="printStockReport()" style="display:inline-flex; align-items:center; gap:6px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+            <polyline points="6 9 6 2 18 2 18 9"/>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+            <rect x="6" y="14" width="12" height="8"/>
+          </svg>
+          Imprimir Relatório de Stock
+        </button>
       </div>
 
       <!-- TAB: Adicionar Medicamento -->
@@ -233,8 +243,18 @@
         <div class="card">
           <div class="stock-header">
             <div class="card-title" style="margin-bottom:0;">Todos os produtos</div>
-            <input id="search-prod" placeholder="Pesquisar..." class="stock-search-input"
-              oninput="renderStock()">
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+              <input id="search-prod" placeholder="Pesquisar..." class="stock-search-input"
+                oninput="renderStock()">
+              <button class="btn" onclick="printStockReport()" style="display:inline-flex; align-items:center; gap:6px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+                  <polyline points="6 9 6 2 18 2 18 9"/>
+                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+                  <rect x="6" y="14" width="12" height="8"/>
+                </svg>
+                Imprimir Relatório
+              </button>
+            </div>
           </div>
           <div class="metrics" id="stock-metrics"></div>
           <div class="table-responsive">
@@ -950,14 +970,24 @@
     <!-- VENDEDOR - Consultar Stock -->
     <div class="section" id="sec-vstock">
       <div class="card">
-        <div class="card-title" style="display:flex;align-items:center;gap:6px;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-dark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
-            <path d="M10.5 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
-            <path d="M18 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
-            <path d="M3.75 10.5h16.5"/>
-            <path d="M4.5 10.5v7.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-7.5"/>
-          </svg>
-          Consultar Stock
+        <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-dark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+              <path d="M10.5 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+              <path d="M18 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
+              <path d="M3.75 10.5h16.5"/>
+              <path d="M4.5 10.5v7.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-7.5"/>
+            </svg>
+            Consultar Stock
+          </div>
+          <button class="btn" onclick="printStockReport()" style="display:inline-flex; align-items:center; gap:6px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
+              <polyline points="6 9 6 2 18 2 18 9"/>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
+              <rect x="6" y="14" width="12" height="8"/>
+            </svg>
+            Imprimir Relatório de Stock
+          </button>
         </div>
         <input type="text" id="v-stock-search" placeholder="Pesquisar medicamento..." oninput="filterVendedorStock()" style="width:100%; margin-bottom:10px; padding:8px 12px; border:1px solid var(--color-border); border-radius:var(--border-radius-md); box-sizing:border-box;">
         <div id="v-stock-table" class="v-stock-table"></div>
