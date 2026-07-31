@@ -3077,21 +3077,21 @@ function printStockReport() {
 
     var totalSKUs = filtered.length;
     var totalUnidades = filtered.reduce(function (acc, p) { return acc + (Number(p.qtd) || 0); }, 0);
-    var totalCusto = filtered.reduce(function (acc, p) { return acc + ((Number(p.qtd) || 0) * (Number(p.custo) || 0)); }, 0);
+    var totalVenda = filtered.reduce(function (acc, p) { return acc + ((Number(p.qtd) || 0) * (Number(p.venda) || 0)); }, 0);
     var today = new Date().toLocaleString('pt-MZ');
 
     var rows = filtered.map(function (p, index) {
         var qtd = Number(p.qtd) || 0;
-        var custo = Number(p.custo) || 0;
-        var totalCustoProd = qtd * custo;
+        var venda = Number(p.venda) || 0;
+        var totalVendaProd = qtd * venda;
 
         return '<tr>' +
             '<td style="text-align:center;">' + (index + 1) + '</td>' +
             '<td><strong>' + escapeHTML(p.nome || '') + '</strong></td>' +
             '<td>' + escapeHTML(p.cat || '—') + '</td>' +
             '<td style="text-align:center; font-weight:bold;">' + qtd.toLocaleString() + '</td>' +
-            '<td style="text-align:right;">' + custo.toLocaleString() + ' MZN</td>' +
-            '<td style="text-align:right; font-weight:800; font-size:12px; color:#047857; background-color:#f0fdf4;">' + totalCustoProd.toLocaleString() + ' MZN</td>' +
+            '<td style="text-align:right;">' + venda.toLocaleString() + ' MZN</td>' +
+            '<td style="text-align:right; font-weight:800; font-size:12px; color:#047857; background-color:#f0fdf4;">' + totalVendaProd.toLocaleString() + ' MZN</td>' +
             '</tr>';
     });
 
@@ -3099,7 +3099,7 @@ function printStockReport() {
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>${pharmacy.nome} - Relatório de Valor do Stock</title>
+    <title>${pharmacy.nome} - Relatório de Stock (Preços de Venda)</title>
     <style>
         body { font-family: Arial, sans-serif; color: #333; padding: 20px; font-size: 12px; line-height: 1.4; }
         .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #10b981; padding-bottom: 15px; }
@@ -3135,7 +3135,7 @@ function printStockReport() {
     <div class="header">
         <h1>${pharmacy.nome}</h1>
         <div class="sub">${pharmacy.endereco} | NUIT: ${pharmacy.nuit}</div>
-        <div class="title">Relatório de Custo do Stock</div>
+        <div class="title">Relatório de Valor do Stock (Preços de Venda)</div>
         <div class="meta">Data de Emissão: ${today} ${q ? '| Filtro de pesquisa: "' + escapeHTML(q) + '"' : ''}</div>
     </div>
 
@@ -3149,8 +3149,8 @@ function printStockReport() {
             <div class="value">${totalUnidades.toLocaleString()}</div>
         </div>
         <div class="summary-card highlight">
-            <div class="label">Custo Total do Stock</div>
-            <div class="value">${totalCusto.toLocaleString()} MZN</div>
+            <div class="label">Valor Total do Stock (Venda)</div>
+            <div class="value">${totalVenda.toLocaleString()} MZN</div>
         </div>
     </div>
 
@@ -3161,8 +3161,8 @@ function printStockReport() {
                 <th>Produto</th>
                 <th>Categoria</th>
                 <th style="text-align:center; width: 80px;">Qtd</th>
-                <th style="text-align:right; width: 120px;">Custo Unit. (MZN)</th>
-                <th style="text-align:right; width: 140px; background-color:#dcfce7; color:#047857;">Custo Total (MZN)</th>
+                <th style="text-align:right; width: 130px;">Preço Venda Unit. (MZN)</th>
+                <th style="text-align:right; width: 150px; background-color:#dcfce7; color:#047857;">Preço Venda Total (MZN)</th>
             </tr>
         </thead>
         <tbody>
@@ -3170,16 +3170,16 @@ function printStockReport() {
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="3" style="text-align:right;"><strong>TOTAL GERAL DO STOCK:</strong></td>
+                <td colspan="3" style="text-align:right;"><strong>TOTAL GERAL DO STOCK (VENDA):</strong></td>
                 <td style="text-align:center; font-weight:800;">${totalUnidades.toLocaleString()}</td>
                 <td></td>
-                <td style="text-align:right; font-weight:800; font-size:13px; color:#047857; background-color:#dcfce7; border-top:2px solid #047857;">${totalCusto.toLocaleString()} MZN</td>
+                <td style="text-align:right; font-weight:800; font-size:13px; color:#047857; background-color:#dcfce7; border-top:2px solid #047857;">${totalVenda.toLocaleString()} MZN</td>
             </tr>
         </tfoot>
     </table>
 
     <div class="footer">
-        Relatório gerado automaticamente por ${pharmacy.nome} &bull; Documento de Gestão de Valor do Stock
+        Relatório gerado automaticamente por ${pharmacy.nome} &bull; Documento de Gestão de Stock
     </div>
 </body>
 </html>`;
