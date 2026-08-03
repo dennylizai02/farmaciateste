@@ -12,7 +12,7 @@ import Chart from 'chart.js/auto';
 
 let sb = createSupabaseClient();
 
-const PREFIX = '';
+const PREFIX = 'p2026_';
 
 const destroyChart = function (chart) { if (chart && typeof chart.destroy === 'function') chart.destroy(); };
 const buildOption = function (value, label) {
@@ -2269,8 +2269,10 @@ async function fetchProfile(userId) {
 }
 
 function getVendedorDisplayName(user) {
+    if (user === 'vendas1@picoco.com') return 'Vendedor 1';
     if (user === 'vendas1@farmacia.picoco') return 'Vendedor 1';
     if (user === 'vendas2@farmacia.picoco') return 'Vendedor 2';
+    if (user === 'gestao@picoco.com') return 'Administrador';
     return user || 'Vendedor';
 }
 
