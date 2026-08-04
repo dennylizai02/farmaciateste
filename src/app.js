@@ -2776,6 +2776,7 @@ async function initApp() {
         if (userRole === 'vendedor') {
             renderVendedor();
         } else {
+            renderStock();
             renderRelatorios();
             renderMovimentos();
             renderDespesas();
