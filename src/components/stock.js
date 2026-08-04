@@ -103,7 +103,11 @@ export function renderStock(context) {
 
   const stockElement = document.getElementById('stock-table');
   if (stockElement) {
-    stockElement.innerHTML = stockHtml;
+    stockElement.innerHTML = filtered.length
+      ? stockHtml
+      : (context.dataLoadError
+        ? '<div style="padding:16px;border:1px solid #E24B4A;background:#FDEAEA;color:#A32D2D;border-radius:8px;font-size:13px;white-space:pre-wrap;"><strong>Erro ao carregar dados:</strong><br>' + escapeHTML(context.dataLoadError) + '</div>'
+        : '<div class="empty">Nenhum produto encontrado</div>');
   }
 
   try { renderQuarentena(context); } catch (e) { console.warn('renderQuarentena error:', e); }

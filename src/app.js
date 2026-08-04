@@ -74,6 +74,7 @@ let currentSortOrder = 'asc';
 let chartVendas, chartLucro, chartRelVendas, chartRelLucro, chartTop5, chartDiario, chartROI;
 let userRole = 'gestor';
 let currentUserEmail = '';
+let dataLoadError = '';
 // ---------- DATE ----------
 const dateEl = document.getElementById('current-date');
 if (dateEl) dateEl.textContent = new Date().toLocaleDateString('pt-MZ', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -425,15 +426,20 @@ async function fetchData() {
         const msg = lastError ? fmtErr(lastError) : 'unknown error';
         console.error('[DATA] failed to load any dataset', msg);
         const detail = loadErrors.length ? loadErrors.join('\n') : ('Dataset activo: ' + attempts.join(', ') + ' — sem produtos.');
+        dataLoadError = detail;
         const errBox = document.getElementById('stock-table');
-        if (errBox) {
-            errBox.innerHTML = '<div style="padding:16px;border:1px solid #E24B4A;background:#FDEAEA;color:#A32D2D;border-radius:8px;font-size:13px;">' +
-                '<strong>Erro ao carregar dados (Todos os Produtos está vazio por isto):</strong><br>' +
-                escapeHTML(detail) +
-                '</div>';
-        }
+        if (errBox) errBox.innerHTML = dataLoadErrorHTML(detail);
         showNotification('Falha ao carregar dados: ' + detail, 'error');
+    } else {
+        dataLoadError = '';
     }
+}
+
+function dataLoadErrorHTML(detail) {
+    return '<div style="padding:16px;border:1px solid #E24B4A;background:#FDEAEA;color:#A32D2D;border-radius:8px;font-size:13px;white-space:pre-wrap;">' +
+        '<strong>Erro ao carregar dados:</strong><br>' +
+        escapeHTML(detail) +
+        '</div>';
 }
 
 // ====================== HELPERS ======================
@@ -461,7 +467,8 @@ function handleSort(field) {
         renderMovimentos,
         populateProdutoSelect,
         getStatus,
-        escapeHTML
+        escapeHTML,
+        dataLoadError
     });
 }
 
@@ -480,7 +487,8 @@ function renderStock() {
         renderMovimentos,
         populateProdutoSelect,
         getStatus,
-        escapeHTML
+        escapeHTML,
+        dataLoadError
     });
 }
 
