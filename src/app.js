@@ -12,7 +12,36 @@ import Chart from 'chart.js/auto';
 
 let sb = createSupabaseClient();
 
-const PREFIX = 'p2026_';
+const LEGACY_PREFIX = '';
+const NEW_PREFIX = 'p2026_';
+let activeTableSet = 'new';
+
+function getTableSetFromProfile(profile, email) {
+    const scope = profile?.dataset_scope;
+    if (scope === 'legacy' || scope === 'recent') return scope;
+
+    if (email === 'gestao@farmacia.picoco') return 'legacy';
+    if (email === 'gestao@picoco.com') return 'new';
+    return 'new';
+}
+
+function setActiveTableSet(profile, email) {
+    activeTableSet = getTableSetFromProfile(profile, email);
+    console.log('[DB SET] activeTableSet =', activeTableSet, 'for', email);
+}
+
+function getTableName(table) {
+    const prefix = activeTableSet === 'legacy' ? LEGACY_PREFIX : NEW_PREFIX;
+    return prefix + table;
+}
+
+function getJoinSelectExpression(table, selectExpr) {
+    if (table === 'movimentos') {
+        const productTable = getTableName('produtos');
+        return selectExpr.replace(/\bprodutos\(/, `${productTable}(`);
+    }
+    return selectExpr;
+}
 
 const destroyChart = function (chart) { if (chart && typeof chart.destroy === 'function') chart.destroy(); };
 const buildOption = function (value, label) {
@@ -241,9 +270,10 @@ async function fetchAllRows(table, selectExpr, orderColumn, ascending) {
 
     while (page < maxPages) {
         const from = page * pageSize;
+        const dynamicSelectExpr = getJoinSelectExpression(table, selectExpr);
         const res = await sb
-            .from(PREFIX + table)
-            .select(selectExpr)
+            .from(getTableName(table))
+            .select(dynamicSelectExpr)
             .order(orderColumn, { ascending: ascending })
             .range(from, from + pageSize - 1);
 
@@ -263,7 +293,7 @@ async function fetchData() {
     var pRes, mRes, dRes, docRes;
     try {
         var results = await Promise.all([
-            sb.from(PREFIX + 'produtos').select('*').order('nome'),
+            sb.from(getTableName('produtos')).select('*').order('nome'),
             fetchAllRows('movimentos', '*, produtos(nome)', 'data', false),
             fetchAllRows('despesas', '*', 'data', false),
             fetchAllRows('documentos', '*', 'data', false),
@@ -437,8 +467,8 @@ async function updateQtd(id, val) {
         };
         if (sb) {
             await Promise.all([
-                sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', id),
-                sb.from(PREFIX + 'movimentos').insert([novoMov])
+                sb.from(getTableName('produtos')).update({ quantidade: p.qtd }).eq('id', id),
+                sb.from(getTableName('movimentos')).insert([novoMov])
             ]);
             await fetchData();
         }
@@ -502,8 +532,8 @@ async function confirmStockModal() {
 
     if (sb) {
         await Promise.all([
-            sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', pendingDiminuir.id),
-            sb.from(PREFIX + 'movimentos').insert([novoMov])
+            sb.from(getTableName('produtos')).update({ quantidade: p.qtd }).eq('id', pendingDiminuir.id),
+            sb.from(getTableName('movimentos')).insert([novoMov])
         ]);
         await fetchData();
     }
@@ -521,7 +551,7 @@ async function updateField(id, field, val) {
         if (field === 'stock_minimo') p.min = nVal;
         else if (field === 'preco_custo') p.custo = nVal;
         else if (field === 'preco_venda') p.venda = nVal;
-        if (sb) await sb.from(PREFIX + 'produtos').update({ [field]: nVal }).eq('id', id);
+        if (sb) await sb.from(getTableName('produtos')).update({ [field]: nVal }).eq('id', id);
         renderStock();
     }
 }
@@ -546,7 +576,7 @@ async function addProduto() {
         lote: document.getElementById('p-lote').value.trim()
     };
     if (!sb) { showNotification('Sem ligação à BD'); return; }
-    var res = await sb.from(PREFIX + 'produtos').insert([novoProd]).select();
+    var res = await sb.from(getTableName('produtos')).insert([novoProd]).select();
     if (!res.error && res.data && res.data.length > 0) {
         var p = res.data[0];
         showNotification('Produto "' + p.nome + '" adicionado!', 'success');
@@ -561,7 +591,7 @@ async function addProduto() {
 
 async function removeProduto(id) {
     if (!(await showConfirm('Remover este produto?'))) return;
-    if (sb) await sb.from(PREFIX + 'produtos').delete().eq('id', id);
+    if (sb) await sb.from(getTableName('produtos')).delete().eq('id', id);
     produtos = produtos.filter(function (p) { return p.id !== id; });
     renderStock(); populateProdutoSelect();
 }
@@ -570,7 +600,7 @@ async function updateFornecedor(id, val) {
     var p = produtos.find(function (x) { return x.id === id; });
     if (p) {
         p.forn = val;
-        if (sb) await sb.from(PREFIX + 'produtos').update({ fornecedor: val }).eq('id', id);
+        if (sb) await sb.from(getTableName('produtos')).update({ fornecedor: val }).eq('id', id);
     }
 }
 
@@ -578,7 +608,7 @@ async function updateLote(id, val) {
     var p = produtos.find(function (x) { return x.id === id; });
     if (p) {
         p.lote = val;
-        if (sb) await sb.from(PREFIX + 'produtos').update({ lote: val }).eq('id', id);
+        if (sb) await sb.from(getTableName('produtos')).update({ lote: val }).eq('id', id);
     }
 }
 
@@ -586,7 +616,7 @@ async function updateValidade(id, val) {
     var p = produtos.find(function (x) { return x.id === id; });
     if (p) {
         p.validade = val || null;
-        if (sb) await sb.from(PREFIX + 'produtos').update({ validade: val || null }).eq('id', id);
+        if (sb) await sb.from(getTableName('produtos')).update({ validade: val || null }).eq('id', id);
     }
 }
 
@@ -729,8 +759,8 @@ async function gestaoMovimento() {
 
     if (sb) {
         await Promise.all([
-            sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', prodId),
-            sb.from(PREFIX + 'movimentos').insert([novoMov])
+            sb.from(getTableName('produtos')).update({ quantidade: p.qtd }).eq('id', prodId),
+            sb.from(getTableName('movimentos')).insert([novoMov])
         ]);
         await fetchData();
     }
@@ -836,8 +866,8 @@ async function addMovimento() {
     if (!sb) { showNotification('Sem ligação à BD'); return; }
 
     var res = await Promise.all([
-        sb.from(PREFIX + 'movimentos').insert([novoMov]).select(),
-        sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd, preco_custo: p.custo }).eq('id', prodId)
+        sb.from(getTableName('movimentos')).insert([novoMov]).select(),
+        sb.from(getTableName('produtos')).update({ quantidade: p.qtd, preco_custo: p.custo }).eq('id', prodId)
     ]);
 
     var mRes = res[0];
@@ -956,7 +986,7 @@ async function deleteMovimentoInternal(id) {
             if (m.tipo === 'entrada') p.qtd -= m.qtd;
             else p.qtd += m.qtd;
             if (p.qtd < 0) p.qtd = 0;
-            if (sb) await sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', p.id);
+            if (sb) await sb.from(getTableName('produtos')).update({ quantidade: p.qtd }).eq('id', p.id);
         }
 
         // Sincronização Inversa: Se for de uma Factura, marcar factura como eliminada
@@ -968,13 +998,13 @@ async function deleteMovimentoInternal(id) {
                 if (doc) {
                     var newD = doc.detalhes || {};
                     newD.status = 'eliminado';
-                    if (sb) await sb.from(PREFIX + 'documentos').update({ detalhes: newD }).eq('id', docId);
+                    if (sb) await sb.from(getTableName('documentos')).update({ detalhes: newD }).eq('id', docId);
                 }
             }
         }
 
         if (sb) {
-            await sb.from(PREFIX + 'movimentos').delete().eq('id', id);
+            await sb.from(getTableName('movimentos')).delete().eq('id', id);
         }
         
         movimentos = movimentos.filter(function (x) { return x.id !== id; });
@@ -1016,7 +1046,7 @@ async function addDespesa() {
     if (!sb) { showNotification('Sem ligação à BD'); return; }
     var novaDespesa = { categoria: cat, descricao: desc, valor: val, metodo_pagamento: met };
     if (dDataSel) novaDespesa.data = dDataSel;
-    var dRes = await sb.from(PREFIX + 'despesas').insert([novaDespesa]).select();
+    var dRes = await sb.from(getTableName('despesas')).insert([novaDespesa]).select();
     if (!dRes.error && dRes.data) {
         var dd = dRes.data[0];
         showNotification('Despesa gravada!', 'success');
@@ -1049,7 +1079,7 @@ function renderDespesas() {
 async function deleteDespesa(id) {
     if (!(await showConfirm('Tem certeza que deseja apagar esta despesa?'))) return;
     if (sb) {
-        var res = await sb.from(PREFIX + 'despesas').delete().eq('id', id);
+        var res = await sb.from(getTableName('despesas')).delete().eq('id', id);
         if (res.error) { showNotification('Erro ao apagar: ' + res.error.message); return; }
     }
     despesas = despesas.filter(function (x) { return x.id !== id; });
@@ -1083,7 +1113,7 @@ function editDespesa(id) {
 
 async function deleteDespesaSilent(id) {
     if (sb) {
-        const res = await sb.from(PREFIX + 'despesas').delete().eq('id', id);
+        const res = await sb.from(getTableName('despesas')).delete().eq('id', id);
         if (res.error) { showNotification('Erro ao apagar: ' + res.error.message); return; }
     }
     despesas = despesas.filter(function (x) { return x.id !== id; });
@@ -2025,11 +2055,11 @@ async function syncInvoiceToStock(doc) {
                     nota: '[Factura #' + doc.id + ']',
                     metodo_pagamento: 'CASH'
                 });
-                if (sb) await sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', p.id);
+                if (sb) await sb.from(getTableName('produtos')).update({ quantidade: p.qtd }).eq('id', p.id);
             }
         }
         if (newMovs.length > 0 && sb) {
-            await sb.from(PREFIX + 'movimentos').insert(newMovs);
+            await sb.from(getTableName('movimentos')).insert(newMovs);
         }
         await fetchData();
     } catch (err) {
@@ -2046,7 +2076,7 @@ async function saveAndDownloadPDF() {
     var total = Math.max(subtotal - desconto, 0);
     var payload = { tipo: tipo, cliente: cliente, total: total, detalhes: { items: docItems, desconto: desconto } };
     if (!sb) { showNotification('Sem ligação à BD'); return; }
-    var dRes = await sb.from(PREFIX + 'documentos').insert([payload]).select();
+    var dRes = await sb.from(getTableName('documentos')).insert([payload]).select();
     if (!dRes.error && dRes.data) {
         var doc = dRes.data[0];
         documentos.unshift({ id: doc.id, tipo: doc.tipo, cliente: doc.cliente, data: doc.data.split('T')[0], total: doc.total, detalhes: doc.detalhes });
@@ -2215,15 +2245,15 @@ async function deleteDocumento(id) {
                 var p = produtos.find(x => x.id === item.id || x.nome === item.nome);
                 if (p) {
                     p.qtd += item.qtd;
-                    await sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', p.id);
+                    await sb.from(getTableName('produtos')).update({ quantidade: p.qtd }).eq('id', p.id);
                 }
             }
-            await sb.from(PREFIX + 'movimentos').delete().eq('nota', '[Factura #' + doc.id + ']');
+            await sb.from(getTableName('movimentos')).delete().eq('nota', '[Factura #' + doc.id + ']');
             // Sync local state
             movimentos = movimentos.filter(m => m.nota !== '[Factura #' + doc.id + ']');
         }
         var newD = doc.detalhes || {}; newD.status = 'eliminado';
-        if (sb) await sb.from(PREFIX + 'documentos').update({ detalhes: newD }).eq('id', id);
+        if (sb) await sb.from(getTableName('documentos')).update({ detalhes: newD }).eq('id', id);
         showNotification('Documento anulado e stock restaurado!', 'success');
         await fetchData();
         refreshAllViews();
@@ -2273,11 +2303,13 @@ function getVendedorDisplayName(user) {
     if (user === 'vendas1@farmacia.picoco') return 'Vendedor 1';
     if (user === 'vendas2@farmacia.picoco') return 'Vendedor 2';
     if (user === 'gestao@picoco.com') return 'Administrador';
+    if (user === 'gestao@farmacia.picoco') return 'Administrador';
     return user || 'Vendedor';
 }
 
 function applyAuthSession(user, profile) {
     currentUserEmail = user.email;
+    setActiveTableSet(profile, currentUserEmail);
     if (profile) {
         userRole = profile.role;
     } else {
@@ -2297,6 +2329,7 @@ async function checkSession() {
         if (role && user) {
             userRole = role;
             currentUserEmail = user;
+            setActiveTableSet(null, currentUserEmail);
             document.getElementById('login-screen').style.display = 'none';
             document.querySelector('.app').style.display = 'flex';
             document.getElementById('user-label').textContent = userRole === 'gestor' ? 'Administrador' : getVendedorDisplayName(currentUserEmail);
@@ -2609,9 +2642,9 @@ async function venderProduto() {
     if (!sb) { showNotification('Sem ligação à BD'); p.qtd += qtd; return; }
 
     try {
-        var prodRes = await sb.from(PREFIX + 'produtos').select('id').eq('id', prodId);
+        var prodRes = await sb.from(getTableName('produtos')).select('id').eq('id', prodId);
         if (prodRes.error || !prodRes.data || prodRes.data.length === 0) {
-            var insRes = await sb.from(PREFIX + 'produtos').insert([
+            var insRes = await sb.from(getTableName('produtos')).insert([
                 { id: prodId, nome: p.nome, categoria: p.cat || '', quantidade: p.qtd, stock_minimo: p.min || 0, preco_custo: p.custo || 0, preco_venda: p.venda || 0, fornecedor: p.forn || '', validade: p.validade || null, lote: p.lote || '' }
             ]).select();
             if (insRes.error) {
@@ -2620,11 +2653,11 @@ async function venderProduto() {
                 return;
             }
         } else {
-            await sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', prodId);
+            await sb.from(getTableName('produtos')).update({ quantidade: p.qtd }).eq('id', prodId);
         }
 
         var novoMov = { tipo: 'saida', produto_id: prodId, quantidade: qtd, preco_unitario: p.venda, total: qtd * p.venda, nota: '[Venda Balcão]', metodo_pagamento: metodo, vendedor: currentUserEmail };
-        var mRes = await sb.from(PREFIX + 'movimentos').insert([novoMov]).select();
+        var mRes = await sb.from(getTableName('movimentos')).insert([novoMov]).select();
 
         if (!mRes.error && mRes.data && mRes.data.length > 0) {
             var mm = mRes.data[0];
@@ -2875,7 +2908,7 @@ async function addSaldoMovimento() {
     if (!valor) { showNotification('Insira um valor válido'); return; }
 
     const payload = { tipo, metodo, valor, descricao: desc, data };
-    const { data: res, error } = await sb.from(PREFIX + 'saldo_caixa').insert([payload]).select();
+    const { data: res, error } = await sb.from(getTableName('saldo_caixa')).insert([payload]).select();
     
     if (!error) {
         showNotification('Movimento registado!', 'success');
@@ -2890,7 +2923,7 @@ async function setSaldoInicial() {
     const num = parseFloat(val) || 0;
     
     const payload = { tipo: 'saldo_inicial', metodo: 'CASH', valor: num, descricao: 'Saldo Inicial do Sistema' };
-    const { error } = await sb.from(PREFIX + 'saldo_caixa').insert([payload]);
+    const { error } = await sb.from(getTableName('saldo_caixa')).insert([payload]);
     if (!error) {
         showNotification('Saldo inicial definido!', 'success');
         fetchData().then(renderSaldo);
@@ -3035,11 +3068,11 @@ async function confirmarCompra() {
                     nota: '[Entrada Automática - Plano de Compra]',
                     metodo_pagamento: 'CASH'
                 });
-                await sb.from(PREFIX + 'produtos').update({ quantidade: p.qtd }).eq('id', p.id);
+                await sb.from(getTableName('produtos')).update({ quantidade: p.qtd }).eq('id', p.id);
             }
         }
         if (newMovs.length > 0) {
-            await sb.from(PREFIX + 'movimentos').insert(newMovs);
+            await sb.from(getTableName('movimentos')).insert(newMovs);
         }
         
         showNotification('Stock actualizado com sucesso!', 'success');
