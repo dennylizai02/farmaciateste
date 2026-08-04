@@ -2773,10 +2773,10 @@ async function initApp() {
         console.log('[initApp] setDefaultDates OK');
         await fetchData();
         console.log('[initApp] fetchData OK');
+        renderStock();
         if (userRole === 'vendedor') {
             renderVendedor();
         } else {
-            renderStock();
             renderRelatorios();
             renderMovimentos();
             renderDespesas();
