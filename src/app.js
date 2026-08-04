@@ -290,99 +290,125 @@ async function fetchAllRows(table, selectExpr, orderColumn, ascending) {
 async function fetchData() {
     if (!sb) { console.warn('Supabase not available'); return; }
 
-    var pRes, mRes, dRes, docRes;
-    try {
-        var results = await Promise.all([
-            sb.from(getTableName('produtos')).select('*').order('nome'),
-            fetchAllRows('movimentos', '*, produtos(nome)', 'data', false),
-            fetchAllRows('despesas', '*', 'data', false),
-            fetchAllRows('documentos', '*', 'data', false),
-            fetchAllRows('saldo_caixa', '*', 'data', false)
-        ]);
-        pRes = results[0]; mRes = results[1]; dRes = results[2]; docRes = results[3];
-        var sRes = results[4];
+    const attempts = [activeTableSet];
+    const fallbackSet = activeTableSet === 'legacy' ? 'recent' : 'legacy';
+    if (!attempts.includes(fallbackSet)) attempts.push(fallbackSet);
+
+    let loaded = false;
+    let lastError = null;
+
+    for (const attemptSet of attempts) {
+        activeTableSet = attemptSet;
+        var pRes, mRes, dRes, docRes, sRes;
+        try {
+            var results = await Promise.all([
+                sb.from(getTableName('produtos')).select('*').order('nome'),
+                fetchAllRows('movimentos', '*, produtos(nome)', 'data', false),
+                fetchAllRows('despesas', '*', 'data', false),
+                fetchAllRows('documentos', '*', 'data', false),
+                fetchAllRows('saldo_caixa', '*', 'data', false)
+            ]);
+            pRes = results[0]; mRes = results[1]; dRes = results[2]; docRes = results[3];
+            sRes = results[4];
+        } catch (e) {
+            lastError = e;
+            continue;
+        }
+
+        if (pRes.error || !pRes.data || pRes.data.length === 0) {
+            console.warn('[DATA] no products in dataset', attemptSet, 'trying next set');
+            continue;
+        }
+
+        if (pRes.error) console.error('Produtos erro:', pRes.error);
+        if (mRes.error) console.error('Movimentos erro:', mRes.error);
+        if (dRes.error) console.error('Despesas erro:', dRes.error);
+        if (docRes.error) console.error('Documentos erro:', docRes.error);
+
         if (sRes.data) saldoMovimentos = sRes.data;
-    } catch (e) {
-        console.error('fetchData error:', e);
-        return;
+
+        let productById = new Map();
+        if (pRes.data && pRes.data.length > 0) {
+            produtos = pRes.data.map(function (p) {
+                const product = { id: p.id, nome: p.nome, cat: p.categoria, qtd: p.quantidade, min: p.stock_minimo, custo: p.preco_custo, venda: p.preco_venda, forn: p.fornecedor, validade: p.validade, lote: p.lote };
+                productById.set(product.id, product);
+                return product;
+            });
+        }
+        if (mRes.data) {
+            movimentos = mRes.data.map(function (m) {
+                var cApp = null;
+                if (m.nota && m.nota.indexOf('[C:') !== -1) {
+                    var match = m.nota.match(/\[C:([\d.]+)\]/);
+                    if (match) cApp = parseFloat(match[1]);
+                    m.nota = m.nota.replace(/\[C:[\d.]+\]\s*/, '');
+                }
+                
+                var dObj = new Date(m.data);
+                var localDate, localHora;
+                
+                if (!isNaN(dObj.getTime())) {
+                    localDate = dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
+                    localHora = dObj.toLocaleString('pt-MZ', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                } else {
+                    localDate = m.data ? m.data.split('T')[0] : '—';
+                    localHora = m.data || '—';
+                }
+
+                const productName = (m.produtos && m.produtos.nome) || (productById.get(m.produto_id) && productById.get(m.produto_id).nome) || '—';
+
+                return {
+                    id: m.id,
+                    tipo: m.tipo,
+                    prodId: m.produto_id,
+                    qtd: m.quantidade,
+                    preco: m.preco_unitario,
+                    total: m.total,
+                    data: localDate,
+                    dataHora: localHora,
+                    nota: m.nota,
+                    metodo: m.metodo_pagamento,
+                    nome_v: productName,
+                    vendedor: m.vendedor || '',
+                    custo_aplicado: cApp
+                };
+            });
+        }
+        if (dRes.data) {
+            despesas = dRes.data.map(function (d) {
+                var dObj = new Date(d.data);
+                var localDate;
+                if (!isNaN(dObj.getTime())) {
+                    localDate = dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
+                } else {
+                    localDate = d.data ? d.data.split('T')[0] : '—';
+                }
+                return { id: d.id, categoria: d.categoria, descricao: d.descricao, valor: d.valor, metodo: d.metodo_pagamento, data: localDate };
+            });
+        }
+        if (docRes.data) {
+            documentos = docRes.data.map(function (d) {
+                var dObj = new Date(d.data);
+                var localDate;
+                if (!isNaN(dObj.getTime())) {
+                    localDate = dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
+                } else {
+                    localDate = d.data ? d.data.split('T')[0] : '—';
+                }
+                return { id: d.id, tipo: d.tipo, cliente: d.cliente, data: localDate, total: d.total, detalhes: d.detalhes || [] };
+            });
+        }
+        // Ordenar movimentos explicitamente por ID decrescente para garantir que os mais recentes aparecem primeiro
+        movimentos.sort((a, b) => b.id - a.id);
+        rebuildFifo();
+        loaded = true;
+        console.log('[DATA] loaded from dataset', attemptSet);
+        break;
     }
 
-    if (pRes.error) console.error('Produtos erro:', pRes.error);
-    if (mRes.error) console.error('Movimentos erro:', mRes.error);
-    if (dRes.error) console.error('Despesas erro:', dRes.error);
-    if (docRes.error) console.error('Documentos erro:', docRes.error);
-
-
-    if (pRes.data && pRes.data.length > 0) {
-        produtos = pRes.data.map(function (p) {
-            return { id: p.id, nome: p.nome, cat: p.categoria, qtd: p.quantidade, min: p.stock_minimo, custo: p.preco_custo, venda: p.preco_venda, forn: p.fornecedor, validade: p.validade, lote: p.lote };
-        });
+    if (!loaded) {
+        console.error('[DATA] failed to load any dataset', lastError || 'unknown error');
     }
-    if (mRes.data) {
-        movimentos = mRes.data.map(function (m) {
-            var cApp = null;
-            if (m.nota && m.nota.indexOf('[C:') !== -1) {
-                var match = m.nota.match(/\[C:([\d.]+)\]/);
-                if (match) cApp = parseFloat(match[1]);
-                m.nota = m.nota.replace(/\[C:[\d.]+\]\s*/, '');
-            }
-            
-            var dObj = new Date(m.data);
-            var localDate, localHora;
-            
-            if (!isNaN(dObj.getTime())) {
-                localDate = dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
-                localHora = dObj.toLocaleString('pt-MZ', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-            } else {
-                // Fallback para datas que não o JS não consegue parsar directamente
-                localDate = m.data ? m.data.split('T')[0] : '—';
-                localHora = m.data || '—';
-            }
-
-            return {
-                id: m.id,
-                tipo: m.tipo,
-                prodId: m.produto_id,
-                qtd: m.quantidade,
-                preco: m.preco_unitario,
-                total: m.total,
-                data: localDate,
-                dataHora: localHora,
-                nota: m.nota,
-                metodo: m.metodo_pagamento,
-                nome_v: m.produtos ? m.produtos.nome : '—',
-                vendedor: m.vendedor || '',
-                custo_aplicado: cApp
-            };
-        });
-    }
-    if (dRes.data) {
-        despesas = dRes.data.map(function (d) {
-            var dObj = new Date(d.data);
-            var localDate;
-            if (!isNaN(dObj.getTime())) {
-                localDate = dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
-            } else {
-                localDate = d.data ? d.data.split('T')[0] : '—';
-            }
-            return { id: d.id, categoria: d.categoria, descricao: d.descricao, valor: d.valor, metodo: d.metodo_pagamento, data: localDate };
-        });
-    }
-    if (docRes.data) {
-        documentos = docRes.data.map(function (d) {
-            var dObj = new Date(d.data);
-            var localDate;
-            if (!isNaN(dObj.getTime())) {
-                localDate = dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
-            } else {
-                localDate = d.data ? d.data.split('T')[0] : '—';
-            }
-            return { id: d.id, tipo: d.tipo, cliente: d.cliente, data: localDate, total: d.total, detalhes: d.detalhes || [] };
-        });
-    }
-    // Ordenar movimentos explicitamente por ID decrescente para garantir que os mais recentes aparecem primeiro
-    movimentos.sort((a, b) => b.id - a.id);
-    rebuildFifo();
 }
 
 // ====================== HELPERS ======================
