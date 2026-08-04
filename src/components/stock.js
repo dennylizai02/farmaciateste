@@ -1,5 +1,5 @@
 export function renderStock(context) {
-  const { produtos, movimentos, userRole, currentSortField, currentSortOrder, showNotification, sb, PREFIX, fetchData, renderRelatorios, renderMovimentos, populateProdutoSelect, getStatus, escapeHTML } = context;
+  const { produtos, movimentos, userRole, currentSortField, currentSortOrder, showNotification, sb, fetchData, renderRelatorios, renderMovimentos, populateProdutoSelect, getStatus, escapeHTML } = context;
   const q = (document.getElementById('search-prod').value || '').toLowerCase();
   const filtered = produtos.filter(function (p) {
     return p.nome.toLowerCase().indexOf(q) !== -1 || (p.cat || '').toLowerCase().indexOf(q) !== -1;
