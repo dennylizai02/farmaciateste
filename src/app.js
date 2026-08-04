@@ -296,6 +296,15 @@ async function fetchData() {
 
     let loaded = false;
     let lastError = null;
+    const loadErrors = [];
+
+    function fmtErr(err) {
+        return err && err.message ? err.message : (err ? String(err) : 'erro desconhecido');
+    }
+
+    function recordAttemptError(set, msg) {
+        loadErrors.push('[dataset ' + set + '] ' + msg);
+    }
 
     for (const attemptSet of attempts) {
         activeTableSet = attemptSet;
@@ -312,11 +321,14 @@ async function fetchData() {
             sRes = results[4];
         } catch (e) {
             lastError = e;
+            recordAttemptError(attemptSet, 'erro de ligação: ' + fmtErr(e));
             continue;
         }
 
         if (pRes.error || !pRes.data || pRes.data.length === 0) {
+            const pMsg = pRes.error ? fmtErr(pRes.error) : 'tabela vazia (0 produtos)';
             console.warn('[DATA] no products in dataset', attemptSet, 'trying next set');
+            recordAttemptError(attemptSet, 'produtos -> ' + pMsg);
             continue;
         }
 
@@ -324,6 +336,9 @@ async function fetchData() {
         if (mRes.error) console.error('Movimentos erro:', mRes.error);
         if (dRes.error) console.error('Despesas erro:', dRes.error);
         if (docRes.error) console.error('Documentos erro:', docRes.error);
+        if (mRes.error) recordAttemptError(attemptSet, 'movimentos -> ' + fmtErr(mRes.error));
+        if (dRes.error) recordAttemptError(attemptSet, 'despesas -> ' + fmtErr(dRes.error));
+        if (docRes.error) recordAttemptError(attemptSet, 'documentos -> ' + fmtErr(docRes.error));
 
         if (sRes.data) saldoMovimentos = sRes.data;
 
@@ -407,7 +422,17 @@ async function fetchData() {
     }
 
     if (!loaded) {
-        console.error('[DATA] failed to load any dataset', lastError || 'unknown error');
+        const msg = lastError ? fmtErr(lastError) : 'unknown error';
+        console.error('[DATA] failed to load any dataset', msg);
+        const detail = loadErrors.length ? loadErrors.join('\n') : ('Dataset activo: ' + attempts.join(', ') + ' — sem produtos.');
+        const errBox = document.getElementById('stock-table');
+        if (errBox) {
+            errBox.innerHTML = '<div style="padding:16px;border:1px solid #E24B4A;background:#FDEAEA;color:#A32D2D;border-radius:8px;font-size:13px;">' +
+                '<strong>Erro ao carregar dados (Todos os Produtos está vazio por isto):</strong><br>' +
+                escapeHTML(detail) +
+                '</div>';
+        }
+        showNotification('Falha ao carregar dados: ' + detail, 'error');
     }
 }
 
