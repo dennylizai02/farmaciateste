@@ -289,7 +289,15 @@ async function fetchAllRows(table, selectExpr, orderColumn, ascending) {
 }
 
 async function fetchData() {
-    if (!sb) { console.warn('Supabase not available'); return; }
+    if (!sb) {
+        const msg = 'Supabase não configurado: faltam VITE_SUPABASE_URL ou VITE_SUPABASE_ANON_KEY (.env).';
+        console.warn(msg);
+        dataLoadError = msg;
+        const errBox = document.getElementById('stock-table');
+        if (errBox) errBox.innerHTML = dataLoadErrorHTML(msg);
+        showNotification(msg, 'error');
+        return;
+    }
 
     const attempts = [activeTableSet];
     const fallbackSet = activeTableSet === 'legacy' ? 'recent' : 'legacy';
