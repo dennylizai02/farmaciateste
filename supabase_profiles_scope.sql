@@ -30,13 +30,13 @@ WHERE dataset_scope IS NULL OR dataset_scope NOT IN ('legacy', 'recent');
 WITH gestao_legacy AS (
   SELECT id
   FROM auth.users
-  WHERE email = 'gestao@farmacia.picoco'
+  WHERE email = 'gestao@farmacia-teste.com'
 ),
 
 gestao_recent AS (
   SELECT id
   FROM auth.users
-  WHERE email = 'gestao@picoco.com'
+  WHERE email = 'gestao@admin.farmacia-teste.com'
 )
 INSERT INTO profiles (id, role, display_name, dataset_scope)
 SELECT
@@ -53,7 +53,7 @@ SET role = EXCLUDED.role,
 WITH gestao_recent AS (
   SELECT id
   FROM auth.users
-  WHERE email = 'gestao@picoco.com'
+  WHERE email = 'gestao@admin.farmacia-teste.com'
 )
 INSERT INTO profiles (id, role, display_name, dataset_scope)
 SELECT

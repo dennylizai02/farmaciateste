@@ -1,5 +1,5 @@
 export const pharmacy = {
-  nome: 'Farmácia Picoco',
-  endereco: 'Boane, Bairro Picoco',
+  nome: 'Farmácia Teste',
+  endereco: 'Boane, Moçambique',
   nuit: '100038803',
 };

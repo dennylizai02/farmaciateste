@@ -20,8 +20,8 @@ function getTableSetFromProfile(profile, email) {
     const scope = profile?.dataset_scope;
     if (scope === 'legacy' || scope === 'recent') return scope;
 
-    if (email === 'gestao@farmacia.picoco') return 'legacy';
-    if (email === 'gestao@picoco.com') return 'new';
+    if (email === 'gestao@farmacia-teste.com') return 'legacy';
+    if (email === 'gestao@admin.farmacia-teste.com') return 'new';
     return 'new';
 }
 
@@ -2364,11 +2364,10 @@ async function fetchProfile(userId) {
 }
 
 function getVendedorDisplayName(user) {
-    if (user === 'vendas1@picoco.com') return 'Vendedor 1';
-    if (user === 'vendas1@farmacia.picoco') return 'Vendedor 1';
-    if (user === 'vendas2@farmacia.picoco') return 'Vendedor 2';
-    if (user === 'gestao@picoco.com') return 'Administrador';
-    if (user === 'gestao@farmacia.picoco') return 'Administrador';
+    if (user === 'vendas1@farmacia-teste.com') return 'Vendedor 1';
+    if (user === 'vendas2@farmacia-teste.com') return 'Vendedor 2';
+    if (user === 'gestao@farmacia-teste.com') return 'Administrador';
+    if (user === 'gestao@admin.farmacia-teste.com') return 'Administrador';
     return user || 'Vendedor';
 }
 

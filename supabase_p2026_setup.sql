@@ -1,6 +1,6 @@
 -- ============================================================
--- SETUP PICOCO 2026 — Nova Gestão Pós-Roubo (Ambiente Limpo)
--- Preserva a base antiga intacta para a investigação policial.
+-- SETUP FARMÁCIA TESTE 2026 — Ambiente Limpo de Gestão
+-- Preserva a base antiga intacta para referência.
 -- ============================================================
 
 -- 1. Produtos 2026
