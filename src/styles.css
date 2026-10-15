@@ -164,14 +164,15 @@ body {
   align-items: center;
   justify-content: center;
   background: rgba(255,255,255,0.04);
-  color: #ffffff;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+  overflow: hidden;
 }
 
-.brand-mark svg {
-  width: 42px;
-  height: 42px;
-  color: #ffffff;
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .brand-text {
