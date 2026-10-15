@@ -1989,12 +1989,14 @@ async function printMensal() {
 async function printFaturacao() {
     var printData = getFaturacaoPrintSources();
     var metricsHtml = printData.metricsHtml || '<div class="metric-card"><div class="metric-label">Sem dados</div><div class="metric-value">—</div></div>';
+    var logoUrl = new URL('./logotipo farmacia.png', window.location.href).href;
     var printContent = buildFaturacaoPrintHtml({
         pharmacy,
         periodLabel: periodoActivo,
         metricsHtml,
         cards: printData.cards || [],
-        chartDataUrls: printData.chartDataUrls || []
+        chartDataUrls: printData.chartDataUrls || [],
+        logoUrl
     });
 
     var win = window.open('', '_blank');

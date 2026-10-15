@@ -36,12 +36,14 @@ describe('printUtils', () => {
       periodLabel: 'mensal',
       metricsHtml: '<div class="metric-card"><span>Receita</span></div>',
       cards: [{ innerHTML: '<canvas></canvas><div class="card-title">Dashboard</div>' }],
-      chartDataUrls: ['data:image/png;base64,chart']
+      chartDataUrls: ['data:image/png;base64,chart'],
+      logoUrl: './logotipo farmacia.png'
     });
 
     expect(html).toContain('Farmacia Nova de Campoane');
     expect(html).toContain('RELATÓRIO DE FATURAÇÃO E DASHBOARD');
     expect(html).toContain('Receita');
+    expect(html).toContain('./logotipo farmacia.png');
     expect(html).toContain('data:image/png;base64,chart');
   });
 });

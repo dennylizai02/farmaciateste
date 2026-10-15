@@ -7,8 +7,9 @@ function escapeHtml(value = '') {
     .replace(/'/g, '&#39;');
 }
 
-export function buildFaturacaoPrintHtml({ pharmacy, periodLabel, metricsHtml, cards, chartDataUrls = [] }) {
+export function buildFaturacaoPrintHtml({ pharmacy, periodLabel, metricsHtml, cards, chartDataUrls = [], logoUrl = './logotipo farmacia.png' }) {
   const safePharmacy = pharmacy || {};
+  const safeLogoUrl = logoUrl || './logotipo farmacia.png';
   const cardHtml = (cards || []).map((card, index) => {
     let html = card.innerHTML || '';
     if (html.includes('<canvas') && chartDataUrls[index]) {
@@ -24,6 +25,8 @@ export function buildFaturacaoPrintHtml({ pharmacy, periodLabel, metricsHtml, ca
       .header h2 { margin: 0; font-size: 24px; }
       .header .subtitle { font-size: 16px; font-weight: bold; margin-top: 5px; }
       .header .date { font-size: 13px; color: #555; margin-top: 3px; }
+      .print-brand { display: flex; align-items: center; justify-content: center; margin-bottom: 10px; }
+      .print-brand img { width: 88px; height: 88px; object-fit: contain; border-radius: 16px; }
       .card { border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 20px; page-break-inside: avoid; }
       .card-title { font-size: 16px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
       table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 15px; }
@@ -34,6 +37,9 @@ export function buildFaturacaoPrintHtml({ pharmacy, periodLabel, metricsHtml, ca
       .metrics { display: flex; flex-wrap: wrap; gap: 10px; }
       .metric-card { border: 1px solid #eee; padding: 10px; border-radius: 4px; flex: 1; }
     </style></head><body>
+    <div class="print-brand">
+      <img src="${escapeHtml(safeLogoUrl)}" alt="Logótipo da Farmacia Nova de Campoane" />
+    </div>
     <div class="header">
       <h2>${escapeHtml(safePharmacy.nome || 'Farmácia')}</h2>
       <div style="font-size:12px; color:#555;">${escapeHtml(safePharmacy.endereco || '')} | NUIT: ${escapeHtml(safePharmacy.nuit || '')}</div>
