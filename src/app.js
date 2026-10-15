@@ -12,6 +12,12 @@ import Chart from 'chart.js/auto';
 
 let sb = createSupabaseClient();
 
+const DEMO_ACCOUNTS = {
+    'admin@farmacia-nova-campoane.com': { password: 'Campoane@2026', role: 'gestor', displayName: 'Rúben Mário Sicoche' },
+    'vendedor1@farmacia-nova-campoane.com': { password: 'Vendedor1@2026', role: 'vendedor', displayName: 'Vendedor 1' },
+    'vendedor2@farmacia-nova-campoane.com': { password: 'Vendedor2@2026', role: 'vendedor', displayName: 'Vendedor 2' }
+};
+
 const LEGACY_PREFIX = '';
 const NEW_PREFIX = 'p2026_';
 let activeTableSet = 'new';
@@ -20,6 +26,7 @@ function getTableSetFromProfile(profile, email) {
     const scope = profile?.dataset_scope;
     if (scope === 'legacy' || scope === 'recent') return scope;
 
+    if (email === 'admin@farmacia-nova-campoane.com') return 'new';
     if (email === 'gestao@farmacia-teste.com') return 'legacy';
     if (email === 'gestao@admin.farmacia-teste.com') return 'new';
     return 'new';
@@ -2364,10 +2371,13 @@ async function fetchProfile(userId) {
 }
 
 function getVendedorDisplayName(user) {
+    if (user === 'vendedor1@farmacia-nova-campoane.com') return 'Vendedor 1';
+    if (user === 'vendedor2@farmacia-nova-campoane.com') return 'Vendedor 2';
+    if (user === 'admin@farmacia-nova-campoane.com') return 'Rúben Mário Sicoche';
     if (user === 'vendas1@farmacia-teste.com') return 'Vendedor 1';
     if (user === 'vendas2@farmacia-teste.com') return 'Vendedor 2';
-    if (user === 'gestao@farmacia-teste.com') return 'Administrador';
-    if (user === 'gestao@admin.farmacia-teste.com') return 'Administrador';
+    if (user === 'gestao@farmacia-teste.com') return 'Rúben Mário Sicoche';
+    if (user === 'gestao@admin.farmacia-teste.com') return 'Rúben Mário Sicoche';
     return user || 'Vendedor';
 }
 
@@ -2418,11 +2428,34 @@ async function checkSession() {
     });
 }
 
+function tryDemoLogin(email, pass) {
+    const account = DEMO_ACCOUNTS[email];
+    if (!account || account.password !== pass) return null;
+
+    const demoUser = {
+        email,
+        id: 'demo-' + email,
+        user_metadata: { role: account.role }
+    };
+
+    const profile = { role: account.role, display_name: account.displayName, dataset_scope: 'new' };
+
+    localStorage.setItem('local_session_role', account.role);
+    localStorage.setItem('local_session_user', email);
+
+    applyAuthSession(demoUser, profile);
+    showNotification('Login demo efetuado com sucesso!', 'success');
+    return demoUser;
+}
+
 async function loginUser() {
     const email = document.getElementById('l-email').value.trim();
     const pass = document.getElementById('l-pass').value;
     const errorEl = document.getElementById('login-error');
     errorEl.textContent = 'A entrar...';
+
+    const demoUser = tryDemoLogin(email, pass);
+    if (demoUser) return;
 
     if (!sb) {
         errorEl.textContent = 'Erro de ligação à base de dados.';

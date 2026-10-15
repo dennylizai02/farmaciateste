@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Farmácia Teste — Gestão de Stock e Vendas</title>
+  <title>Farmacia Nova de Campoane — Gestão de Stock e Vendas</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
@@ -21,7 +21,7 @@
           <path d="M3.75 10.5h16.5"/>
           <path d="M4.5 10.5v7.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-7.5"/>
         </svg>
-        Farmácia Teste
+        Farmacia Nova de Campoane
       </h2>
       <div style="text-align:center; font-size: 12px; margin-bottom:1rem; opacity: 0.8;">Use as suas credenciais de acesso</div>
       <form onsubmit="event.preventDefault(); loginUser();">
@@ -29,6 +29,12 @@
         <input id="l-pass" class="login-input" type="password" placeholder="Palavra-passe">
         <button type="submit" class="login-btn">Entrar</button>
       </form>
+      <div style="margin-top:1rem; font-size:12px; color:#4b5563; line-height:1.5;">
+        <div><strong>Demo:</strong></div>
+        <div>Administrador: admin@farmacia-nova-campoane.com / Campoane@2026</div>
+        <div>Vendedor 1: vendedor1@farmacia-nova-campoane.com / Vendedor1@2026</div>
+        <div>Vendedor 2: vendedor2@farmacia-nova-campoane.com / Vendedor2@2026</div>
+      </div>
       <div id="login-error" style="color:#E24B4A; font-size: 12px; margin-top: 1rem;"></div>
     </div>
   </div>
@@ -54,13 +60,23 @@
               <path d="M12 12.75v6"/>
             </svg>
           </span>
-          Farmácia Teste
+          Farmacia Nova de Campoane
         </div>
         <div class="sidebar-date" id="current-date"></div>
       </div>
       <nav class="sidebar-nav">
         <!-- Admin nav -->
         <div id="nav-admin-group">
+          <button class="nav-btn" onclick="showSection('necessidades')">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 9v4"/>
+                <path d="M12 17h.01"/>
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              </svg>
+            </span>
+            <span class="nav-label">Notificações</span>
+          </button>
           <button class="nav-btn active" onclick="showSection('relatorios')">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -113,16 +129,6 @@
               </svg>
             </span>
             <span class="nav-label">Relatórios</span>
-          </button>
-          <button class="nav-btn" onclick="showSection('necessidades')">
-            <span class="nav-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 9v4"/>
-                <path d="M12 17h.01"/>
-                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-              </svg>
-            </span>
-            <span class="nav-label">Alertas</span>
           </button>
           <button class="nav-btn" id="nav-saldo" onclick="showSection('saldo')">
             <span class="nav-icon">
@@ -190,14 +196,6 @@
           <button class="stock-tab" data-tab="gestao" onclick="showStockTab('gestao')">Gestão</button>
           <button class="stock-tab" data-tab="quarentena" onclick="showStockTab('quarentena')">Produtos em Quarentena</button>
         </div>
-        <button class="btn" onclick="printStockReport()" style="display:inline-flex; align-items:center; gap:6px;">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
-            <polyline points="6 9 6 2 18 2 18 9"/>
-            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-            <rect x="6" y="14" width="12" height="8"/>
-          </svg>
-          Imprimir Relatório de Stock
-        </button>
       </div>
 
       <!-- TAB: Adicionar Medicamento -->
@@ -931,7 +929,7 @@
               <path d="M4.5 10.5v7.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-7.5"/>
             </svg>
             <span class="rx-divider"></span>
-            <span>Farmácia Teste · MZ</span>
+            <span>Farmacia Nova de Campoane · MZ</span>
             <span class="rx-divider"></span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M3 12h3l2-2 2 2 2-2 2 2 2-2 2 2h3"/>
