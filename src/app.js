@@ -3033,6 +3033,8 @@ Object.assign(window, {
     setPeriodo,
     setSaldoInicial,
     setTipo,
+    showNotificationTab,
+    showPainelTab,
     showSection,
     showStockTab,
     toggleSidebar,
