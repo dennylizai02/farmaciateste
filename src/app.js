@@ -100,7 +100,10 @@ function showSection(id) {
         if (oc.indexOf(id) !== -1) { btns[i].classList.add('active'); break; }
     }
 
-    if (id === 'relatorios') renderRelatorios();
+    if (id === 'painel' || id === 'relatorios') {
+        renderRelatorios();
+        showPainelTab('dashboard');
+    }
     if (id === 'stock') { showStockTab('all'); populateGestaoData(); renderAlertas(); }
     if (id === 'movimentos') renderMovimentos();
     if (id === 'alertas') renderAlertas();
@@ -119,6 +122,16 @@ function showSection(id) {
     if (id === 'vnova-venda') renderVendedor();
     if (id === 'vvendas') renderVendasDoDia();
     if (id === 'vstock') renderVendedorStock();
+}
+
+function showPainelTab(tab) {
+    document.querySelectorAll('.panel-subtab').forEach(function (btn) {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+    });
+    const dashboard = document.getElementById('painel-dashboard-content');
+    const relatorios = document.getElementById('painel-relatorios-content');
+    if (dashboard) dashboard.style.display = tab === 'dashboard' ? 'block' : 'none';
+    if (relatorios) relatorios.style.display = tab === 'relatorios' ? 'block' : 'none';
 }
 
 function printDailyMovements() {
@@ -1364,6 +1377,77 @@ function renderAlertas() {
 }
 
 // ====================== RELATÓRIOS ======================
+function renderPainelRelatorios() {
+    const periodMatches = function (dateValue) {
+        if (!dateValue) return false;
+        const today = new Date();
+        const dates = [];
+        const byDate = function (value) { return value && new Date(value + 'T00:00:00'); };
+
+        if (periodoActivo === 'diário') {
+            const hoje = today.toISOString().split('T')[0];
+            return dateValue === hoje;
+        }
+        if (periodoActivo === 'semanal') {
+            const start = new Date(); start.setDate(today.getDate() - 7); return byDate(dateValue) >= start && byDate(dateValue) <= today;
+        }
+        if (periodoActivo === 'mensal') {
+            return (dateValue || '').startsWith(today.toISOString().substring(0, 7));
+        }
+        if (periodoActivo === 'trimestral') {
+            const currentTrim = Math.floor(today.getMonth() / 3);
+            const date = new Date(dateValue + 'T00:00:00');
+            return date.getFullYear() === today.getFullYear() && Math.floor(date.getMonth() / 3) === currentTrim;
+        }
+        if (periodoActivo === 'anual') {
+            return (dateValue || '').startsWith(String(today.getFullYear()));
+        }
+        if (periodoActivo === 'dia') {
+            const input = document.getElementById('periodo-data-dia');
+            return dateValue === (input && input.value ? input.value : today.toISOString().split('T')[0]);
+        }
+        if (periodoActivo === 'intervalo') {
+            const iniEl = document.getElementById('periodo-data-dia');
+            const fimEl = document.getElementById('periodo-data-fim');
+            const ini = iniEl && iniEl.value ? iniEl.value : today.toISOString().split('T')[0];
+            const fim = fimEl && fimEl.value ? fimEl.value : today.toISOString().split('T')[0];
+            return dateValue >= ini && dateValue <= fim;
+        }
+        return true;
+    };
+
+    const saidas = movimentos.filter(function (m) { return m.tipo === 'saida' && periodMatches(m.data); });
+    const entradas = movimentos.filter(function (m) { return m.tipo === 'entrada' && periodMatches(m.data); });
+    const quebras = movimentos.filter(function (m) { return m.tipo === 'quebra' && periodMatches(m.data); });
+    const despesasPeriodo = despesas.filter(function (d) { return periodMatches(d.data); });
+
+    const saidasTable = saidas.length ? '<table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Total</th><th>Vendedor</th></tr></thead><tbody>' + saidas.map(function (m) {
+        return '<tr><td style="font-size:12px;color:var(--color-text-secondary);">' + escapeHTML(m.data) + '</td><td>' + escapeHTML(m.nome_v || '—') + '</td><td>' + (m.qtd || 0) + '</td><td>' + Number(m.total || 0).toLocaleString() + ' MZN</td><td>' + escapeHTML(m.vendedor ? getVendedorDisplayName(m.vendedor) : '—') + '</td></tr>';
+    }).join('') + '</tbody></table>' : '<div class="empty">Nenhuma venda registrada no período.</div>';
+
+    const entradasTable = entradas.length ? '<table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Total</th></tr></thead><tbody>' + entradas.map(function (m) {
+        return '<tr><td style="font-size:12px;color:var(--color-text-secondary);">' + escapeHTML(m.data) + '</td><td>' + escapeHTML(m.nome_v || '—') + '</td><td>' + (m.qtd || 0) + '</td><td>' + Number(m.total || 0).toLocaleString() + ' MZN</td></tr>';
+    }).join('') + '</tbody></table>' : '<div class="empty">Nenhuma compra registrada no período.</div>';
+
+    const quebrasTable = quebras.length ? '<table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>Valor</th><th>Nota</th></tr></thead><tbody>' + quebras.map(function (m) {
+        return '<tr><td style="font-size:12px;color:var(--color-text-secondary);">' + escapeHTML(m.data) + '</td><td>' + escapeHTML(m.nome_v || '—') + '</td><td>' + (m.qtd || 0) + '</td><td>' + Number(m.total || 0).toLocaleString() + ' MZN</td><td>' + escapeHTML(m.nota || '—') + '</td></tr>';
+    }).join('') + '</tbody></table>' : '<div class="empty">Nenhuma quebra registada no período.</div>';
+
+    const despesasTable = despesasPeriodo.length ? '<table><thead><tr><th>Data</th><th>Categoria</th><th>Descrição</th><th>Valor</th></tr></thead><tbody>' + despesasPeriodo.map(function (d) {
+        return '<tr><td style="font-size:12px;color:var(--color-text-secondary);">' + escapeHTML(d.data) + '</td><td>' + escapeHTML(d.categoria || '—') + '</td><td>' + escapeHTML(d.descricao || '—') + '</td><td>' + Number(d.valor || 0).toLocaleString() + ' MZN</td></tr>';
+    }).join('') + '</tbody></table>' : '<div class="empty">Nenhuma despesa no período.</div>';
+
+    const vendasPanel = document.getElementById('painel-vendas-table');
+    const comprasPanel = document.getElementById('painel-compras-table');
+    const quebrasPanel = document.getElementById('painel-quebras-table');
+    const despesasPanel = document.getElementById('painel-despesas-table');
+
+    if (vendasPanel) vendasPanel.innerHTML = saidasTable;
+    if (comprasPanel) comprasPanel.innerHTML = entradasTable;
+    if (quebrasPanel) quebrasPanel.innerHTML = quebrasTable;
+    if (despesasPanel) despesasPanel.innerHTML = despesasTable;
+}
+
 function renderRelatorios() {
     const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
     let labels, vendasData, lucroData, unidData, quebrasData;
@@ -1516,11 +1600,59 @@ function renderRelatorios() {
     const totalMov = unidData[activeIndex] || 0;
     const totalQ = quebrasData[activeIndex] || 0;
 
-    document.getElementById('rel-metrics').innerHTML =
-        '<div class="metric-card"><div class="metric-label">Receita (período)</div><div class="metric-value">' + Math.round(totalV).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
-        '<div class="metric-card"><div class="metric-label">Lucro estimado</div><div class="metric-value" style="color:#3B6D11;">' + Math.round(totalL).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
-        '<div class="metric-card"><div class="metric-label">Unidades vendidas</div><div class="metric-value">' + totalMov + '</div><div class="metric-sub">unidades</div></div>' +
-        '<div class="metric-card"><div class="metric-label">Perdas (quebras)</div><div class="metric-value" style="color:#A32D2D;">' + totalQ.toLocaleString() + '</div><div class="metric-sub">MZN</div></div>';
+    const periodMatches = function (dateValue) {
+        if (!dateValue) return false;
+        const today = new Date();
+        if (periodoActivo === 'diário') return dateValue === today.toISOString().split('T')[0];
+        if (periodoActivo === 'semanal') {
+            const start = new Date(); start.setDate(today.getDate() - 7); return new Date(dateValue + 'T00:00:00') >= start && new Date(dateValue + 'T00:00:00') <= today;
+        }
+        if (periodoActivo === 'mensal') return (dateValue || '').startsWith(today.toISOString().substring(0, 7));
+        if (periodoActivo === 'trimestral') {
+            const trim = Math.floor(today.getMonth() / 3); const d = new Date(dateValue + 'T00:00:00'); return d.getFullYear() === today.getFullYear() && Math.floor(d.getMonth() / 3) === trim;
+        }
+        if (periodoActivo === 'anual') return (dateValue || '').startsWith(String(today.getFullYear()));
+        if (periodoActivo === 'dia') {
+            const input = document.getElementById('periodo-data-dia');
+            return dateValue === (input && input.value ? input.value : today.toISOString().split('T')[0]);
+        }
+        if (periodoActivo === 'intervalo') {
+            const iniEl = document.getElementById('periodo-data-dia'); const fimEl = document.getElementById('periodo-data-fim');
+            const ini = iniEl && iniEl.value ? iniEl.value : today.toISOString().split('T')[0];
+            const fim = fimEl && fimEl.value ? fimEl.value : today.toISOString().split('T')[0];
+            return dateValue >= ini && dateValue <= fim;
+        }
+        return true;
+    };
+
+    const periodoSaidas = movimentos.filter(function (m) { return m.tipo === 'saida' && periodMatches(m.data); });
+    const totalCusto = periodoSaidas.reduce(function (acc, m) { return acc + (m.fifo_cost || 0); }, 0);
+    const lucroBruto = periodoSaidas.reduce(function (acc, m) { return acc + ((m.total || 0) - (m.fifo_cost || 0)); }, 0);
+    const despesasPeriodo = despesas.filter(function (d) { return periodMatches(d.data); }).reduce(function (acc, d) { return acc + (d.valor || 0); }, 0);
+    const quebrasPeriodo = movimentos.filter(function (m) { return m.tipo === 'quebra' && periodMatches(m.data); }).reduce(function (acc, m) { return acc + (m.fifo_cost || 0); }, 0);
+    const lucroLiquido = lucroBruto - quebrasPeriodo - despesasPeriodo;
+
+    const summary = document.getElementById('painel-summary');
+    if (summary) {
+        summary.innerHTML =
+            '<div class="metric-card"><div class="metric-label">Receita</div><div class="metric-value">' + Math.round(totalV).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
+            '<div class="metric-card"><div class="metric-label">Unidades Vendidas</div><div class="metric-value">' + totalMov + '</div><div class="metric-sub">unidades</div></div>' +
+            '<div class="metric-card"><div class="metric-label">Lucro Bruto</div><div class="metric-value" style="color:#3B6D11;">' + Math.round(lucroBruto).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
+            '<div class="metric-card"><div class="metric-label">Lucro Líquido</div><div class="metric-value" style="color:#2F7D32;">' + Math.round(lucroLiquido).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
+            '<div class="metric-card"><div class="metric-label">Quebras</div><div class="metric-value" style="color:#A32D2D;">' + Math.round(totalQ).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
+            '<div class="metric-card"><div class="metric-label">Despesas</div><div class="metric-value" style="color:#854F0B;">' + Math.round(despesasPeriodo).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>';
+    }
+
+    const relMetrics = document.getElementById('rel-metrics');
+    if (relMetrics) {
+        relMetrics.innerHTML =
+            '<div class="metric-card"><div class="metric-label">Receita (período)</div><div class="metric-value">' + Math.round(totalV).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
+            '<div class="metric-card"><div class="metric-label">Lucro estimado</div><div class="metric-value" style="color:#3B6D11;">' + Math.round(totalL).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
+            '<div class="metric-card"><div class="metric-label">Unidades vendidas</div><div class="metric-value">' + totalMov + '</div><div class="metric-sub">unidades</div></div>' +
+            '<div class="metric-card"><div class="metric-label">Perdas (quebras)</div><div class="metric-value" style="color:#A32D2D;">' + totalQ.toLocaleString() + '</div><div class="metric-sub">MZN</div></div>';
+    }
+
+    renderPainelRelatorios();
 
     if (typeof Chart !== 'undefined') {
         if (chartRelVendas) chartRelVendas.destroy();

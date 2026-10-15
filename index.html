@@ -71,14 +71,14 @@
             </span>
             <span class="nav-label">Notificações</span>
           </button>
-          <button class="nav-btn" onclick="showSection('relatorios')">
+          <button class="nav-btn" onclick="showSection('painel')">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="7" height="18" rx="1"/>
                 <rect x="14" y="8" width="7" height="13" rx="1"/>
               </svg>
             </span>
-            <span class="nav-label">Dashboard</span>
+            <span class="nav-label">Painel</span>
           </button>
           <button class="nav-btn" onclick="showSection('stock')">
             <span class="nav-icon">
@@ -406,8 +406,8 @@
       </div>
     </div>
 
-    <!-- DASHBOARD (Antigo Relatórios) -->
-    <div class="section active" id="sec-relatorios">
+    <!-- PAINEL -->
+    <div class="section" id="sec-painel">
       <div class="dashboard-header">
         <div class="period-select">
           <button class="period-btn active" onclick="setPeriodo('diário',this)">Diário</button>
@@ -437,68 +437,99 @@
           Imprimir
         </button>
       </div>
-      <div class="metrics" id="rel-metrics"></div>
-      
 
-      
-      <div class="card">
-        <div class="card-title">Unidades Vendidas</div>
-        <div class="chart-wrap"><canvas id="chartVendas"></canvas></div>
-        <p class="chart-desc">Volume total de itens vendidos. Ajuda a entender a rotatividade do stock e a popularidade bruta dos produtos.</p>
+      <div class="metrics" id="painel-summary"></div>
+
+      <div class="stock-tabs" style="display:flex; justify-content:flex-start; align-items:center; flex-wrap:wrap; gap:10px; margin:1rem 0;">
+        <button class="panel-subtab stock-tab active" data-tab="dashboard" onclick="showPainelTab('dashboard')">Dashboard</button>
+        <button class="panel-subtab stock-tab" data-tab="relatorios" onclick="showPainelTab('relatorios')">Relatórios</button>
       </div>
 
-      <div class="chart-row">
+      <div id="painel-dashboard-content" class="panel-subtab-content active" style="display:block;">
+        <div class="metrics" id="rel-metrics"></div>
+
         <div class="card">
-          <div class="card-title">Vendas por período</div>
-          <div class="chart-wrap"><canvas id="chartRelVendas"></canvas></div>
-          <p class="chart-desc">Tendência de faturamento ao longo do tempo, permitindo identificar picos de consumo e sazonalidade.</p>
+          <div class="card-title">Unidades Vendidas</div>
+          <div class="chart-wrap"><canvas id="chartVendas"></canvas></div>
+          <p class="chart-desc">Volume total de itens vendidos. Ajuda a entender a rotatividade do stock e a popularidade bruta dos produtos.</p>
         </div>
-        <div class="card">
-          <div class="card-title">Lucro por período</div>
-          <div class="chart-wrap"><canvas id="chartRelLucro"></canvas></div>
-          <p class="chart-desc">Evolução do lucro bruto após descontar o custo do stock. Crucial para monitorizar a saúde financeira.</p>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Vendas vs Lucro</div>
-        <div class="chart-wrap"><canvas id="chartDiario"></canvas></div>
-        <p class="chart-desc">Sobreposição de receita e lucro para visualizar a eficiência operacional e margens de ganho.</p>
-      </div>
-      <div class="card">
-        <div class="card-title">Top 5 produtos mais vendidos</div>
-        <div class="chart-wrap" style="height:220px;"><canvas id="chartTop5"></canvas></div>
-        <p class="chart-desc">Os 5 itens com maior volume de saída, facilitando o foco nos produtos mais importantes da casa.</p>
-      </div>
-      <div class="card">
-        <div class="card-title">Eficiência de Lucro (ROI por Produto) — Global</div>
-        <div class="chart-scroll-wrap">
-          <div class="chart-container-inner" id="chart-roi-container">
-            <canvas id="chartROI"></canvas>
+
+        <div class="chart-row">
+          <div class="card">
+            <div class="card-title">Vendas por período</div>
+            <div class="chart-wrap"><canvas id="chartRelVendas"></canvas></div>
+            <p class="chart-desc">Tendência de faturamento ao longo do tempo, permitindo identificar picos de consumo e sazonalidade.</p>
+          </div>
+          <div class="card">
+            <div class="card-title">Lucro por período</div>
+            <div class="chart-wrap"><canvas id="chartRelLucro"></canvas></div>
+            <p class="chart-desc">Evolução do lucro bruto após descontar o custo do stock. Crucial para monitorizar a saúde financeira.</p>
           </div>
         </div>
-        <p class="chart-desc">Exibe o retorno para cada metical gasto na compra. Um ROI de 1.0 (ou 100%) significa que o produto gera o dobro do valor investido. <b>Análise baseada em todo o histórico.</b></p>
+
+        <div class="card">
+          <div class="card-title">Vendas vs Lucro</div>
+          <div class="chart-wrap"><canvas id="chartDiario"></canvas></div>
+          <p class="chart-desc">Sobreposição de receita e lucro para visualizar a eficiência operacional e margens de ganho.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Top 10 produtos mais vendidos</div>
+          <div class="chart-wrap" style="height:260px;"><canvas id="chartTop5"></canvas></div>
+          <p class="chart-desc">Os 10 itens com maior volume de saída, facilitando o foco nos produtos mais importantes da casa.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Eficiência de Lucro (ROI por Produto) — Global</div>
+          <div class="chart-scroll-wrap">
+            <div class="chart-container-inner" id="chart-roi-container">
+              <canvas id="chartROI"></canvas>
+            </div>
+          </div>
+          <p class="chart-desc">Exibe o retorno para cada metical gasto na compra. Um ROI de 1.0 (ou 100%) significa que o produto gera o dobro do valor investido. <b>Análise baseada em todo o histórico.</b></p>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Receita vs Custo (Produto) — Global</div>
+          <div class="chart-scroll-wrap">
+            <div class="chart-container-inner" id="chart-lucro-container">
+              <canvas id="chartLucro"></canvas>
+            </div>
+          </div>
+          <p class="chart-desc">Compara o ganho bruto acumulado com o custo de aquisição para todos os produtos da base. <b>Esta análise é global e independente do filtro de período acima.</b></p>
+        </div>
+
+        <div class="card" id="card-low-stock">
+          <div class="card-title">Produtos com menos stock</div>
+          <div id="dash-low-table"></div>
+        </div>
+        <div class="card" style="margin-top:20px;">
+          <div class="card-title">Histórico de Quebras</div>
+          <div id="quebras-list" style="max-height: 250px; overflow-y: auto;"></div>
+        </div>
+        <div class="card" style="margin-top:20px;">
+          <div class="card-title">Produtos a Expirar</div>
+          <div id="expirar-list" style="max-height: 250px; overflow-y: auto;"></div>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">Receita vs Custo (Produto) — Global</div>
-        <div class="chart-scroll-wrap">
-          <div class="chart-container-inner" id="chart-lucro-container">
-            <canvas id="chartLucro"></canvas>
-          </div>
+      <div id="painel-relatorios-content" class="panel-subtab-content" style="display:none;">
+        <div class="card">
+          <div class="card-title">Vendas (saídas por período)</div>
+          <div id="painel-vendas-table"></div>
         </div>
-        <p class="chart-desc">Compara o ganho bruto acumulado com o custo de aquisição para todos os produtos da base. <b>Esta análise é global e independente do filtro de período acima.</b></p>
-      </div>
-      <div class="card" id="card-low-stock">
-        <div class="card-title">Produtos com menos stock</div>
-        <div id="dash-low-table"></div>
-      </div>
-      <div class="card" style="margin-top:20px;">
-        <div class="card-title">Histórico de Quebras</div>
-        <div id="quebras-list" style="max-height: 250px; overflow-y: auto;"></div>
-      </div>
-      <div class="card" style="margin-top:20px;">
-        <div class="card-title">Produtos a Expirar</div>
-        <div id="expirar-list" style="max-height: 250px; overflow-y: auto;"></div>
+        <div class="card">
+          <div class="card-title">Compras (entradas por período)</div>
+          <div id="painel-compras-table"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Quebras</div>
+          <div id="painel-quebras-table"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Despesas</div>
+          <div id="painel-despesas-table"></div>
+        </div>
       </div>
     </div>
 
