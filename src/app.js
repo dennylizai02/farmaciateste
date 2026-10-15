@@ -9,6 +9,7 @@ import { showConfirm, closeConfirmModal } from './utils/dialogs.js';
 import { renderStock as renderStockModule, getStatus } from './components/stock.js';
 import { pharmacy } from './config/pharmacy.js';
 import { calculatePeriodMetrics } from './dashboardMetrics.js';
+import { getFaturacaoPrintSources } from './printUtils.js';
 import Chart from 'chart.js/auto';
 
 let sb = createSupabaseClient();
@@ -1987,13 +1988,12 @@ async function printMensal() {
 
 async function printFaturacao() {
     var today = new Date().toLocaleDateString('pt-MZ', { year: 'numeric', month: 'long', day: 'numeric' });
-    
-    // Capturar gráficos do Dashboard se existirem
-    var charts = document.querySelectorAll('#sec-relatorios canvas');
-    var chartImgs = Array.from(charts).map(c => c.toDataURL('image/png'));
 
-    var cards = Array.from(document.querySelectorAll('#sec-relatorios .card')).filter(card => !card.querySelector('.btn'));
-    
+    var printData = getFaturacaoPrintSources();
+    var chartImgs = printData.chartDataUrls || [];
+    var cards = printData.cards || [];
+    var metricsHtml = printData.metricsHtml || '<div class="metric-card"><div class="metric-label">Sem dados</div><div class="metric-value">—</div></div>';
+
     var printContent = `<!DOCTYPE html><html><head><title>Relatório de Faturação</title>
         <style>
             body { font-family: Arial, sans-serif; color: #000; padding: 20px; font-size: 14px; }
@@ -2019,11 +2019,10 @@ async function printFaturacao() {
         </div>
         <div class="card">
             <div class="card-title">Métricas Gerais</div>
-            <div class="metrics">${document.getElementById('rel-metrics').innerHTML}</div>
+            <div class="metrics">${metricsHtml}</div>
         </div>
         ${cards.map((card, i) => {
             var html = card.innerHTML;
-            // Se o card tiver um canvas, substituir pelo índice correspondente da imagem capturada
             if (html.indexOf('<canvas') !== -1 && chartImgs.length > 0) {
                 html = html.replace(/<canvas[^>]*><\/canvas>/, `<img src="${chartImgs[0]}" style="width:100%; height:auto;">`);
                 chartImgs.shift();
@@ -2034,10 +2033,12 @@ async function printFaturacao() {
         </body></html>`;
 
     var win = window.open('', '_blank');
-    if (win) win.opener = null;
-    win.document.write(printContent);
-    win.document.close();
-    win.onload = function() { win.print(); };
+    if (win) {
+        win.opener = null;
+        win.document.write(printContent);
+        win.document.close();
+        win.onload = function() { win.print(); };
+    }
 }
 
 function printHistoricoMovimentos() {
