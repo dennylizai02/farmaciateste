@@ -14,22 +14,34 @@
 <body>
 <div id="login-screen">
     <div class="login-card">
-      <h2 style="margin-bottom: 2rem; font-size: 24px; text-align: center; display:flex; align-items:center; justify-content:center; gap:8px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:28px;height:28px;">
-          <path d="M10.5 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
-          <path d="M18 4.5v3.75a2.25 2.25 0 0 1-4.5 0V4.5"/>
-          <path d="M3.75 10.5h16.5"/>
-          <path d="M4.5 10.5v7.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-7.5"/>
-        </svg>
-        Farmacia Nova de Campoane
-      </h2>
-      <div style="text-align:center; font-size: 12px; margin-bottom:1rem; opacity: 0.8;">Use as suas credenciais de acesso</div>
-      <form onsubmit="event.preventDefault(); loginUser();">
-        <input id="l-email" class="login-input" placeholder="Email">
-        <input id="l-pass" class="login-input" type="password" placeholder="Palavra-passe">
+      <div class="login-brand">
+        <div class="brand-mark login-brand-mark" aria-label="Logótipo da Farmacia Nova de Campoane">
+          <img src="./logotipo farmacia.png" alt="Farmacia Nova de Campoane" />
+        </div>
+        <div class="login-brand-copy">
+          <span>Farmacia Nova</span>
+          <small>de Campoane</small>
+        </div>
+      </div>
+
+      <div class="login-header">
+        <p class="login-eyebrow">Acesso ao sistema</p>
+        <h2>Bem-vindo</h2>
+      </div>
+
+      <form class="login-form" onsubmit="event.preventDefault(); loginUser();">
+        <label class="login-field">
+          <span>Email</span>
+          <input id="l-email" class="login-input" type="email" placeholder="seuemail@campoane.com">
+        </label>
+        <label class="login-field">
+          <span>Palavra-passe</span>
+          <input id="l-pass" class="login-input" type="password" placeholder="Digite a sua palavra-passe">
+        </label>
         <button type="submit" class="login-btn">Entrar</button>
       </form>
-      <div id="login-error" style="color:#E24B4A; font-size: 12px; margin-top: 1rem;"></div>
+
+      <div id="login-error" class="login-error"></div>
     </div>
   </div>
 
