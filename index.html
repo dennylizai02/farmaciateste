@@ -428,14 +428,17 @@
         </button>
       </div>
 
-      <div class="metrics" id="painel-summary"></div>
-
       <div class="stock-tabs" style="display:flex; justify-content:flex-start; align-items:center; flex-wrap:wrap; gap:10px; margin:1rem 0;">
-        <button class="panel-subtab stock-tab active" data-tab="dashboard" onclick="showPainelTab('dashboard')">Dashboard</button>
+        <button class="panel-subtab stock-tab active" data-tab="resumo" onclick="showPainelTab('resumo')">Resumo</button>
+        <button class="panel-subtab stock-tab" data-tab="dashboard" onclick="showPainelTab('dashboard')">Dashboard</button>
         <button class="panel-subtab stock-tab" data-tab="relatorios" onclick="showPainelTab('relatorios')">Relatórios</button>
       </div>
 
-      <div id="painel-dashboard-content" class="panel-subtab-content active" style="display:block;">
+      <div id="painel-resumo-content" class="panel-subtab-content active" style="display:block;">
+        <div class="metrics painel-summary-grid" id="painel-summary" style="grid-template-columns: repeat(3, minmax(0, 1fr));"></div>
+      </div>
+
+      <div id="painel-dashboard-content" class="panel-subtab-content" style="display:none;">
         <div class="metrics" id="rel-metrics"></div>
 
         <div class="card">

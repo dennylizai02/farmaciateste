@@ -315,6 +315,10 @@ body {
   margin-bottom: 1.5rem;
 }
 
+#painel-summary.painel-summary-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .metric-card {
   background: var(--color-background-primary);
   border: 1px solid var(--color-border);
@@ -1501,6 +1505,10 @@ select:focus {
     grid-template-columns: repeat(2, 1fr);
   }
 
+  #painel-summary.painel-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   #saldo-metrics {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -1914,6 +1922,10 @@ select:focus {
 
 @media (max-width: 480px) {
   .metrics {
+    grid-template-columns: 1fr;
+  }
+
+  #painel-summary.painel-summary-grid {
     grid-template-columns: 1fr;
   }
 

@@ -113,7 +113,7 @@ function showSection(id) {
 
     if (id === 'painel') {
         renderRelatorios();
-        showPainelTab('dashboard');
+        showPainelTab('resumo');
     }
     if (id === 'stock') { showStockTab('all'); populateGestaoData(); renderAlertas(); }
     if (id === 'movimentos') renderMovimentos();
@@ -136,10 +136,13 @@ function showPainelTab(tab) {
     document.querySelectorAll('.panel-subtab').forEach(function (btn) {
         btn.classList.toggle('active', btn.dataset.tab === tab);
     });
+    const resumo = document.getElementById('painel-resumo-content');
     const dashboard = document.getElementById('painel-dashboard-content');
     const relatorios = document.getElementById('painel-relatorios-content');
+    if (resumo) resumo.style.display = tab === 'resumo' ? 'block' : 'none';
     if (dashboard) dashboard.style.display = tab === 'dashboard' ? 'block' : 'none';
     if (relatorios) relatorios.style.display = tab === 'relatorios' ? 'block' : 'none';
+    if (tab === 'resumo') renderRelatorios();
     if (tab === 'dashboard') renderRelatorios();
     if (tab === 'relatorios') renderPainelRelatorios();
 }
