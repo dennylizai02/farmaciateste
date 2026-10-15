@@ -29,12 +29,6 @@
         <input id="l-pass" class="login-input" type="password" placeholder="Palavra-passe">
         <button type="submit" class="login-btn">Entrar</button>
       </form>
-      <div style="margin-top:1rem; font-size:12px; color:#4b5563; line-height:1.5;">
-        <div><strong>Demo:</strong></div>
-        <div>Administrador: admin@farmacia-nova-campoane.com / Campoane@2026</div>
-        <div>Vendedor 1: vendedor1@farmacia-nova-campoane.com / Vendedor1@2026</div>
-        <div>Vendedor 2: vendedor2@farmacia-nova-campoane.com / Vendedor2@2026</div>
-      </div>
       <div id="login-error" style="color:#E24B4A; font-size: 12px; margin-top: 1rem;"></div>
     </div>
   </div>
@@ -67,7 +61,7 @@
       <nav class="sidebar-nav">
         <!-- Admin nav -->
         <div id="nav-admin-group">
-          <button class="nav-btn" onclick="showSection('necessidades')">
+          <button class="nav-btn active" onclick="showSection('necessidades')">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M12 9v4"/>
@@ -77,7 +71,7 @@
             </span>
             <span class="nav-label">Notificações</span>
           </button>
-          <button class="nav-btn active" onclick="showSection('relatorios')">
+          <button class="nav-btn" onclick="showSection('relatorios')">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="7" height="18" rx="1"/>
@@ -508,11 +502,23 @@
       </div>
     </div>
 
-    <!-- NECESSIDADES -->
-    <div class="section" id="sec-necessidades">
+    <!-- NOTIFICAÇÕES -->
+    <div class="section active" id="sec-necessidades">
       <div class="card">
-        <div class="card-title">Necessidades de Reposição (Abaixo do Mínimo)</div>
-        <div id="nec-list"></div>
+        <div class="stock-tabs" style="display:flex; justify-content:flex-start; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:1rem;">
+          <button class="notification-tab stock-tab active" data-tab="vendas" onclick="showNotificationTab('vendas')">
+            Vendas <span class="badge badge-low" id="notif-vendas-count">0</span>
+          </button>
+          <button class="notification-tab stock-tab" data-tab="necessidades" onclick="showNotificationTab('necessidades')">
+            Necessidades <span class="badge badge-low" id="notif-necessidades-count">0</span>
+          </button>
+          <button class="notification-tab stock-tab" data-tab="expirar" onclick="showNotificationTab('expirar')">
+            A expirar <span class="badge badge-low" id="notif-expirar-count">0</span>
+          </button>
+        </div>
+        <div id="notif-vendas-content" class="notification-tab-content active"></div>
+        <div id="notif-necessidades-content" class="notification-tab-content"></div>
+        <div id="notif-expirar-content" class="notification-tab-content"></div>
       </div>
     </div>
 

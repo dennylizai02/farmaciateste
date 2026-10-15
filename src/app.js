@@ -12,12 +12,6 @@ import Chart from 'chart.js/auto';
 
 let sb = createSupabaseClient();
 
-const DEMO_ACCOUNTS = {
-    'admin@farmacia-nova-campoane.com': { password: 'Campoane@2026', role: 'gestor', displayName: 'Rúben Mário Sicoche' },
-    'vendedor1@farmacia-nova-campoane.com': { password: 'Vendedor1@2026', role: 'vendedor', displayName: 'Vendedor 1' },
-    'vendedor2@farmacia-nova-campoane.com': { password: 'Vendedor2@2026', role: 'vendedor', displayName: 'Vendedor 2' }
-};
-
 const LEGACY_PREFIX = '';
 const NEW_PREFIX = 'p2026_';
 let activeTableSet = 'new';
@@ -26,9 +20,7 @@ function getTableSetFromProfile(profile, email) {
     const scope = profile?.dataset_scope;
     if (scope === 'legacy' || scope === 'recent') return scope;
 
-    if (email === 'admin@farmacia-nova-campoane.com') return 'new';
-    if (email === 'gestao@farmacia-teste.com') return 'legacy';
-    if (email === 'gestao@admin.farmacia-teste.com') return 'new';
+    if (email === 'admin@campoane.com') return 'new';
     return 'new';
 }
 
@@ -1237,10 +1229,8 @@ function renderCaixa() {
 
 // ====================== NECESSIDADES ======================
 function renderNecessidades() {
-    var rep = produtos.filter(function (p) { return p.qtd < p.min; });
-    var cont = document.getElementById('nec-list');
-    if (!cont) return;
-
+    var baixo = produtos.filter(function (p) { return p.qtd <= p.min && p.qtd >= 0; });
+    var esgotados = produtos.filter(function (p) { return p.qtd === 0; });
     var hoje = new Date();
     var expirar30 = produtos.filter(function (p) {
         if (!p.validade) return false;
@@ -1253,49 +1243,67 @@ function renderNecessidades() {
         var d = new Date(p.validade);
         return d < hoje;
     });
-
-    var html = '<div class="metrics" style="margin-bottom:1rem;">' +
-        '<div class="metric-card"><div class="metric-label">A Expirar (30d)</div><div class="metric-value" style="color:#B8860B;">' + expirar30.length + '</div></div>' +
-        '<div class="metric-card"><div class="metric-label">Expirados</div><div class="metric-value" style="color:#A32D2D;">' + expirados.length + '</div></div>' +
-        '</div>';
-
-    if (rep.length > 0) {
-        var totalCompras = 0, lucroExp = 0;
-        var linhas = rep.map(function (p) {
-            var comprar = p.min - p.qtd;
-            var custoPrev = comprar * p.custo;
-            var lucroPrev = comprar * (p.venda - p.custo);
-            totalCompras += custoPrev; lucroExp += lucroPrev;
-            return '<tr><td>' + escapeHTML(p.nome) + '</td>' +
-                '<td style="color:#A32D2D;font-weight:500;">' + p.qtd + '</td>' +
-                '<td>' + p.min + '</td><td style="font-weight:bold;">' + comprar + '</td>' +
-                '<td>' + p.custo + ' MZN</td><td>' + custoPrev.toLocaleString() + ' MZN</td>' +
-                '<td style="color:#3B6D11;">' + lucroPrev.toLocaleString() + ' MZN</td></tr>';
-        });
-        html +=
-            '<div style="margin-bottom:1rem;font-size:14px;background:#F9F9F9;padding:10px;border-radius:8px;">' +
-            'Necessidades estimadas em <b>' + totalCompras.toLocaleString() + ' MZN</b> para recuperar stock mínimo. ' +
-            'Lucro esperado (venda total): <b style="color:#3B6D11;">' + lucroExp.toLocaleString() + ' MZN</b></div>' +
-            '<div class="table-responsive"><table><thead><tr><th>Produto</th><th>Stock Atual</th><th>Mínimo</th><th>A Comprar</th><th>Custo Unit.</th><th>Investimento</th><th>Lucro Esperado</th></tr></thead>' +
-            '<tbody>' + linhas.join('') + '</tbody></table></div>';
-    } else {
-        html += '<div class="empty">Stock robusto. Não há necessidade de reforço por enquanto!</div>';
-    }
-
     var aExpirar = expirados.concat(expirar30);
     aExpirar.sort(function (a, b) { return new Date(a.validade) - new Date(b.validade); });
-    html += '<div style="margin-top:1.5rem;"><div class="card-title">Produtos a Expirar</div>' +
+
+    var vendasRecentes = movimentos.filter(function (m) {
+        if (m.tipo !== 'saida' || !m.data) return false;
+        var d = new Date(m.data);
+        var diff = Math.ceil((hoje - d) / (1000 * 60 * 60 * 24));
+        return diff <= 7;
+    });
+
+    var vendasCount = document.getElementById('notif-vendas-count');
+    if (vendasCount) vendasCount.textContent = vendasRecentes.length;
+    var necessidadeCount = document.getElementById('notif-necessidades-count');
+    if (necessidadeCount) necessidadeCount.textContent = baixo.length;
+    var expirarCount = document.getElementById('notif-expirar-count');
+    if (expirarCount) expirarCount.textContent = aExpirar.length;
+
+    var vendasHtml = vendasRecentes.length ?
+        '<div class="table-responsive"><table><thead><tr><th>Produto</th><th>Vendedor</th><th>Qtd</th><th>Data</th><th>Total</th></tr></thead><tbody>' +
+        vendasRecentes.slice(0, 10).map(function (m) {
+            return '<tr><td>' + escapeHTML(m.nome_v || '—') + '</td><td>' + escapeHTML(m.vendedor ? getVendedorDisplayName(m.vendedor) : '—') + '</td><td>' + m.qtd + '</td><td style="font-size:12px;color:var(--color-text-secondary);">' + escapeHTML(m.data) + '</td><td>' + Number(m.total || 0).toLocaleString() + ' MZN</td></tr>';
+        }).join('') + '</tbody></table></div>' : '<div class="empty">Nenhuma venda recente nos últimos 7 dias.</div>';
+    var vendasPanel = document.getElementById('notif-vendas-content');
+    if (vendasPanel) vendasPanel.innerHTML = vendasHtml;
+
+    var necessidadeHtml = baixo.length ?
+        '<div class="table-responsive"><table><thead><tr><th>Produto</th><th>Stock</th><th>Mínimo</th><th>Falta</th><th>Estado</th></tr></thead><tbody>' +
+        baixo.map(function (p) {
+            var falta = Math.max(p.min - p.qtd, 0);
+            return '<tr><td>' + escapeHTML(p.nome) + '</td><td>' + p.qtd + '</td><td>' + p.min + '</td><td>' + falta + '</td><td><span class="badge ' + (p.qtd === 0 ? 'badge-out' : 'badge-low') + '">' + (p.qtd === 0 ? 'Esgotado' : 'Baixo') + '</span></td></tr>';
+        }).join('') + '</tbody></table></div>' : '<div class="empty">Nenhuma necessidade de reposição.</div>';
+    var necessidadePanel = document.getElementById('notif-necessidades-content');
+    if (necessidadePanel) necessidadePanel.innerHTML = necessidadeHtml;
+
+    var expHtml = aExpirar.length ?
         '<div class="table-responsive"><table><thead><tr><th>Produto</th><th>Validade</th><th>Stock</th><th>Estado</th></tr></thead><tbody>' +
-        (aExpirar.length ? aExpirar.map(function (p) {
+        aExpirar.map(function (p) {
             var d = new Date(p.validade);
             var expirado = d < hoje;
-            var cor = expirado ? 'color:#A32D2D;' : 'color:#B8860B;';
             var label = expirado ? 'Expirado' : 'A expirar';
-            return '<tr><td>' + escapeHTML(p.nome) + '</td><td style="' + cor + 'font-weight:500;">' + escapeHTML(p.validade) + '</td><td>' + p.qtd + '</td><td><span class="badge ' + (expirado ? 'badge-out' : 'badge-low') + '">' + label + '</span></td></tr>';
-        }).join('') : '<tr><td colspan="4" class="empty">Nenhum produto próximo da validade</td></tr>') +
-        '</tbody></table></div></div>';
+            return '<tr><td>' + escapeHTML(p.nome) + '</td><td>' + escapeHTML(p.validade) + '</td><td>' + p.qtd + '</td><td><span class="badge ' + (expirado ? 'badge-out' : 'badge-low') + '">' + label + '</span></td></tr>';
+        }).join('') + '</tbody></table></div>' : '<div class="empty">Nenhum produto próximo da validade.</div>';
+    var expPanel = document.getElementById('notif-expirar-content');
+    if (expPanel) expPanel.innerHTML = expHtml;
 
-    cont.innerHTML = html;
+    var totalPanels = document.querySelectorAll('.notification-tab-content');
+    if (totalPanels.length && !document.querySelector('.notification-tab-content.active')) {
+        showNotificationTab('vendas');
+    }
+
+    var alertCount = document.getElementById('alert-count');
+    if (alertCount) alertCount.textContent = (esgotados.length + baixo.length) || '';
+}
+
+function showNotificationTab(tab) {
+    document.querySelectorAll('.notification-tab').forEach(function (btn) {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+    });
+    document.querySelectorAll('.notification-tab-content').forEach(function (panel) {
+        panel.classList.toggle('active', panel.id === 'notif-' + tab + '-content');
+    });
 }
 
 // ====================== ALERTAS ======================
@@ -2371,13 +2379,9 @@ async function fetchProfile(userId) {
 }
 
 function getVendedorDisplayName(user) {
-    if (user === 'vendedor1@farmacia-nova-campoane.com') return 'Vendedor 1';
-    if (user === 'vendedor2@farmacia-nova-campoane.com') return 'Vendedor 2';
-    if (user === 'admin@farmacia-nova-campoane.com') return 'Rúben Mário Sicoche';
-    if (user === 'vendas1@farmacia-teste.com') return 'Vendedor 1';
-    if (user === 'vendas2@farmacia-teste.com') return 'Vendedor 2';
-    if (user === 'gestao@farmacia-teste.com') return 'Rúben Mário Sicoche';
-    if (user === 'gestao@admin.farmacia-teste.com') return 'Rúben Mário Sicoche';
+    if (user === 'vendedor1@campoane.com') return 'Vendedor 1';
+    if (user === 'vendedor2@campoane.com') return 'Vendedor 2';
+    if (user === 'admin@campoane.com') return 'Rúben Mário Sicoche';
     return user || 'Vendedor';
 }
 
@@ -2428,34 +2432,11 @@ async function checkSession() {
     });
 }
 
-function tryDemoLogin(email, pass) {
-    const account = DEMO_ACCOUNTS[email];
-    if (!account || account.password !== pass) return null;
-
-    const demoUser = {
-        email,
-        id: 'demo-' + email,
-        user_metadata: { role: account.role }
-    };
-
-    const profile = { role: account.role, display_name: account.displayName, dataset_scope: 'new' };
-
-    localStorage.setItem('local_session_role', account.role);
-    localStorage.setItem('local_session_user', email);
-
-    applyAuthSession(demoUser, profile);
-    showNotification('Login demo efetuado com sucesso!', 'success');
-    return demoUser;
-}
-
 async function loginUser() {
     const email = document.getElementById('l-email').value.trim();
     const pass = document.getElementById('l-pass').value;
     const errorEl = document.getElementById('login-error');
     errorEl.textContent = 'A entrar...';
-
-    const demoUser = tryDemoLogin(email, pass);
-    if (demoUser) return;
 
     if (!sb) {
         errorEl.textContent = 'Erro de ligação à base de dados.';
@@ -2809,7 +2790,7 @@ async function applyRoleRestrictions() {
         console.log('[applyRoleRestrictions] modo GESTOR');
         if (sidebar) sidebar.style.display = 'flex';
         if (app) app.classList.remove('seller-mode');
-        showSection('relatorios');
+        showSection('necessidades');
     }
 
     // Restrições na aba Movimentos
@@ -2854,6 +2835,7 @@ async function initApp() {
             renderCaixa();
             renderNecessidades();
             renderDocsHistory();
+            showSection('necessidades');
             var ac = document.getElementById('alert-count');
             if (ac) ac.textContent = produtos.filter(function (p) { return p.qtd <= p.min; }).length || '';
         }
