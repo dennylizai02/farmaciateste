@@ -444,65 +444,45 @@
         <div class="card">
           <div class="card-title">Unidades Vendidas</div>
           <div class="chart-wrap"><canvas id="chartVendas"></canvas></div>
-          <p class="chart-desc">Volume total de itens vendidos. Ajuda a entender a rotatividade do stock e a popularidade bruta dos produtos.</p>
         </div>
 
         <div class="chart-row">
           <div class="card">
             <div class="card-title">Vendas por período</div>
             <div class="chart-wrap"><canvas id="chartRelVendas"></canvas></div>
-            <p class="chart-desc">Tendência de faturamento ao longo do tempo, permitindo identificar picos de consumo e sazonalidade.</p>
           </div>
           <div class="card">
             <div class="card-title">Lucro por período</div>
             <div class="chart-wrap"><canvas id="chartRelLucro"></canvas></div>
-            <p class="chart-desc">Evolução do lucro bruto após descontar o custo do stock. Crucial para monitorizar a saúde financeira.</p>
           </div>
         </div>
 
         <div class="card">
           <div class="card-title">Vendas vs Lucro</div>
           <div class="chart-wrap"><canvas id="chartDiario"></canvas></div>
-          <p class="chart-desc">Sobreposição de receita e lucro para visualizar a eficiência operacional e margens de ganho.</p>
         </div>
 
         <div class="card">
-          <div class="card-title">Top 10 produtos mais vendidos</div>
-          <div class="chart-wrap" style="height:260px;"><canvas id="chartTop5"></canvas></div>
-          <p class="chart-desc">Os 10 itens com maior volume de saída, facilitando o foco nos produtos mais importantes da casa.</p>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Eficiência de Lucro (ROI por Produto) — Global</div>
-          <div class="chart-scroll-wrap">
-            <div class="chart-container-inner" id="chart-roi-container">
-              <canvas id="chartROI"></canvas>
-            </div>
-          </div>
-          <p class="chart-desc">Exibe o retorno para cada metical gasto na compra. Um ROI de 1.0 (ou 100%) significa que o produto gera o dobro do valor investido. <b>Análise baseada em todo o histórico.</b></p>
-        </div>
-
-        <div class="card">
-          <div class="card-title">Receita vs Custo (Produto) — Global</div>
+          <div class="card-title">Receita vs Custo</div>
           <div class="chart-scroll-wrap">
             <div class="chart-container-inner" id="chart-lucro-container">
               <canvas id="chartLucro"></canvas>
             </div>
           </div>
-          <p class="chart-desc">Compara o ganho bruto acumulado com o custo de aquisição para todos os produtos da base. <b>Esta análise é global e independente do filtro de período acima.</b></p>
         </div>
 
-        <div class="card" id="card-low-stock">
-          <div class="card-title">Produtos com menos stock</div>
-          <div id="dash-low-table"></div>
+        <div class="card">
+          <div class="card-title">Produtos mais vendidos</div>
+          <div class="chart-wrap" style="height:260px;"><canvas id="chartTop5"></canvas></div>
         </div>
-        <div class="card" style="margin-top:20px;">
-          <div class="card-title">Histórico de Quebras</div>
-          <div id="quebras-list" style="max-height: 250px; overflow-y: auto;"></div>
-        </div>
-        <div class="card" style="margin-top:20px;">
-          <div class="card-title">Produtos a Expirar</div>
-          <div id="expirar-list" style="max-height: 250px; overflow-y: auto;"></div>
+
+        <div class="card">
+          <div class="card-title">Eficiência de Lucro</div>
+          <div class="chart-scroll-wrap">
+            <div class="chart-container-inner" id="chart-roi-container">
+              <canvas id="chartROI"></canvas>
+            </div>
+          </div>
         </div>
       </div>
 
