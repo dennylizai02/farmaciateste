@@ -4,7 +4,7 @@
   "description": "Farmácia Teste - gestão de stock e vendas",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
@@ -13,7 +13,12 @@
     "type": "git",
     "url": "git+https://github.com/dennylizai02/farmaciateste.git"
   },
-  "keywords": ["farmacia", "stock", "vendas", "gestao"],
+  "keywords": [
+    "farmacia",
+    "stock",
+    "vendas",
+    "gestao"
+  ],
   "author": "",
   "license": "ISC",
   "type": "module",
@@ -25,5 +30,8 @@
     "@supabase/supabase-js": "^2.109.0",
     "chart.js": "^4.5.1",
     "vite": "^8.1.2"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.11"
   }
 }

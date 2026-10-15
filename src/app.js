@@ -8,6 +8,7 @@ import { showNotification } from './utils/notifications.js';
 import { showConfirm, closeConfirmModal } from './utils/dialogs.js';
 import { renderStock as renderStockModule, getStatus } from './components/stock.js';
 import { pharmacy } from './config/pharmacy.js';
+import { calculatePeriodMetrics } from './dashboardMetrics.js';
 import Chart from 'chart.js/auto';
 
 let sb = createSupabaseClient();
@@ -1615,6 +1616,16 @@ function renderRelatorios() {
     const totalMov = unidData[activeIndex] || 0;
     const totalQ = quebrasData[activeIndex] || 0;
 
+    const periodContext = {
+        refDate: new Date().toISOString().split('T')[0],
+        count: Number(countVal || 7),
+        month: new Date().toISOString().slice(0, 7),
+        startDate: document.getElementById('periodo-data-dia')?.value || undefined,
+        endDate: document.getElementById('periodo-data-fim')?.value || undefined,
+        dateKey: document.getElementById('periodo-data-dia')?.value || undefined,
+    };
+    const periodMetrics = calculatePeriodMetrics(movimentos, despesas, periodoActivo, periodContext);
+
     const periodMatches = function (dateValue) {
         if (!dateValue) return false;
         const today = new Date();
@@ -1650,21 +1661,21 @@ function renderRelatorios() {
     const summary = document.getElementById('painel-summary');
     if (summary) {
         summary.innerHTML =
-            '<div class="metric-card"><div class="metric-label">Receita</div><div class="metric-value">' + Math.round(totalV).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
-            '<div class="metric-card"><div class="metric-label">Unidades Vendidas</div><div class="metric-value">' + totalMov + '</div><div class="metric-sub">unidades</div></div>' +
-            '<div class="metric-card"><div class="metric-label">Lucro Bruto</div><div class="metric-value" style="color:#3B6D11;">' + Math.round(lucroBruto).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
-            '<div class="metric-card"><div class="metric-label">Lucro Líquido</div><div class="metric-value" style="color:#2F7D32;">' + Math.round(lucroLiquido).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
-            '<div class="metric-card"><div class="metric-label">Quebras</div><div class="metric-value" style="color:#A32D2D;">' + Math.round(totalQ).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
-            '<div class="metric-card"><div class="metric-label">Despesas</div><div class="metric-value" style="color:#854F0B;">' + Math.round(despesasPeriodo).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>';
+            '<div class="metric-card"><div class="metric-label">Receita</div><div class="metric-value">' + Math.round(periodMetrics.revenue).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
+            '<div class="metric-card"><div class="metric-label">Unidades Vendidas</div><div class="metric-value">' + periodMetrics.unitsSold + '</div><div class="metric-sub">unidades</div></div>' +
+            '<div class="metric-card"><div class="metric-label">Lucro Bruto</div><div class="metric-value" style="color:#3B6D11;">' + Math.round(periodMetrics.grossProfit).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
+            '<div class="metric-card"><div class="metric-label">Lucro Líquido</div><div class="metric-value" style="color:#2F7D32;">' + Math.round(periodMetrics.netProfit).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
+            '<div class="metric-card"><div class="metric-label">Quebras</div><div class="metric-value" style="color:#A32D2D;">' + Math.round(periodMetrics.breakageCost).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
+            '<div class="metric-card"><div class="metric-label">Despesas</div><div class="metric-value" style="color:#854F0B;">' + Math.round(periodMetrics.expenses).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>';
     }
 
     const relMetrics = document.getElementById('rel-metrics');
     if (relMetrics) {
         relMetrics.innerHTML =
-            '<div class="metric-card"><div class="metric-label">Receita (período)</div><div class="metric-value">' + Math.round(totalV).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
-            '<div class="metric-card"><div class="metric-label">Lucro estimado</div><div class="metric-value" style="color:#3B6D11;">' + Math.round(totalL).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
-            '<div class="metric-card"><div class="metric-label">Unidades vendidas</div><div class="metric-value">' + totalMov + '</div><div class="metric-sub">unidades</div></div>' +
-            '<div class="metric-card"><div class="metric-label">Perdas (quebras)</div><div class="metric-value" style="color:#A32D2D;">' + totalQ.toLocaleString() + '</div><div class="metric-sub">MZN</div></div>';
+            '<div class="metric-card"><div class="metric-label">Receita (período)</div><div class="metric-value">' + Math.round(periodMetrics.revenue).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
+            '<div class="metric-card"><div class="metric-label">Lucro estimado</div><div class="metric-value" style="color:#3B6D11;">' + Math.round(periodMetrics.netProfit).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>' +
+            '<div class="metric-card"><div class="metric-label">Unidades vendidas</div><div class="metric-value">' + periodMetrics.unitsSold + '</div><div class="metric-sub">unidades</div></div>' +
+            '<div class="metric-card"><div class="metric-label">Perdas (quebras)</div><div class="metric-value" style="color:#A32D2D;">' + Math.round(periodMetrics.breakageCost).toLocaleString() + '</div><div class="metric-sub">MZN</div></div>';
     }
 
     renderPainelRelatorios();
