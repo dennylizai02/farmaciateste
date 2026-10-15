@@ -1,6 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import { buildPeriodSeries, calculatePeriodMetrics, calculatePeriodSummary, matchesPeriod } from '../src/dashboardMetrics.js';
 
+function buildMovimento({ tipo, data, qtd = 1, total = 0, fifo_cost = 0 }) {
+  return { tipo, data, qtd, total, fifo_cost };
+}
+
 describe('dashboardMetrics', () => {
   it('calcula receita, custo, lucro bruto, lucro líquido e unidades vendidas de forma consistente', () => {
     const movimentos = [
@@ -118,5 +122,33 @@ describe('dashboardMetrics', () => {
     expect(series.labels).toHaveLength(3);
     expect(series.revenue).toEqual([400, 900, 1200]);
     expect(series.profit[2]).toBe(1200 - 700 - 80);
+  });
+
+  it('respeita o período semanal e calcula corretamente o intervalo de datas', () => {
+    const movimentos = [
+      buildMovimento({ tipo: 'saida', data: '2026-10-01', qtd: 2, total: 300, fifo_cost: 180 }),
+      buildMovimento({ tipo: 'saida', data: '2026-10-07', qtd: 1, total: 150, fifo_cost: 90 }),
+      buildMovimento({ tipo: 'saida', data: '2026-10-20', qtd: 1, total: 200, fifo_cost: 120 })
+    ];
+
+    const result = calculatePeriodMetrics(movimentos, [], 'semanal', { refDate: '2026-10-20', count: 3 });
+    expect(result.revenue).toBe(650);
+    expect(result.unitsSold).toBe(4);
+    expect(result.grossProfit).toBe(260);
+  });
+
+  it('calcula lucro líquido e perdas para o intervalo anual sem sobrepor valores', () => {
+    const movimentos = [
+      buildMovimento({ tipo: 'saida', data: '2026-01-05', qtd: 2, total: 500, fifo_cost: 250 }),
+      buildMovimento({ tipo: 'saida', data: '2026-12-11', qtd: 3, total: 800, fifo_cost: 450 }),
+      buildMovimento({ tipo: 'quebra', data: '2026-12-11', qtd: 1, total: 100, fifo_cost: 60 })
+    ];
+    const despesas = [{ data: '2026-12-11', valor: 120 }];
+
+    const result = calculatePeriodMetrics(movimentos, despesas, 'anual', { refDate: '2026-12-15' });
+    expect(result.revenue).toBe(1300);
+    expect(result.breakageCost).toBe(60);
+    expect(result.expenses).toBe(120);
+    expect(result.netProfit).toBe(1300 - 700 - 60 - 120);
   });
 });
