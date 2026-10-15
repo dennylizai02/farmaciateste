@@ -114,16 +114,6 @@
             </span>
             <span class="nav-label">Compras</span>
           </button>
-          <button class="nav-btn" id="nav-relmensal" onclick="showSection('relmensal')">
-            <span class="nav-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="20" x2="18" y2="10"/>
-                <line x1="12" y1="20" x2="12" y2="4"/>
-                <line x1="6" y1="20" x2="6" y2="14"/>
-              </svg>
-            </span>
-            <span class="nav-label">Relatórios</span>
-          </button>
           <button class="nav-btn" id="nav-saldo" onclick="showSection('saldo')">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -668,63 +658,6 @@
         <div id="doc-history"></div>
       </div>
     </div>
-
-    <!-- RELATÓRIO MENSAL -->
-    <div class="section" id="sec-relmensal">
-      <div class="metrics" id="alertas-metrics"></div>
-      <div class="card">
-        <div class="relmensal-header">
-          <div class="period-select" style="margin-bottom:0;">
-            <button class="period-btn active" onclick="setPeriodo('mensal',this)">Mensal</button>
-            <button class="period-btn" onclick="setPeriodo('dia',this)">Dia</button>
-            <button class="period-btn" onclick="setPeriodo('intervalo',this)">Intervalo</button>
-            <div id="periodo-date-inputs-rm" style="display:none; gap:8px; align-items:center; flex-wrap:wrap; margin-left:8px;">
-              <input id="rm-data-dia" type="date" onchange="renderRelMensal()" style="padding:4px 8px;font-size:12px;border-radius:6px;border:1px solid var(--color-border);">
-              <span id="rm-data-sep" style="display:none;color:var(--color-text-secondary);font-size:12px;">até</span>
-              <input id="rm-data-fim" type="date" onchange="renderRelMensal()" style="display:none;padding:4px 8px;font-size:12px;border-radius:6px;border:1px solid var(--color-border);">
-            </div>
-          </div>
-          <div class="relmensal-actions">
-            <input id="rm-mes" type="month" onchange="renderRelMensal()" style="display:none;">
-            <button class="btn btn-primary" onclick="printMensal()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;">
-                <polyline points="6 9 6 2 18 2 18 9"/>
-                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-                <rect x="6" y="14" width="12" height="8"/>
-              </svg>
-              Imprimir
-            </button>
-          </div>
-        </div>
-        <div class="card-title" id="rm-title" style="margin-bottom:16px;">Relatório Mensal Completo</div>
-        <div class="metrics" id="rm-metrics"></div>
-      </div>
-      <div class="card">
-        <div class="card-title">Vendas do Mês</div>
-        <div class="table-responsive">
-          <div id="rm-vendas"></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Compras (Entradas) do Mês</div>
-        <div class="table-responsive">
-          <div id="rm-compras"></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Quebras do Mês</div>
-        <div class="table-responsive">
-          <div id="rm-quebras"></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Despesas do Mês</div>
-        <div class="table-responsive">
-          <div id="rm-despesas"></div>
-        </div>
-      </div>
-    </div>
-
 
     <!-- PLANO DE COMPRAS -->
     <div class="section" id="sec-planocompras">

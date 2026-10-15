@@ -71,9 +71,20 @@ let periodoActivo = 'diário';
 let currentSortField = 'nome';
 let currentSortOrder = 'asc';
 let chartVendas, chartLucro, chartRelVendas, chartRelLucro, chartTop5, chartDiario, chartROI;
-let userRole = 'gestor';
+let userRole = 'admin';
 let currentUserEmail = '';
 let dataLoadError = '';
+
+function normalizeUserRole(role) {
+    const value = (role || '').toString().trim().toLowerCase();
+    if (['admin', 'gestor', 'administrador', 'manager'].includes(value)) return 'admin';
+    if (['vendedor', 'seller', 'funcionario', 'employee'].includes(value)) return 'vendedor';
+    return 'vendedor';
+}
+
+function isAdminRole(role) {
+    return normalizeUserRole(role) === 'admin';
+}
 // ---------- DATE ----------
 const dateEl = document.getElementById('current-date');
 if (dateEl) dateEl.textContent = new Date().toLocaleDateString('pt-MZ', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -100,7 +111,7 @@ function showSection(id) {
         if (oc.indexOf(id) !== -1) { btns[i].classList.add('active'); break; }
     }
 
-    if (id === 'painel' || id === 'relatorios') {
+    if (id === 'painel') {
         renderRelatorios();
         showPainelTab('dashboard');
     }
@@ -109,15 +120,12 @@ function showSection(id) {
     if (id === 'alertas') renderAlertas();
     if (id === 'caixa') renderCaixa();
     if (id === 'despesas') renderDespesas();
-    if (id === 'necessidades') renderNecessidades();
+    if (id === 'necessidades') {
+        renderNecessidades();
+        showNotificationTab('vendas');
+    }
     if (id === 'documentos') populateDocProdutoSelect();
     if (id === 'planocompras') renderPlanoCompras();
-    if (id === 'relmensal') {
-        if (!periodoActivo || (periodoActivo !== 'dia' && periodoActivo !== 'intervalo')) {
-            setPeriodo('mensal', document.querySelector('#sec-relmensal .period-btn'));
-        }
-        renderRelMensal();
-    }
     if (id === 'saldo') renderSaldo();
     if (id === 'vnova-venda') renderVendedor();
     if (id === 'vvendas') renderVendasDoDia();
@@ -132,6 +140,8 @@ function showPainelTab(tab) {
     const relatorios = document.getElementById('painel-relatorios-content');
     if (dashboard) dashboard.style.display = tab === 'dashboard' ? 'block' : 'none';
     if (relatorios) relatorios.style.display = tab === 'relatorios' ? 'block' : 'none';
+    if (tab === 'dashboard') renderRelatorios();
+    if (tab === 'relatorios') renderPainelRelatorios();
 }
 
 function printDailyMovements() {
@@ -1315,7 +1325,9 @@ function showNotificationTab(tab) {
         btn.classList.toggle('active', btn.dataset.tab === tab);
     });
     document.querySelectorAll('.notification-tab-content').forEach(function (panel) {
-        panel.classList.toggle('active', panel.id === 'notif-' + tab + '-content');
+        const isActive = panel.id === 'notif-' + tab + '-content';
+        panel.classList.toggle('active', isActive);
+        panel.style.display = isActive ? 'block' : 'none';
     });
 }
 
@@ -2521,13 +2533,13 @@ function applyAuthSession(user, profile) {
     currentUserEmail = user.email;
     setActiveTableSet(profile, currentUserEmail);
     if (profile) {
-        userRole = profile.role;
+        userRole = normalizeUserRole(profile.role);
     } else {
-        userRole = user.user_metadata?.role || 'vendedor';
+        userRole = normalizeUserRole(user.user_metadata?.role || 'vendedor');
     }
     document.getElementById('login-screen').style.display = 'none';
     document.querySelector('.app').style.display = 'flex';
-    document.getElementById('user-label').textContent = userRole === 'gestor' ? 'Administrador' : getVendedorDisplayName(currentUserEmail);
+    document.getElementById('user-label').textContent = isAdminRole(userRole) ? 'Administrador' : getVendedorDisplayName(currentUserEmail);
     applyRoleRestrictions();
     initApp();
 }
@@ -2537,12 +2549,12 @@ async function checkSession() {
         var role = localStorage.getItem('local_session_role');
         var user = localStorage.getItem('local_session_user');
         if (role && user) {
-            userRole = role;
+            userRole = normalizeUserRole(role);
             currentUserEmail = user;
             setActiveTableSet(null, currentUserEmail);
             document.getElementById('login-screen').style.display = 'none';
             document.querySelector('.app').style.display = 'flex';
-            document.getElementById('user-label').textContent = userRole === 'gestor' ? 'Administrador' : getVendedorDisplayName(currentUserEmail);
+            document.getElementById('user-label').textContent = isAdminRole(userRole) ? 'Administrador' : getVendedorDisplayName(currentUserEmail);
             applyRoleRestrictions();
             initApp();
         }
@@ -2587,9 +2599,9 @@ async function loginUser() {
         var profile = await fetchProfile(user.id);
 
         if (profile) {
-            userRole = profile.role;
+            userRole = normalizeUserRole(profile.role);
         } else {
-            userRole = user.user_metadata?.role || 'vendedor';
+            userRole = normalizeUserRole(user.user_metadata?.role || 'vendedor');
         }
 
         showNotification('Login efetuado com sucesso!', 'success');
@@ -2905,21 +2917,21 @@ async function venderProduto() {
 
 async function applyRoleRestrictions() {
     console.log('[applyRoleRestrictions] INICIO role=' + userRole);
-    const isGestor = userRole === 'gestor';
+    const isGestor = isAdminRole(userRole);
     const sidebar = document.querySelector('.sidebar');
     const app = document.querySelector('.app');
     console.log('[applyRoleRestrictions] sidebar=' + (!!sidebar) + ' app=' + (!!app));
-    
+
     document.getElementById('nav-admin-group').style.display = isGestor ? 'block' : 'none';
     document.getElementById('nav-vendedor-group').style.display = isGestor ? 'none' : 'block';
-    
+
     if (!isGestor) {
         console.log('[applyRoleRestrictions] modo VENDEDOR');
         if (sidebar) sidebar.style.display = 'flex';
         if (app) app.classList.remove('seller-mode');
         renderVendedor();
     } else {
-        console.log('[applyRoleRestrictions] modo GESTOR');
+        console.log('[applyRoleRestrictions] modo ADMINISTRADOR');
         if (sidebar) sidebar.style.display = 'flex';
         if (app) app.classList.remove('seller-mode');
         showSection('necessidades');
@@ -2958,7 +2970,7 @@ async function initApp() {
         await fetchData();
         console.log('[initApp] fetchData OK');
         renderStock();
-        if (userRole === 'vendedor') {
+        if (normalizeUserRole(userRole) === 'vendedor') {
             renderVendedor();
         } else {
             renderRelatorios();
